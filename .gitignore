@@ -1,0 +1,12 @@
+# node.js dependencies
+node_modules/
+
+# compiled artifacts and cache
+artifacts/
+cache/
+
+# environment variable
+.env
+
+# IDE files
+.vscode/
