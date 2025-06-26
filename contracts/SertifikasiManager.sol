@@ -3,68 +3,140 @@ pragma solidity ^0.8.28;
 
 import "./SertifikasiStorage.sol";
 
-/// @title SertifikasiManager
-/// @notice Modul untuk mengelola proses pengajuan dan penyelesaian sertifikasi.
-/// @dev Menggunakan storage bersama dari SertifikasiStorage, hanya dapat diakses oleh peserta dan LSP yang valid.
 contract SertifikasiManager is SertifikasiStorage {
+
+    uint256 private _sertifikasiIdCounter;
     
-    /// @notice Fungsi bagi peserta untuk mengajukan sertifikasi baru.
-    /// @param skema Skema sertifikasi yang ingin diambil (berdasarkan enum).
-    /// @dev Setiap peserta hanya dapat memiliki satu sertifikasi aktif pada satu waktu.
+    mapping(uint256 => address) public sertifikasiById;
+
     function ajukanSertifikasi(SkemaSertifikasi skema) external onlyPeserta {
         Peserta storage peserta = pesertaList[msg.sender];
         
-        // Peserta tidak boleh sedang mengikuti sertifikasi lain
         require(peserta.sertifikasiAktif == address(0), "Masih ada sertifikasi aktif");
 
-        // Membuat ID unik berbasis hash dari address peserta dan waktu saat ini
-        address sertifikasiID = address(uint160(uint256(keccak256(abi.encodePacked(msg.sender, block.timestamp)))));
+        _sertifikasiIdCounter++;
+        uint256 counterId = _sertifikasiIdCounter;
+        
+        address sertifikasiID = address(uint160(uint256(keccak256(
+            abi.encode("SERTIFIKASI_", counterId, msg.sender, block.timestamp, nonces[msg.sender]++)
+        ))));
 
-        // Simpan data sertifikasi baru ke mapping
+        sertifikasiById[counterId] = sertifikasiID;
+
         sertifikasiList[sertifikasiID] = Sertifikasi({
             peserta: msg.sender,
             skema: skema,
             sertifikatCID: "",
             lulus: false,
-            aktif: true
+            aktif: true,
+            tanggalPengajuan: block.timestamp,
+            tanggalSelesai: 0,
+            tanggalExpiry: block.timestamp + (3 * 365 * 24 * 60 * 60),
+            lspPenilai: address(0),
+            alasanGagal: ""
         });
 
-        // Update referensi peserta ke sertifikasi yang sedang berjalan
         peserta.sertifikasiAktif = sertifikasiID;
-
-        // Simpan ke dalam riwayat sertifikasi peserta
         peserta.sertifikasiDiikuti.push(sertifikasiID);
 
-        // Emit event agar dapat ditelusuri di blockchain explorer
-        emit SertifikasiDiajukan(msg.sender, sertifikasiID, skema);
+        emit SertifikasiDiajukan(msg.sender, sertifikasiID, skema, block.timestamp);
     }
 
-    /// @notice Fungsi yang digunakan oleh LSP untuk menginput hasil kelulusan peserta.
-    /// @param sertifikasiID Alamat unik sertifikasi yang ingin diperbarui.
-    /// @param sertifikatCID CID file sertifikat kelulusan yang telah diunggah ke IPFS.
-    /// @dev Setelah update, sertifikasi dinyatakan selesai (tidak aktif).
-    function updateKelulusan(address sertifikasiID, string calldata sertifikatCID) external onlyLSP {
+    function updateKelulusan(address sertifikasiID, string calldata sertifikatCID) 
+        external 
+        onlyLSP 
+        validAddress(sertifikasiID)
+        notEmpty(sertifikatCID)
+    {
         Sertifikasi storage s = sertifikasiList[sertifikasiID];
-
-        // Pastikan sertifikasi masih aktif dan belum pernah dinilai
         require(s.aktif, "Sertifikasi tidak aktif");
+        require(s.peserta != address(0), "Sertifikasi tidak ditemukan");
 
-        // Update status kelulusan dan sertifikat
         s.lulus = true;
         s.sertifikatCID = sertifikatCID;
         s.aktif = false;
+        s.tanggalSelesai = block.timestamp;
+        s.lspPenilai = msg.sender;
 
-        // Hapus status sertifikasi aktif dari peserta
         pesertaList[s.peserta].sertifikasiAktif = address(0);
 
-        // Emit event agar dapat diverifikasi publik
-        emit KelulusanDiupdate(msg.sender, sertifikasiID, sertifikatCID);
+        emit KelulusanDiupdate(msg.sender, sertifikasiID, sertifikatCID, block.timestamp);
     }
 
-    /// @notice Mengambil detail sertifikasi berdasarkan ID.
-    /// @param sertifikasiID ID unik sertifikasi (berbentuk address).
-    /// @return Struct data lengkap sertifikasi (peserta, skema, CID, status).
+    function updateKegagalan(address sertifikasiID, string calldata alasan) 
+        external 
+        onlyLSP 
+        validAddress(sertifikasiID)
+        notEmpty(alasan)
+    {
+        Sertifikasi storage s = sertifikasiList[sertifikasiID];
+        require(s.aktif, "Sertifikasi tidak aktif");
+        require(s.peserta != address(0), "Sertifikasi tidak ditemukan");
+
+        s.lulus = false;
+        s.aktif = false;
+        s.tanggalSelesai = block.timestamp;
+        s.lspPenilai = msg.sender;
+        s.alasanGagal = alasan;
+
+        pesertaList[s.peserta].sertifikasiAktif = address(0);
+
+        emit SertifikasiBatal(msg.sender, sertifikasiID, alasan, block.timestamp);
+    }
+
+    function batalkanSertifikasi() external onlyPeserta {
+        address sertifikasiID = pesertaList[msg.sender].sertifikasiAktif;
+        require(sertifikasiID != address(0), "Tidak ada sertifikasi aktif");
+
+        Sertifikasi storage s = sertifikasiList[sertifikasiID];
+        require(s.aktif, "Sertifikasi sudah tidak aktif");
+
+        s.aktif = false;
+        s.tanggalSelesai = block.timestamp;
+        s.alasanGagal = "Dibatalkan oleh peserta";
+
+        pesertaList[msg.sender].sertifikasiAktif = address(0);
+
+        emit SertifikasiBatal(address(0), sertifikasiID, "Dibatalkan oleh peserta", block.timestamp);
+    }
+
     function getSertifikasi(address sertifikasiID) external view returns (Sertifikasi memory) {
+        require(sertifikasiList[sertifikasiID].peserta != address(0), "Sertifikasi tidak ditemukan");
         return sertifikasiList[sertifikasiID];
+    }
+
+    function getSertifikasiDetail(address sertifikasiID) external view returns (
+        address peserta,
+        SkemaSertifikasi skema,
+        string memory sertifikatCID,
+        bool lulus,
+        bool aktif,
+        uint256 tanggalPengajuan,
+        uint256 tanggalSelesai,
+        address lspPenilai,
+        string memory alasanGagal
+    ) {
+        require(sertifikasiList[sertifikasiID].peserta != address(0), "Sertifikasi tidak ditemukan");
+        Sertifikasi memory s = sertifikasiList[sertifikasiID];
+        return (
+            s.peserta,
+            s.skema,
+            s.sertifikatCID,
+            s.lulus,
+            s.aktif,
+            s.tanggalPengajuan,
+            s.tanggalSelesai,
+            s.lspPenilai,
+            s.alasanGagal
+        );
+    }
+
+    function getTotalSertifikasi() external view returns (uint256) {
+        return _sertifikasiIdCounter;
+    }
+
+    function getSertifikasiAddressById(uint256 id) external view returns (address) {
+        require(id <= _sertifikasiIdCounter && id > 0, "ID tidak valid");
+        return sertifikasiById[id];
     }
 }

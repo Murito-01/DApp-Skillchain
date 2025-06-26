@@ -3,49 +3,71 @@ pragma solidity ^0.8.28;
 
 import "./SertifikasiStorage.sol";
 
-/// @title RegistrasiLSP
-/// @notice Modul manajemen LSP oleh BNSP. Berfungsi untuk menambahkan, menghapus, dan mengakses metadata LSP.
-/// @dev Menggunakan storage dan modifier dari SertifikasiStorage
 contract RegistrasiLSP is SertifikasiStorage {
     
-    /// @notice Menyimpan metadata CID dari tiap LSP berdasarkan address-nya
-    /// @dev CID ini menunjuk ke file JSON berisi info profil LSP (nama institusi, alamat, dll) di IPFS
     mapping(address => string) public lspMetadata;
 
-    /// @notice Menambahkan LSP baru yang sah ke dalam sistem
-    /// @param lspAddress Alamat wallet dari institusi LSP
-    /// @param metadataCID CID metadata LSP di IPFS
-    /// @dev Hanya dapat diakses oleh BNSP
-    function tambahLSP(address lspAddress, string memory metadataCID) external onlyBNSP {
-        require(lspAddress != address(0), "Alamat LSP tidak valid");
+    function tambahLSP(address lspAddress, string calldata metadataCID) 
+        external 
+        onlyBNSP 
+        validAddress(lspAddress)
+        notEmpty(metadataCID)
+    {
         require(!isLSP[lspAddress], "LSP sudah terdaftar");
+        require(lspAddress != bnsp, "BNSP tidak bisa jadi LSP");
 
-        // Tandai sebagai LSP yang aktif dan simpan metadata-nya
         isLSP[lspAddress] = true;
         lspMetadata[lspAddress] = metadataCID;
 
-        // Emit event agar dapat dilacak di explorer
         emit LSPDitambahkan(lspAddress, metadataCID);
     }
 
-    /// @notice Menghapus status aktif LSP dan metadata-nya
-    /// @param lspAddress Alamat wallet dari LSP yang ingin dihapus
-    /// @dev Hanya BNSP yang bisa menghapus LSP
-    function hapusLSP(address lspAddress) external onlyBNSP {
+    function tambahMultipleLSP(
+        address[] calldata lspAddresses, 
+        string[] calldata metadataCIDs
+    ) external onlyBNSP {
+        require(lspAddresses.length == metadataCIDs.length, "Array length mismatch");
+        require(lspAddresses.length > 0, "Array kosong");
+    
+        address bnspCache = bnsp;
+    
+        for (uint i = 0; i < lspAddresses.length; i++) {
+            address currentLSP = lspAddresses[i];
+            string calldata currentCID = metadataCIDs[i];
+        
+            require(currentLSP != address(0), "Alamat tidak valid");
+            require(currentLSP != bnspCache, "BNSP tidak bisa jadi LSP");
+            require(!isLSP[currentLSP], "LSP sudah terdaftar");
+        
+            require(bytes(currentCID).length != 0, "CID kosong");
+        
+            isLSP[currentLSP] = true;
+            lspMetadata[currentLSP] = currentCID;
+        
+            emit LSPDitambahkan(currentLSP, currentCID);
+        }
+    }
+
+    function hapusLSP(address lspAddress) external onlyBNSP validAddress(lspAddress) {
         require(isLSP[lspAddress], "LSP tidak ditemukan");
 
-        // Nonaktifkan LSP dan hapus metadata
         isLSP[lspAddress] = false;
         delete lspMetadata[lspAddress];
 
         emit LSPDihapus(lspAddress);
     }
 
-    /// @notice Mengambil metadata CID milik LSP
-    /// @param lspAddress Alamat wallet LSP
-    /// @return metadataCID CID IPFS dari metadata JSON
+    function updateMetadataLSP(string calldata newMetadataCID) external onlyLSP notEmpty(newMetadataCID) {
+        lspMetadata[msg.sender] = newMetadataCID;
+        emit LSPMetadataUpdated(msg.sender, newMetadataCID);
+    }
+
     function getMetadataLSP(address lspAddress) external view returns (string memory) {
         require(isLSP[lspAddress], "LSP tidak aktif");
         return lspMetadata[lspAddress];
+    }
+
+    function cekStatusLSP(address lspAddress) external view returns (bool aktif, string memory metadata) {
+        return (isLSP[lspAddress], lspMetadata[lspAddress]);
     }
 }

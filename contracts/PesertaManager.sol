@@ -3,52 +3,72 @@ pragma solidity ^0.8.28;
 
 import "./SertifikasiStorage.sol";
 
-/// @title PesertaManager
-/// @notice Modul yang menangani pendaftaran akun peserta dan manajemen metadata peserta
-/// @dev Semua data peserta disimpan secara terpusat di kontrak `SertifikasiStorage` melalui inheritance
 contract PesertaManager is SertifikasiStorage {
 
-    /// @notice Mendaftarkan peserta baru menggunakan alamat wallet mereka (1x seumur hidup)
-    /// @param metadataCID CID dari file JSON metadata peserta yang disimpan di IPFS
-    function daftarPeserta(string calldata metadataCID) external {
-        // Pastikan address belum pernah mendaftar sebelumnya
+    function daftarPeserta(string calldata metadataCID) external notEmpty(metadataCID) {
         require(!pesertaList[msg.sender].terdaftar, "Sudah terdaftar");
 
-        // Buat entri baru untuk peserta
         pesertaList[msg.sender] = Peserta({
-            metadataCID: metadataCID,                  // CID metadata IPFS
-            terdaftar: true,                           // Tandai sebagai telah terdaftar
-            sertifikasiAktif: address(0),              // Belum ada sertifikasi aktif
-            sertifikasiDiikuti: new address[](0)        // Riwayat kosong
+            metadataCID: metadataCID,
+            terdaftar: true,
+            aktif: true,
+            sertifikasiAktif: address(0),
+            sertifikasiDiikuti: new address[](0),
+            tanggalDaftar: block.timestamp
         });
 
-        // Tambahkan peserta ke index array
-        pesertaIndex.push(msg.sender);
+        isPesertaTerdaftar[msg.sender] = true;
         pesertaCount++;
 
-        // Emit event untuk keperluan tracking di explorer
-        emit PesertaTerdaftar(msg.sender, metadataCID);
+        emit PesertaTerdaftar(msg.sender, metadataCID, block.timestamp);
     }
 
-    /// @notice Memperbarui CID metadata peserta di IPFS (jika terjadi perubahan biodata)
-    /// @param newCID CID baru dari metadata IPFS
-    /// @dev Hanya bisa dilakukan oleh peserta yang sudah terdaftar
-    function updateMetadata(string calldata newCID) external onlyPeserta {
+    function updateMetadata(string calldata newCID) external onlyPeserta notEmpty(newCID) {
         pesertaList[msg.sender].metadataCID = newCID;
         emit MetadataDiupdate(msg.sender, newCID);
     }
 
-    /// @notice Mengambil riwayat seluruh sertifikasi yang pernah diikuti oleh peserta
-    /// @param peserta Alamat wallet peserta
-    /// @return Array berisi ID dari sertifikasi (alamat)
+    function nonaktifkanPeserta(address peserta) external onlyBNSP validAddress(peserta) {
+        require(pesertaList[peserta].terdaftar, "Peserta tidak terdaftar");
+        require(pesertaList[peserta].aktif, "Peserta sudah nonaktif");
+        
+        pesertaList[peserta].aktif = false;
+        
+        if (pesertaList[peserta].sertifikasiAktif != address(0)) {
+            address sertifikasiID = pesertaList[peserta].sertifikasiAktif;
+            sertifikasiList[sertifikasiID].aktif = false;
+            pesertaList[peserta].sertifikasiAktif = address(0);
+        }
+        
+        emit PesertaDinonaktifkan(peserta);
+    }
+
     function lihatRiwayatSertifikasi(address peserta) external view returns (address[] memory) {
         return pesertaList[peserta].sertifikasiDiikuti;
     }
 
-    /// @notice Mengambil CID metadata peserta
-    /// @param peserta Alamat wallet peserta
-    /// @return CID IPFS dari metadata peserta
     function getMetadataCID(address peserta) external view returns (string memory) {
+        require(pesertaList[peserta].terdaftar, "Peserta tidak terdaftar");
         return pesertaList[peserta].metadataCID;
+    }
+
+    function getPesertaInfo(address peserta) external view returns (
+
+        string memory metadataCID,
+        bool terdaftar,
+        bool aktif,
+        address sertifikasiAktif,
+        uint256 tanggalDaftar,
+        uint256 totalSertifikasi
+    ) {
+        Peserta memory p = pesertaList[peserta];
+        return (
+            p.metadataCID,
+            p.terdaftar,
+            p.aktif,
+            p.sertifikasiAktif,
+            p.tanggalDaftar,
+            p.sertifikasiDiikuti.length
+        );
     }
 }
