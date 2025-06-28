@@ -1,0 +1,1092 @@
+[
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "lsp",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "sertifikasiID",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "sertifikatCID",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tanggal",
+        "type": "uint256"
+      }
+    ],
+    "name": "KelulusanDiupdate",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "lsp",
+        "type": "address"
+      }
+    ],
+    "name": "LSPDihapus",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "lsp",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "metadataCID",
+        "type": "string"
+      }
+    ],
+    "name": "LSPDitambahkan",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "lsp",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "newMetadataCID",
+        "type": "string"
+      }
+    ],
+    "name": "LSPMetadataUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "peserta",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "newCID",
+        "type": "string"
+      }
+    ],
+    "name": "MetadataDiupdate",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "peserta",
+        "type": "address"
+      }
+    ],
+    "name": "PesertaDinonaktifkan",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "peserta",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "metadataCID",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tanggal",
+        "type": "uint256"
+      }
+    ],
+    "name": "PesertaTerdaftar",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "lsp",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "sertifikasiID",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "alasan",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tanggal",
+        "type": "uint256"
+      }
+    ],
+    "name": "SertifikasiBatal",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "peserta",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "sertifikasiID",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum SertifikasiStorage.SkemaSertifikasi",
+        "name": "skema",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tanggal",
+        "type": "uint256"
+      }
+    ],
+    "name": "SertifikasiDiajukan",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum SertifikasiStorage.SkemaSertifikasi",
+        "name": "skema",
+        "type": "uint8"
+      }
+    ],
+    "name": "ajukanSertifikasi",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "batalkanSertifikasi",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "bnsp",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "lspAddress",
+        "type": "address"
+      }
+    ],
+    "name": "cekStatusLSP",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "aktif",
+        "type": "bool"
+      },
+      {
+        "internalType": "string",
+        "name": "metadata",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "peserta",
+        "type": "address"
+      }
+    ],
+    "name": "cekStatusPeserta",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "terdaftar",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "aktif",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "adaSertifikasiAktif",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalSertifikasi",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "metadataCID",
+        "type": "string"
+      }
+    ],
+    "name": "daftarPeserta",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sertifikasiID",
+        "type": "address"
+      }
+    ],
+    "name": "getDetailSertifikasi",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "peserta",
+            "type": "address"
+          },
+          {
+            "internalType": "enum SertifikasiStorage.SkemaSertifikasi",
+            "name": "skema",
+            "type": "uint8"
+          },
+          {
+            "internalType": "string",
+            "name": "sertifikatCID",
+            "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "lulus",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "aktif",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tanggalPengajuan",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tanggalSelesai",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tanggalExpiry",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "lspPenilai",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "alasanGagal",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct SertifikasiStorage.Sertifikasi",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "peserta",
+        "type": "address"
+      }
+    ],
+    "name": "getMetadataCID",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "lspAddress",
+        "type": "address"
+      }
+    ],
+    "name": "getMetadataLSP",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "peserta",
+        "type": "address"
+      }
+    ],
+    "name": "getPesertaInfo",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "metadataCID",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "terdaftar",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "aktif",
+        "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "sertifikasiAktif",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tanggalDaftar",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalSertifikasi",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "peserta",
+        "type": "address"
+      }
+    ],
+    "name": "getPesertaMetadata",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "cid",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sertifikasiID",
+        "type": "address"
+      }
+    ],
+    "name": "getSertifikasi",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "peserta",
+            "type": "address"
+          },
+          {
+            "internalType": "enum SertifikasiStorage.SkemaSertifikasi",
+            "name": "skema",
+            "type": "uint8"
+          },
+          {
+            "internalType": "string",
+            "name": "sertifikatCID",
+            "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "lulus",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "aktif",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tanggalPengajuan",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tanggalSelesai",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tanggalExpiry",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "lspPenilai",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "alasanGagal",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct SertifikasiStorage.Sertifikasi",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "getSertifikasiAddressById",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sertifikasiID",
+        "type": "address"
+      }
+    ],
+    "name": "getSertifikasiDetail",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "peserta",
+        "type": "address"
+      },
+      {
+        "internalType": "enum SertifikasiStorage.SkemaSertifikasi",
+        "name": "skema",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "sertifikatCID",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "lulus",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "aktif",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tanggalPengajuan",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tanggalSelesai",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "lspPenilai",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "alasanGagal",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sertifikasiID",
+        "type": "address"
+      }
+    ],
+    "name": "getSertifikatCID",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "cid",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum SertifikasiStorage.SkemaSertifikasi",
+        "name": "skema",
+        "type": "uint8"
+      }
+    ],
+    "name": "getSkemaNama",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getTotalSertifikasi",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "lspAddress",
+        "type": "address"
+      }
+    ],
+    "name": "hapusLSP",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "isLSP",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "isPesertaTerdaftar",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "peserta",
+        "type": "address"
+      }
+    ],
+    "name": "lihatRiwayatSertifikasi",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "lspMetadata",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "peserta",
+        "type": "address"
+      }
+    ],
+    "name": "nonaktifkanPeserta",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pesertaCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "pesertaList",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "metadataCID",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "terdaftar",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "aktif",
+        "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "sertifikasiAktif",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tanggalDaftar",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "sertifikasiById",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "sertifikasiList",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "peserta",
+        "type": "address"
+      },
+      {
+        "internalType": "enum SertifikasiStorage.SkemaSertifikasi",
+        "name": "skema",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "sertifikatCID",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "lulus",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "aktif",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tanggalPengajuan",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tanggalSelesai",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tanggalExpiry",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "lspPenilai",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "alasanGagal",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "lspAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "metadataCID",
+        "type": "string"
+      }
+    ],
+    "name": "tambahLSP",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "lspAddresses",
+        "type": "address[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "metadataCIDs",
+        "type": "string[]"
+      }
+    ],
+    "name": "tambahMultipleLSP",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sertifikasiID",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "alasan",
+        "type": "string"
+      }
+    ],
+    "name": "updateKegagalan",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sertifikasiID",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "sertifikatCID",
+        "type": "string"
+      }
+    ],
+    "name": "updateKelulusan",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "newCID",
+        "type": "string"
+      }
+    ],
+    "name": "updateMetadata",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "newMetadataCID",
+        "type": "string"
+      }
+    ],
+    "name": "updateMetadataLSP",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sertifikasiID",
+        "type": "address"
+      }
+    ],
+    "name": "verifikasiKelulusan",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "valid",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sertifikasiID",
+        "type": "address"
+      }
+    ],
+    "name": "verifikasiSertifikasiLengkap",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "exists",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "lulus",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "aktif",
+        "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "peserta",
+        "type": "address"
+      },
+      {
+        "internalType": "enum SertifikasiStorage.SkemaSertifikasi",
+        "name": "skema",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "sertifikatCID",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tanggalSelesai",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "lspPenilai",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
