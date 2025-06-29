@@ -7,6 +7,10 @@ pragma solidity ^0.8.28;
 
 abstract contract SertifikasiStorage {
 
+    // ---------------------------- //
+    //              ENUM            //
+    // ---------------------------- //
+
     /// @notice Enum skema sertifikasi yang tersedia sesuai jenis okupasi profesi.
     enum SkemaSertifikasi {
         Okupasi_PJOI_Pengendalian_Pencemaran_Udara,     // Penanggung Jawab Operasional Instalasi
@@ -14,6 +18,10 @@ abstract contract SertifikasiStorage {
         Okupasi_PJO_Pengolahan_Air_Limbah,              // Penanggung Jawab Operasional
         Okupasi_PJ_Pengendalian_Pencemaran_Air          // Penanggung Jawab
     }
+
+    // ---------------------------- //
+    //             STRUCT           //
+    // ---------------------------- //
 
     /// @notice Struktur data peserta sertifikasi.
     struct Peserta {
@@ -61,7 +69,7 @@ abstract contract SertifikasiStorage {
     uint public pesertaCount;
 
     // ---------------------------- //
-    //        EVENT DEFINISI       //
+    //        EVENT DEFINISI        //
     // ---------------------------- //
 
     event PesertaTerdaftar(address indexed peserta, string metadataCID, uint256 tanggal);
@@ -75,7 +83,7 @@ abstract contract SertifikasiStorage {
     event PesertaDinonaktifkan(address indexed peserta);
 
     // ---------------------------- //
-    //          MODIFIER           //
+    //          MODIFIER            //
     // ---------------------------- //
 
     /// @dev Membatasi akses hanya untuk BNSP

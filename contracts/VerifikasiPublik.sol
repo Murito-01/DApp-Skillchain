@@ -4,7 +4,7 @@ pragma solidity ^0.8.28;
 import "./SertifikasiStorage.sol";
 
 /// @title VerifikasiPublik
-/// @notice Kontrak ini menyediakan fungsi-fungsi publik untuk memverifikasi status kelulusan,
+/// @notice Kontrak ini menyediakan fungsi-fungsi publik untuk memverifikasi keaslian sertifikat,
 /// metadata peserta, dan detail sertifikasi secara read-only (tanpa memodifikasi state).
 contract VerifikasiPublik is SertifikasiStorage {
     
