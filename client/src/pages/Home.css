@@ -1,0 +1,205 @@
+/* Reset dan base styling */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Pastikan full height untuk semua parent elements */
+html, body {
+  height: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Container utama - full viewport height */
+.home-container {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #3d6cb9 100%);
+  padding: 20px;
+  position: relative;
+}
+
+/* Tambahan efek visual */
+.home-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Kotak konten - diperbaiki untuk responsive */
+.home-box {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 50px 40px;
+  border-radius: 20px;
+  text-align: center;
+  max-width: 650px;
+  width: 100%;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    0 8px 16px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Judul - diperbaiki styling */
+.home-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #1e3c72;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  line-height: 1.2;
+}
+
+/* Deskripsi - diperbaiki readability */
+.home-description {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 40px;
+  line-height: 1.6;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Container tombol */
+.home-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Base styling untuk semua tombol */
+.home-button {
+  padding: 15px 30px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  display: inline-block;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  min-width: 180px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Tombol primary */
+.home-button.primary {
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  color: white;
+  transform: translateY(0);
+}
+
+.home-button.primary:hover {
+  background: linear-gradient(135deg, #16305a, #1f4280);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Tombol secondary */
+.home-button.secondary {
+  background: rgba(255, 255, 255, 0.9);
+  color: #1e3c72;
+  border: 2px solid #1e3c72;
+  transform: translateY(0);
+}
+
+.home-button.secondary:hover {
+  background: #1e3c72;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .home-container {
+    padding: 15px;
+  }
+  
+  .home-box {
+    padding: 30px 25px;
+    max-width: 100%;
+    margin: 0 10px;
+  }
+  
+  .home-title {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+  }
+  
+  .home-description {
+    font-size: 1rem;
+    margin-bottom: 30px;
+  }
+  
+  .home-buttons {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .home-button {
+    min-width: 100%;
+    padding: 12px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-box {
+    padding: 25px 20px;
+  }
+  
+  .home-title {
+    font-size: 1.6rem;
+  }
+  
+  .home-description {
+    font-size: 0.95rem;
+  }
+}
+
+/* Untuk landscape mobile */
+@media (max-height: 600px) and (orientation: landscape) {
+  .home-container {
+    min-height: 100vh;
+    padding: 10px;
+  }
+  
+  .home-box {
+    padding: 20px;
+  }
+  
+  .home-title {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .home-description {
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+  }
+}
