@@ -14,209 +14,191 @@ body, html, #root {
 
 /* Container utama dengan flexbox centering yang proper */
 .daftar-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  max-width: 800px;
+  margin: 0 auto;
   padding: 20px;
-  gap: 20px;
-  overflow-y: auto;
-  
-  /* Untuk layar yang terlalu kecil, gunakan flex-start */
-  @media (max-height: 700px) {
-    justify-content: flex-start;
-    padding-top: 30px;
-    padding-bottom: 30px;
-  }
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Judul form - dipindahkan keluar dari form untuk layout yang lebih baik */
 .daftar-container h2 {
-  color: white;
-  font-size: 2rem;
-  font-weight: bold;
   text-align: center;
-  margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  color: #ffffff;
+  margin-bottom: 30px;
+  font-size: 2rem;
 }
 
-/* Kotak putih form dengan ukuran yang lebih optimal */
-.daftar-container form {
-  background-color: #ffffff;
+/* Wallet Connection Section */
+.wallet-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.connect-wallet-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.connect-wallet-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.wallet-info {
+  background: #d4edda;
+  color: #155724;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: 1px solid #c3e6cb;
+}
+
+/* Form Styling */
+form {
+  background: white;
   padding: 30px;
-  border-radius: 20px;
-  width: 100%;
-  max-width: 500px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  margin: auto 0;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e9ecef;
 }
 
-/* Grup input dengan spacing yang lebih baik */
 .form-group {
-  margin-bottom: 16px;
-  display: flex;
-  flex-direction: column;
+  margin-bottom: 20px;
 }
 
-/* Label dengan styling yang lebih menarik */
 .form-group label {
+  display: block;
   margin-bottom: 8px;
   font-weight: 600;
-  color: #333;
-  font-size: 0.95rem;
-  letter-spacing: 0.3px;
+  color: #495057;
+  font-size: 14px;
 }
 
-/* Input, select, dan textarea dengan styling yang konsisten */
 .form-group input,
 .form-group select,
 .form-group textarea {
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 2px solid #e1e5e9;
-  font-size: 1rem;
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 16px;
   transition: all 0.3s ease;
-  background-color: #f8f9fa;
-  font-family: inherit;
+  box-sizing: border-box;
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #0077ff;
-  background-color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.1);
-  transform: translateY(-1px);
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-/* Styling khusus untuk textarea */
 .form-group textarea {
   resize: vertical;
-  min-height: 60px;
-  font-family: inherit;
+  min-height: 80px;
 }
 
-/* Styling khusus untuk select */
-.form-group select {
-  cursor: pointer;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 12px center;
-  background-repeat: no-repeat;
-  background-size: 16px;
-  padding-right: 40px;
-  appearance: none;
-}
-
-/* Tombol submit dengan design yang lebih menarik */
+/* Button Styling */
 button[type="submit"] {
   width: 100%;
-  padding: 14px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  background: linear-gradient(135deg, #0077ff 0%, #0056cc 100%);
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
   color: white;
   border: none;
-  border-radius: 12px;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(0, 119, 255, 0.3);
+  margin-top: 20px;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
 }
 
-button[type="submit"]:hover {
-  background: linear-gradient(135deg, #005ecc 0%, #004499 100%);
+button[type="submit"]:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 119, 255, 0.4);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
 }
 
-button[type="submit"]:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 10px rgba(0, 119, 255, 0.3);
+button[type="submit"]:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
-/* Status text dengan positioning yang lebih baik */
-.daftar-container > p {
-  text-align: center;
-  color: white;
-  font-size: 1rem;
+.disabled-btn {
+  background: #6c757d !important;
+  cursor: not-allowed !important;
+}
+
+/* Status Message Styling */
+.status-message {
+  margin-top: 20px;
+  padding: 15px 20px;
+  border-radius: 8px;
   font-weight: 500;
-  margin: 0;
-  padding: 12px 24px;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 25px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  max-width: 500px;
-  width: 100%;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
 }
 
-/* Responsive design untuk tablet */
+.status-message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.status-message.info {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .daftar-container {
     padding: 15px;
   }
   
   .daftar-container h2 {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
   }
   
-  .daftar-container form {
-    padding: 30px 25px;
-    max-width: 100%;
-  }
-  
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    padding: 12px 14px;
-    font-size: 0.95rem;
-  }
-  
-  button[type="submit"] {
-    padding: 14px;
-    font-size: 1rem;
-  }
-}
-
-/* Responsive design untuk mobile */
-@media (max-width: 480px) {
-  .daftar-container {
-    padding: 10px;
-    gap: 15px;
-  }
-  
-  .daftar-container h2 {
-    font-size: 1.4rem;
-  }
-  
-  .daftar-container form {
-    padding: 25px 20px;
-    border-radius: 16px;
-  }
-  
-  .form-group {
-    margin-bottom: 18px;
-  }
-  
-  .form-group label {
-    font-size: 0.9rem;
+  form {
+    padding: 20px;
   }
   
   .form-group input,
   .form-group select,
   .form-group textarea {
-    padding: 12px;
-    font-size: 0.9rem;
-  }
-  
-  button[type="submit"] {
-    padding: 12px;
-    font-size: 0.95rem;
+    font-size: 14px;
   }
 }

@@ -1,0 +1,63 @@
+/* PesertaProfile.css */
+.profile-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 32px 24px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.profile-title {
+  text-align: center;
+  margin-bottom: 32px;
+  font-size: 2rem;
+  color: #333;
+}
+
+.profile-row {
+  display: flex;
+  margin-bottom: 18px;
+}
+
+.profile-label {
+  flex: 0 0 180px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.profile-value {
+  flex: 1;
+  color: #222;
+}
+
+.profile-status {
+  margin-bottom: 20px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-weight: 500;
+  background: #f8f9fa;
+  color: #333;
+}
+.profile-status.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+@media (max-width: 700px) {
+  .profile-container {
+    padding: 18px 6px;
+  }
+  .profile-title {
+    font-size: 1.3rem;
+  }
+  .profile-label {
+    flex-basis: 110px;
+    font-size: 13px;
+  }
+  .profile-value {
+    font-size: 13px;
+  }
+} 
