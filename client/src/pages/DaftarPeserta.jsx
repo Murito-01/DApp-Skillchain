@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ethers } from "ethers";
-import contractABI from "../abi/MainContract.json";
+import contractArtifact from "../abi/MainContract.json";
 import "./DaftarPeserta.css";
 import Ajv from "ajv";
 import { useWallet } from "../contexts/WalletContext";
@@ -22,7 +22,7 @@ export default function DaftarPeserta() {
     nik: "",
     tempat_lahir: "",
     tanggal_lahir: "",
-    jenis_kelamin: "",
+    jenis_kelamin: "Laki-laki",
     alamat_ktp: "",
     email_student_uii: "",
     nomor_hp: "",
@@ -118,7 +118,7 @@ export default function DaftarPeserta() {
       
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+      const contract = new ethers.Contract(contractAddress, contractArtifact.abi, signer);
 
       setStatus("Mengirim transaksi ke blockchain...");
       const tx = await contract.daftarPeserta(cid);

@@ -1,10 +1,13 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { ethers } from "ethers";
-import contractABI from "../abi/MainContract.json";
+import contractArtifact from "../abi/MainContract.json";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
 const WalletContext = createContext();
+
+// Address BNSP hardcode dari wallet 0 Hardhat
+export const ADDRESS_BNSP = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
 export function WalletProvider({ children }) {
   const [account, setAccount] = useState("");
@@ -37,22 +40,45 @@ export function WalletProvider({ children }) {
   const checkRole = async (address) => {
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
-      const contract = new ethers.Contract(contractAddress, contractABI, provider);
-      let pesertaInfo;
+      const contract = new ethers.Contract(contractAddress, contractArtifact.abi, provider);
+      let pesertaInfo, lspStatus;
       try {
         pesertaInfo = await contract.getPesertaInfo(address);
+        console.log("PesertaInfo:", pesertaInfo);
       } catch {
         pesertaInfo = null;
       }
-      if (pesertaInfo && pesertaInfo.terdaftar) {
+      if (pesertaInfo && pesertaInfo[1]) {
         setRole("peserta");
-      } else {
+        return;
+      }
+      try {
+        lspStatus = await contract.getStatusLSP(address);
+        console.log("LSP Status:", lspStatus);
+      } catch (err) {
+        lspStatus = null;
+        console.error("Error getStatusLSP:", err);
+      }
+      if (Number(lspStatus) === 0 || Number(lspStatus) === 1 || Number(lspStatus) === 2) {
+        setRole("lsp");
+        return;
+      }
+      if (Number(lspStatus) === -1) {
         setRole("");
+        return;
       }
     } catch {
       setRole("");
     }
   };
+
+  // Cek status peserta ke smart contract setiap kali account berubah dan wallet connect
+  useEffect(() => {
+    if (isConnected && account) {
+      checkRole(account);
+    }
+    // eslint-disable-next-line
+  }, [isConnected, account]);
 
   return (
     <WalletContext.Provider value={{ account, isConnected, role, connectWallet, loading, setRole }}>

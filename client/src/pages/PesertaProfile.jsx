@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import contractABI from "../abi/MainContract.json";
+import contractArtifact from "../abi/MainContract.json";
 import "./PesertaProfile.css";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
@@ -41,7 +41,7 @@ export default function PesertaProfile() {
       setStatus("Mengambil data dari blockchain...");
       try {
         const provider = new ethers.BrowserProvider(window.ethereum);
-        const contract = new ethers.Contract(contractAddress, contractABI, provider);
+        const contract = new ethers.Contract(contractAddress, contractArtifact.abi, provider);
         
         // Ambil data peserta
         const pesertaInfo = await contract.getPesertaInfo(account);
@@ -87,7 +87,7 @@ export default function PesertaProfile() {
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+      const contract = new ethers.Contract(contractAddress, contractArtifact.abi, signer);
       
       const tx = await contract.ajukanSertifikasi(selectedSkema);
       console.log("Transaction hash:", tx.hash);
