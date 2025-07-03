@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Metadata Peserta Sertifikasi",
+  "description": "Skema validasi metadata peserta sertifikasi LSP UII",
+  "type": "object",
+  "required": [
+    "nama_lengkap",
+    "nik",
+    "tempat_lahir",
+    "tanggal_lahir",
+    "jenis_kelamin",
+    "alamat_ktp",
+    "email_student_uii",
+    "nomor_hp",
+    "id_sosmed"
+  ],
+  "properties": {
+    "nama_lengkap": {
+      "type": "string",
+      "description": "Nama lengkap peserta sesuai ijazah terakhir"
+    },
+    "nik": {
+      "type": "string",
+      "pattern": "^[0-9]{16}$",
+      "description": "Nomor Induk Kependudukan (16 digit)"
+    },
+    "tempat_lahir": {
+      "type": "string",
+      "description": "Tempat lahir peserta"
+    },
+    "tanggal_lahir": {
+      "type": "string",
+      "format": "date",
+      "description": "Tanggal lahir peserta (format: YYYY-MM-DD)"
+    },
+    "jenis_kelamin": {
+      "type": "string",
+      "enum": ["Laki-laki", "Perempuan"],
+      "description": "Jenis kelamin peserta"
+    },
+    "alamat_ktp": {
+      "type": "string",
+      "description": "Alamat tempat tinggal peserta sesuai KTP (jalan, RT, RW, kecamatan, kabupaten, provinsi)"
+    },
+    "email_student_uii": {
+      "type": "string",
+      "format": "email",
+      "description": "Alamat email mahasiswa UII"
+    },
+    "nomor_hp": {
+      "type": "string",
+      "pattern": "^08[0-9]{8,11}$",
+      "description": "Nomor HP aktif yang terhubung dengan WhatsApp"
+    },
+    "id_sosmed": {
+      "type": "string",
+      "description": "Alamat atau ID media sosial peserta yang dapat dihubungi"
+    }
+  },
+  "additionalProperties": false
+}

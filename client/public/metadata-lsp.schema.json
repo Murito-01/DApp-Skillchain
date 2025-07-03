@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Metadata LSP",
+  "description": "Skema validasi metadata LSP yang akan didaftarkan ke dalam sistem sertifikasi berbasis blockchain",
+  "type": "object",
+  "required": [
+    "nama_lsp",
+    "alamat_kantor",
+    "no_izin",
+    "email_kontak",
+    "telepon",
+    "penanggung_jawab"
+  ],
+  "properties": {
+    "nama_lsp": {
+      "type": "string",
+      "description": "Nama lengkap LSP sesuai dokumen resmi"
+    },
+    "alamat_kantor": {
+      "type": "string",
+      "description": "Alamat lengkap kantor pusat LSP"
+    },
+    "no_izin": {
+      "type": "string",
+      "description": "Nomor izin operasional dari BNSP atau lembaga terkait"
+    },
+    "email_kontak": {
+      "type": "string",
+      "format": "email",
+      "description": "Email resmi yang bisa dihubungi"
+    },
+    "telepon": {
+      "type": "string",
+      "pattern": "^08[0-9]{8,11}$",
+      "description": "Nomor telepon aktif LSP (awalan 08)"
+    },
+    "penanggung_jawab": {
+      "type": "string",
+      "description": "Nama kepala LSP atau penanggung jawab utama"
+    },
+    "website": {
+      "type": "string",
+      "format": "uri",
+      "description": "Alamat situs resmi LSP (opsional)"
+    }
+  },
+  "additionalProperties": false
+}
