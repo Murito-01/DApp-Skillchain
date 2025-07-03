@@ -9,13 +9,20 @@ const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 const PINATA_API_KEY = import.meta.env.VITE_PINATA_API_KEY;
 const PINATA_SECRET_API_KEY = import.meta.env.VITE_PINATA_SECRET_API_KEY;
 
+const skemaOptions = [
+  "Okupasi PJOI Pengendalian Pencemaran Udara",
+  "Okupasi PJ Pengendalian Pencemaran Udara", 
+  "Okupasi PJO Pengolahan Air Limbah",
+  "Okupasi PJ Pengendalian Pencemaran Air"
+];
+
 export default function DaftarPeserta() {
   const [formData, setFormData] = useState({
     nama_lengkap: "",
     nik: "",
     tempat_lahir: "",
     tanggal_lahir: "",
-    jenis_kelamin: "Laki-laki",
+    jenis_kelamin: "",
     alamat_ktp: "",
     email_student_uii: "",
     nomor_hp: "",
@@ -147,6 +154,11 @@ export default function DaftarPeserta() {
         setStatus("❌ Terjadi kesalahan: " + (err.message || "Unknown error"));
       }
     }
+  };
+
+  const ajukanSertifikasi = async (skema) => {
+    const tx = await contract.ajukanSertifikasi(skema);
+    // Otomatis: tanggalPengajuan, aktif: true, sertifikasiAktif terisi
   };
 
   return (
