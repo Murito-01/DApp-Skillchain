@@ -1,0 +1,141 @@
+/* PesertaLSP.css */
+
+.peserta-lsp-container {
+  max-width: 900px;
+  margin: 32px auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px #0001;
+  padding: 32px 24px 40px 24px;
+}
+
+.peserta-lsp-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #4f46e5;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.peserta-lsp-table {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f9f9ff;
+  box-shadow: 0 2px 8px #0001;
+  margin-bottom: 24px;
+}
+.peserta-lsp-table th, .peserta-lsp-table td {
+  padding: 12px 10px;
+  text-align: left;
+  color: #222;
+}
+.peserta-lsp-table th {
+  background: #f0f3ff;
+  font-weight: 600;
+  font-size: 1rem;
+  border-bottom: 2px solid #e0e7ff;
+}
+.peserta-lsp-table tr {
+  border-bottom: 1px solid #e0e7ff;
+}
+.peserta-lsp-table tr:last-child {
+  border-bottom: none;
+}
+
+.peserta-lsp-btn {
+  background: #4f46e5;
+  color: #fff;
+  border: none;
+  padding: 7px 18px;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.peserta-lsp-btn:hover {
+  background: #3730a3;
+}
+
+.peserta-lsp-modal-bg {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: #0007;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.peserta-lsp-modal {
+  background: #fff;
+  padding: 32px 28px;
+  border-radius: 16px;
+  min-width: 320px;
+  box-shadow: 0 2px 16px #0003;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: popin 0.2s;
+  color: #222;
+}
+@keyframes popin {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.peserta-lsp-modal label {
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #222;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.peserta-lsp-modal input[type="number"] {
+  margin-left: 8px;
+  padding: 4px 8px;
+  border: 1px solid #c7d2fe;
+  border-radius: 5px;
+  width: 60%;
+  min-width: 100px;
+  max-width: 220px;
+  font-size: 1rem;
+  color: #222;
+  background: #f9f9ff;
+  box-sizing: border-box;
+  text-align: right;
+}
+.peserta-lsp-modal .peserta-lsp-modal-btn-row {
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  margin-top: 18px;
+}
+.peserta-lsp-modal .peserta-lsp-modal-btn,
+.peserta-lsp-modal .peserta-lsp-modal-btn-cancel {
+  width: 100%;
+  min-width: 0;
+  font-size: 1rem;
+  padding: 12px 0;
+  margin: 0;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px #0001;
+}
+.peserta-lsp-modal .peserta-lsp-modal-btn {
+  background: #22c55e;
+  color: #fff;
+}
+.peserta-lsp-modal .peserta-lsp-modal-btn:hover {
+  background: #16a34a;
+}
+.peserta-lsp-modal .peserta-lsp-modal-btn-cancel {
+  background: #ef4444;
+  color: #fff;
+  margin-left: 12px;
+}
+.peserta-lsp-modal .peserta-lsp-modal-btn-cancel:hover {
+  background: #b91c1c;
+} 
