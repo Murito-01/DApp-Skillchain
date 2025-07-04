@@ -24,6 +24,7 @@ export function WalletProvider({ children }) {
       if (accounts.length > 0) {
         setAccount(accounts[0]);
         setIsConnected(true);
+        setRole(""); // Reset role ke kosong sebelum checkRole
         await checkRole(accounts[0]);
         setLoading(false);
         return true;
@@ -59,29 +60,32 @@ export function WalletProvider({ children }) {
         lspStatus = null;
         console.error("Error getStatusLSP:", err);
       }
-      if (Number(lspStatus) === 0 || Number(lspStatus) === 1 || Number(lspStatus) === 2) {
-        setRole("lsp");
-        return;
-      }
-      if (Number(lspStatus) === -1) {
-        setRole("");
-        return;
-      }
+      // Fallback: jika bukan peserta/lsp, set role ke string kosong
+      setRole("");
     } catch {
       setRole("");
     }
+  };
+
+  // Fungsi disconnect wallet
+  const disconnectWallet = () => {
+    setAccount("");
+    setIsConnected(false);
+    setRole("");
   };
 
   // Cek status peserta ke smart contract setiap kali account berubah dan wallet connect
   useEffect(() => {
     if (isConnected && account) {
       checkRole(account);
+    } else {
+      setRole("");
     }
     // eslint-disable-next-line
   }, [isConnected, account]);
 
   return (
-    <WalletContext.Provider value={{ account, isConnected, role, connectWallet, loading, setRole }}>
+    <WalletContext.Provider value={{ account, isConnected, role, connectWallet, disconnectWallet, loading, setRole }}>
       {children}
     </WalletContext.Provider>
   );

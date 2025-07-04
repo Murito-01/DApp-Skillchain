@@ -4,6 +4,7 @@ import contractArtifact from "../abi/MainContract.json";
 import "./DaftarPeserta.css";
 import Ajv from "ajv";
 import { useWallet } from "../contexts/WalletContext";
+import { useNavigate } from "react-router-dom";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 const PINATA_API_KEY = import.meta.env.VITE_PINATA_API_KEY;
@@ -33,6 +34,7 @@ export default function DaftarPeserta() {
   const [isConnected, setIsConnected] = useState(false);
   const [account, setAccount] = useState("");
   const { setRole } = useWallet();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -140,6 +142,7 @@ export default function DaftarPeserta() {
         nomor_hp: "",
         id_sosmed: "",
       });
+      setTimeout(() => navigate("/profile"), 1000);
     } catch (err) {
       console.error("Error during registration:", err);
       if (err.message.includes("Pinata")) {
