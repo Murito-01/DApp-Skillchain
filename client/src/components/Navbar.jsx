@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import "./Navbar.css";
-import { useWallet, ADDRESS_BNSP } from "../contexts/WalletContext";
+import { useWallet, ADDRESS_BNSP, LSP_WHITELIST } from "../contexts/WalletContext";
 
 export default function Navbar() {
   const location = useLocation();
@@ -21,7 +21,7 @@ export default function Navbar() {
       </div>
       <div className="navbar-wallet-center">
         {isConnected && (
-          <span>🔗 {account.slice(0, 6)}...{account.slice(-4)} <button onClick={disconnectWallet} style={{marginLeft:8}}>Logout</button></span>
+          <span>🔗 {account.slice(0, 6)}...{account.slice(-4)}</span>
         )}
       </div>
       <div className="navbar-links">
@@ -30,14 +30,12 @@ export default function Navbar() {
         {isBNSP && (
           <Link to="/bnsp" className={location.pathname === "/bnsp" ? "active" : ""}>BNSP</Link>
         )}
-        {/*
-        {isLSPWhitelisted && role !== "lsp" && (
+        {role === "lsp-candidate" && (
           <Link to="/ajukan" className={location.pathname === "/ajukan" ? "active" : ""}>Ajukan</Link>
         )}
         {role === "lsp" && (
           <Link to="/status" className={location.pathname === "/status" ? "active" : ""}>Status</Link>
         )}
-        */}
         {isConnected && role === "" && (
           <Link to="/daftar" className={location.pathname === "/daftar" ? "active" : ""}>Daftar</Link>
         )}

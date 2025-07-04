@@ -9,6 +9,12 @@ const WalletContext = createContext();
 // Address BNSP hardcode dari wallet 0 Hardhat
 export const ADDRESS_BNSP = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
+// Whitelist LSP
+export const LSP_WHITELIST = [
+  "0x70997970C51812dc3A010C7d01b50e0d17dc79C8".toLowerCase(),
+  "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc".toLowerCase(),
+];
+
 export function WalletProvider({ children }) {
   const [account, setAccount] = useState("");
   const [isConnected, setIsConnected] = useState(false);
@@ -53,12 +59,22 @@ export function WalletProvider({ children }) {
         setRole("peserta");
         return;
       }
-      try {
-        lspStatus = await contract.getStatusLSP(address);
-        console.log("LSP Status:", lspStatus);
-      } catch (err) {
-        lspStatus = null;
-        console.error("Error getStatusLSP:", err);
+      // Cek whitelist LSP
+      if (LSP_WHITELIST.includes(address.toLowerCase())) {
+        try {
+          lspStatus = await contract.getStatusLSP(address);
+          console.log("LSP Status:", lspStatus);
+        } catch (err) {
+          lspStatus = null;
+          console.error("Error getStatusLSP:", err);
+        }
+        if (Number(lspStatus) === -1) {
+          setRole("lsp-candidate"); // Belum pernah daftar, boleh ajukan
+          return;
+        } else if ([0,1,2].includes(Number(lspStatus))) {
+          setRole("lsp"); // Sudah daftar, bisa cek status
+          return;
+        }
       }
       // Fallback: jika bukan peserta/lsp, set role ke string kosong
       setRole("");
