@@ -6,9 +6,11 @@ import VerifikasiSertifikat from "./pages/VerifikasiSertifikat";
 import PesertaProfile from "./pages/PesertaProfile";
 import Navbar from "./components/Navbar";
 import { WalletProvider } from "./contexts/WalletContext";
-import BNSPDashboard from "./pages/BNSPDashboard";
+import PengajuanLSP from "./pages/PengajuanLSP";
 import DaftarLSP from "./pages/DaftarLSP";
 import StatusLSP from "./pages/StatusLSP";
+import PesertaLSP from "./pages/PesertaLSP";
+import BNSPDashboard from "./pages/BNSPDashboard";
 
 function App() {
   return (
@@ -23,6 +25,7 @@ function App() {
           <Route path="/bnsp" element={<BNSPDashboard />} />
           <Route path="/ajukan" element={<DaftarLSP />} />
           <Route path="/status" element={<StatusLSP />} />
+          <Route path="/peserta-lsp" element={<PesertaLSP />} />
         </Routes>
       </Router>
     </WalletProvider>

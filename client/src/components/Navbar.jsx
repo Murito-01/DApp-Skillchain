@@ -27,14 +27,17 @@ export default function Navbar() {
       <div className="navbar-links">
         <Link to="/" className={location.pathname === "/" ? "active" : ""}>Home</Link>
         <Link to="/verifikasi" className={location.pathname === "/verifikasi" ? "active" : ""}>Verifikasi</Link>
-        {isBNSP && (
-          <Link to="/bnsp" className={location.pathname === "/bnsp" ? "active" : ""}>BNSP</Link>
+        {role === "bnsp" && (
+          <Link to="/bnsp" className={location.pathname === "/bnsp" ? "active" : ""}>Dashboard</Link>
         )}
         {role === "lsp-candidate" && (
           <Link to="/ajukan" className={location.pathname === "/ajukan" ? "active" : ""}>Ajukan</Link>
         )}
         {role === "lsp" && (
           <Link to="/status" className={location.pathname === "/status" ? "active" : ""}>Status</Link>
+        )}
+        {role === "lsp" && (
+          <Link to="/peserta-lsp" className={location.pathname === "/peserta-lsp" ? "active" : ""}>Daftar Peserta</Link>
         )}
         {isConnected && role === "" && (
           <Link to="/daftar" className={location.pathname === "/daftar" ? "active" : ""}>Daftar</Link>

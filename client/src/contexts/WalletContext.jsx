@@ -45,6 +45,10 @@ export function WalletProvider({ children }) {
 
   // Fungsi untuk cek role peserta ke smart contract
   const checkRole = async (address) => {
+    if (address.toLowerCase() === ADDRESS_BNSP.toLowerCase()) {
+      setRole("bnsp");
+      return;
+    }
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const contract = new ethers.Contract(contractAddress, contractArtifact.abi, provider);
