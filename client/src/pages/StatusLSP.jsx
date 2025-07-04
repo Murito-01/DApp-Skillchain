@@ -17,6 +17,7 @@ export default function StatusLSP() {
   const { account, isConnected } = useWallet();
   const [lspStatus, setLspStatus] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [suratIzinCID, setSuratIzinCID] = useState("");
 
   useEffect(() => {
     if (isConnected && account) {
@@ -32,8 +33,16 @@ export default function StatusLSP() {
       const contract = new ethers.Contract(contractAddress, contractArtifact.abi, provider);
       const statusOnChain = await contract.getStatusLSP(account);
       setLspStatus(Number(statusOnChain));
+      if (Number(statusOnChain) === 1) {
+        // Sudah terverifikasi, ambil CID surat izin
+        const lspData = await contract.getLSP(account);
+        setSuratIzinCID(lspData[2]);
+      } else {
+        setSuratIzinCID("");
+      }
     } catch {
       setLspStatus(null);
+      setSuratIzinCID("");
     }
     setLoading(false);
   };
@@ -71,6 +80,11 @@ export default function StatusLSP() {
             <div style={{fontWeight:600,fontSize:22,color:'#389e0d'}}>Terverifikasi</div>
             <div style={{marginTop:8,fontSize:16}}>Selamat! LSP Anda sudah terverifikasi dan dapat beroperasi.</div>
             <div style={{marginTop:16,fontSize:14,color:'#389e0d'}}>Anda dapat mulai melakukan aktivitas sebagai LSP di platform ini.</div>
+            {suratIzinCID && (
+              <div style={{marginTop:18,fontSize:15}}>
+                <b style={{color:'#111'}}>CID Surat Izin:</b> <span style={{fontFamily:'monospace',color:'#222'}}>{suratIzinCID}</span>
+              </div>
+            )}
           </div>
         ) : lspStatus === 2 ? (
           <div style={{background:'#fff1f0',border:'1.5px solid #ffa39e',borderRadius:16,padding:32,boxShadow:'0 2px 8px #0001',textAlign:'center'}}>
