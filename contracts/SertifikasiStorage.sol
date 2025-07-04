@@ -80,7 +80,6 @@ abstract contract SertifikasiStorage {
     event LSPDitambahkan(address indexed lsp, string metadataCID);
     event LSPDihapus(address indexed lsp);
     event LSPMetadataUpdated(address indexed lsp, string newMetadataCID);
-    event PesertaDinonaktifkan(address indexed peserta);
 
     // ---------------------------- //
     //          MODIFIER            //

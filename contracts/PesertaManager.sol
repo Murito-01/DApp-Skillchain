@@ -43,26 +43,6 @@ contract PesertaManager is SertifikasiStorage {
         emit MetadataDiupdate(msg.sender, newCID);
     }
 
-    /// @notice Fungsi untuk menonaktifkan peserta, hanya dapat dipanggil oleh BNSP
-    /// @param peserta Alamat peserta yang akan dinonaktifkan
-    function nonaktifkanPeserta(address peserta) external onlyBNSP validAddress(peserta) {
-        require(pesertaList[peserta].terdaftar, "Peserta tidak terdaftar");
-        require(pesertaList[peserta].aktif, "Peserta sudah nonaktif");
-
-        // Ubah status peserta menjadi tidak aktif
-        pesertaList[peserta].aktif = false;
-
-        // Jika sedang ada sertifikasi aktif, nonaktifkan juga
-        if (pesertaList[peserta].sertifikasiAktif != address(0)) {
-            address sertifikasiID = pesertaList[peserta].sertifikasiAktif;
-            sertifikasiList[sertifikasiID].aktif = false;
-            pesertaList[peserta].sertifikasiAktif = address(0);
-        }
-
-        // Emit event dinonaktifkan
-        emit PesertaDinonaktifkan(peserta);
-    }
-
     /// @notice Melihat riwayat sertifikasi berdasarkan alamat peserta
     /// @param peserta Alamat peserta yang ingin dilihat riwayatnya
     /// @return Array alamat dari kontrak-kontrak sertifikasi yang pernah diikuti
