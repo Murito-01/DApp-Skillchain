@@ -83,6 +83,30 @@ export default function StatusLSP() {
             {suratIzinCID && (
               <div style={{marginTop:18,fontSize:15}}>
                 <b style={{color:'#111'}}>CID Surat Izin:</b> <span style={{fontFamily:'monospace',color:'#222'}}>{suratIzinCID}</span>
+                <div style={{marginTop:12}}>
+                  <a
+                    href={`https://gateway.pinata.cloud/ipfs/${suratIzinCID}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    style={{
+                      display: 'inline-block',
+                      marginTop: 8,
+                      padding: '8px 18px',
+                      background: '#4f46e5',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 6,
+                      fontWeight: 500,
+                      textDecoration: 'none',
+                      fontSize: 15,
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 8px #0001'
+                    }}
+                  >
+                    Unduh Surat Izin
+                  </a>
+                </div>
               </div>
             )}
           </div>
