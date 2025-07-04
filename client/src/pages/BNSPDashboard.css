@@ -1,0 +1,85 @@
+/* BNSPDashboardSidebar.css */
+
+.bnsp-sidebar-layout {
+  display: flex;
+  min-height: 90vh;
+  background: #f4f6fa;
+}
+
+.bnsp-sidebar {
+  width: 220px;
+  background: #232946;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 32px 0 0 0;
+  min-height: 100vh;
+  box-shadow: 2px 0 12px #0001;
+}
+.bnsp-sidebar-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 32px;
+  letter-spacing: 1px;
+}
+.bnsp-sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 18px;
+}
+.bnsp-sidebar-menu-item {
+  background: none;
+  border: none;
+  color: #d1d5db;
+  font-size: 1.08rem;
+  font-weight: 500;
+  padding: 12px 18px;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.bnsp-sidebar-menu-item.active, .bnsp-sidebar-menu-item:hover {
+  background: #4f46e5;
+  color: #fff;
+}
+
+.bnsp-sidebar-content {
+  flex: 1;
+  padding: 40px 32px;
+  background: #f4f6fa;
+  min-height: 100vh;
+  overflow-x: auto;
+}
+
+@media (max-width: 700px) {
+  .bnsp-sidebar-layout {
+    flex-direction: column;
+  }
+  .bnsp-sidebar {
+    width: 100%;
+    min-height: unset;
+    flex-direction: row;
+    padding: 0;
+    box-shadow: none;
+  }
+  .bnsp-sidebar-menu {
+    flex-direction: row;
+    gap: 0;
+    padding: 0 4px;
+    width: 100%;
+    justify-content: space-around;
+  }
+  .bnsp-sidebar-menu-item {
+    flex: 1;
+    text-align: center;
+    border-radius: 0;
+    padding: 14px 0;
+  }
+  .bnsp-sidebar-content {
+    padding: 18px 6px;
+  }
+} 

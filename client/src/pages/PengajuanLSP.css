@@ -1,0 +1,107 @@
+.bnsp-dashboard-container {
+  min-height: 100vh;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #6a82fb 0%, #fc5c7d 100%) !important;
+  color: #fff;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.bnsp-title {
+  font-size: 2.2rem;
+  font-weight: bold;
+  margin-bottom: 32px;
+  color: #fff;
+  text-align: center;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px rgba(79,46,236,0.08);
+}
+
+.bnsp-section {
+  background: #2d2d2d;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.bnsp-section-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #ffd700;
+}
+
+.bnsp-dashboard-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #111;
+}
+
+.bnsp-section h3 {
+  margin-top: 0;
+  margin-bottom: 1.2rem;
+  color: #222;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 0.5rem;
+  font-size: 1.18rem;
+}
+
+.bnsp-lsp-table-placeholder {
+  background: #f8f9fa;
+  border: 1px dashed #b0b0b0;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  color: #888;
+  font-size: 1.1rem;
+}
+
+/* Navbar.css */
+.navbar {
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #7b5cff;
+  letter-spacing: 1px;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 32px;
+}
+
+.navbar-link {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+  padding-bottom: 4px;
+  transition: color 0.2s;
+}
+
+.navbar-link:hover,
+.navbar-link.active {
+  color: #7b5cff;
+}
+
+.navbar-link.active::after {
+  content: "";
+  display: block;
+  height: 2px;
+  background: #7b5cff;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  border-radius: 2px;
+} 
