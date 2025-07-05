@@ -101,7 +101,20 @@ export default function VerifikasiLSP() {
       {loading ? (
         <div>Loading data...</div>
       ) : pendingLSPs.length === 0 ? (
-        <div className="bnsp-card" style={{color:"black"}}>Belum ada data.</div>
+        <div style={{
+          maxWidth: 420,
+          margin: "48px auto 0 auto",
+          background: "#fff",
+          borderRadius: 18,
+          boxShadow: "0 4px 24px #0002",
+          padding: "40px 28px 32px 28px",
+          textAlign: "center",
+          color: "#111"
+        }}>
+          <div style={{fontSize:54,marginBottom:12}}>📭</div>
+          <div style={{fontWeight:700,fontSize:22,marginBottom:8}}>Belum Ada Pengajuan LSP</div>
+          <div style={{fontSize:16,color:"#444",marginBottom:0}}>Saat ini belum ada LSP yang menunggu verifikasi.<br/>Silakan cek kembali nanti.</div>
+        </div>
       ) : (
         <table style={{width:'100%',background:'#fff',borderRadius:12,boxShadow:'0 2px 8px #0001',overflow:'hidden',color:'#111'}}>
           <thead style={{background:'#f5f5f5'}}>
