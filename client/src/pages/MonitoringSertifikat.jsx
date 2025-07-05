@@ -98,7 +98,11 @@ export default function MonitoringSertifikat() {
               <tr key={i}>
                 <td style={{fontFamily:'monospace',padding:8}}>{srt.peserta}</td>
                 <td style={{padding:8}}>{SKEMA_LABELS[srt.skema] || '-'}</td>
-                <td style={{padding:8}}>{srt.lulus ? 'Lulus' : 'Tidak Lulus'}</td>
+                <td style={{padding:8}}>{(() => {
+                  if (!srt.tanggalSelesai) return 'Sedang Ujian';
+                  if (srt.lulus) return 'Lulus';
+                  return 'Tidak Lulus';
+                })()}</td>
                 <td style={{padding:8}}>{srt.tanggalPengajuan.toLocaleString('id-ID')}</td>
                 <td style={{padding:8}}>{srt.tanggalSelesai ? srt.tanggalSelesai.toLocaleString('id-ID') : '-'}</td>
                 <td style={{fontFamily:'monospace',padding:8}}>{srt.lspPenilai !== '0x0000000000000000000000000000000000000000' ? srt.lspPenilai : '-'}</td>
