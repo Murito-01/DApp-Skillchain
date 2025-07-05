@@ -18,8 +18,9 @@ export const LSP_WHITELIST = [
 export function WalletProvider({ children }) {
   const [account, setAccount] = useState("");
   const [isConnected, setIsConnected] = useState(false);
-  const [role, setRole] = useState(""); // "peserta" | "" (nanti bisa LSP/BNSP)
+  const [role, setRole] = useState(""); // "peserta" | "lsp" | "lsp-candidate" | "bnsp"
   const [loading, setLoading] = useState(false);
+  const [lspStatus, setLspStatus] = useState(null); // -1, 0, 1, 2
 
   // Fungsi connect wallet dan cek role peserta
   const connectWallet = async () => {
@@ -47,43 +48,54 @@ export function WalletProvider({ children }) {
   const checkRole = async (address) => {
     if (address.toLowerCase() === ADDRESS_BNSP.toLowerCase()) {
       setRole("bnsp");
+      setLspStatus(null);
       return;
     }
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const contract = new ethers.Contract(contractAddress, contractArtifact.abi, provider);
-      let pesertaInfo, lspStatus;
+      let pesertaInfo, lspStatusOnChain;
       try {
         pesertaInfo = await contract.getPesertaInfo(address);
-        console.log("PesertaInfo:", pesertaInfo);
+        // PesertaInfo: [metadataCID, terdaftar, aktif, ...]
       } catch {
         pesertaInfo = null;
       }
       if (pesertaInfo && pesertaInfo[1]) {
         setRole("peserta");
+        setLspStatus(null);
         return;
       }
       // Cek whitelist LSP
       if (LSP_WHITELIST.includes(address.toLowerCase())) {
         try {
-          lspStatus = await contract.getStatusLSP(address);
-          console.log("LSP Status:", lspStatus);
+          lspStatusOnChain = await contract.getStatusLSP(address);
         } catch (err) {
-          lspStatus = null;
-          console.error("Error getStatusLSP:", err);
+          lspStatusOnChain = null;
         }
-        if (Number(lspStatus) === -1) {
+        const statusNum = Number(lspStatusOnChain);
+        setLspStatus(statusNum);
+        if (statusNum === -1) {
           setRole("lsp-candidate"); // Belum pernah daftar, boleh ajukan
           return;
-        } else if ([0,1,2].includes(Number(lspStatus))) {
-          setRole("lsp"); // Sudah daftar, bisa cek status
+        } else if (statusNum === 0) {
+          setRole("lsp-candidate"); // Sudah daftar, menunggu verifikasi
+          return;
+        } else if (statusNum === 1) {
+          setRole("lsp"); // Sudah diverifikasi/aktif
+          return;
+        } else if (statusNum === 2) {
+          setRole("lsp-candidate"); // Ditolak, bisa ajukan ulang
           return;
         }
+      } else {
+        setLspStatus(null);
       }
       // Fallback: jika bukan peserta/lsp, set role ke string kosong
       setRole("");
     } catch {
       setRole("");
+      setLspStatus(null);
     }
   };
 
@@ -105,7 +117,7 @@ export function WalletProvider({ children }) {
   }, [isConnected, account]);
 
   return (
-    <WalletContext.Provider value={{ account, isConnected, role, connectWallet, disconnectWallet, loading, setRole }}>
+    <WalletContext.Provider value={{ account, isConnected, role, connectWallet, disconnectWallet, loading, setRole, lspStatus, checkRole }}>
       {children}
     </WalletContext.Provider>
   );

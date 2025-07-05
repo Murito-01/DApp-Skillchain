@@ -14,7 +14,7 @@ const STATUS_LABELS = [
 ];
 
 export default function StatusLSP() {
-  const { account, isConnected } = useWallet();
+  const { account, isConnected, setRole } = useWallet();
   const [lspStatus, setLspStatus] = useState(null);
   const [loading, setLoading] = useState(false);
   const [suratIzinCID, setSuratIzinCID] = useState("");
@@ -32,8 +32,17 @@ export default function StatusLSP() {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const contract = new ethers.Contract(contractAddress, contractArtifact.abi, provider);
       const statusOnChain = await contract.getStatusLSP(account);
-      setLspStatus(Number(statusOnChain));
-      if (Number(statusOnChain) === 1) {
+      const statusNumber = Number(statusOnChain);
+      setLspStatus(statusNumber);
+      
+      // Update role berdasarkan status
+      if (statusNumber === 1) {
+        setRole("lsp"); // Sudah diverifikasi
+      } else if (statusNumber === -1 || statusNumber === 0 || statusNumber === 2) {
+        setRole("lsp-candidate"); // Belum diverifikasi atau ditolak
+      }
+      
+      if (statusNumber === 1) {
         // Sudah terverifikasi, ambil CID surat izin
         const lspData = await contract.getLSP(account);
         setSuratIzinCID(lspData[2]);

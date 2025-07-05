@@ -96,12 +96,12 @@ export default function VerifikasiLSP() {
 
   return (
     <div>
-      <h2 style={{marginBottom:24}}>Verifikasi LSP</h2>
+      <h2 style={{marginBottom:24, color:"black"}}>Verifikasi LSP</h2>
       {feedback && <div style={{marginBottom:16, color:feedback.startsWith('✅')? '#389e0d':'#cf1322', fontWeight:500}}>{feedback}</div>}
       {loading ? (
         <div>Loading data...</div>
       ) : pendingLSPs.length === 0 ? (
-        <div className="bnsp-card">Belum ada data.</div>
+        <div className="bnsp-card" style={{color:"black"}}>Belum ada data.</div>
       ) : (
         <table style={{width:'100%',background:'#fff',borderRadius:12,boxShadow:'0 2px 8px #0001',overflow:'hidden',color:'#111'}}>
           <thead style={{background:'#f5f5f5'}}>

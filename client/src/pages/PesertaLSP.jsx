@@ -2,10 +2,14 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import contractArtifact from "../abi/MainContract.json";
 import "./PesertaLSP.css";
+import { useWallet } from "../contexts/WalletContext";
+import { useNavigate } from "react-router-dom";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
 export default function PesertaLSP() {
+  const { role, account, isConnected } = useWallet();
+  const navigate = useNavigate();
   const [pesertaList, setPesertaList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedPeserta, setSelectedPeserta] = useState(null);
@@ -13,9 +17,20 @@ export default function PesertaLSP() {
   const [feedback, setFeedback] = useState("");
 
   useEffect(() => {
+    // Validasi akses - hanya LSP yang sudah diverifikasi yang bisa akses
+    if (!isConnected) {
+      navigate("/");
+      return;
+    }
+    
+    if (role !== "lsp") {
+      navigate("/");
+      return;
+    }
+    
     fetchPeserta();
     // eslint-disable-next-line
-  }, []);
+  }, [isConnected, role, navigate]);
 
   async function fetchPeserta() {
     setLoading(true);
@@ -65,6 +80,30 @@ export default function PesertaLSP() {
     // TODO: Panggil smart contract untuk simpan nilai
     setFeedback("(Simulasi) Nilai berhasil disimpan!");
     setSelectedPeserta(null);
+  }
+
+  // Jika tidak terhubung atau bukan LSP yang diverifikasi, tampilkan pesan error
+  if (!isConnected) {
+    return (
+      <div className="peserta-lsp-container">
+        <div style={{textAlign: 'center', padding: '50px', color: '#cf1322'}}>
+          <h2>❌ Akses Ditolak</h2>
+          <p>Silakan hubungkan wallet terlebih dahulu.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (role !== "lsp") {
+    return (
+      <div className="peserta-lsp-container">
+        <div style={{textAlign: 'center', padding: '50px', color: '#cf1322'}}>
+          <h2>❌ Akses Ditolak</h2>
+          <p>Halaman ini hanya dapat diakses oleh LSP yang sudah diverifikasi.</p>
+          <p>Status Anda saat ini: {role === "lsp-candidate" ? "Menunggu verifikasi" : "Tidak terdaftar"}</p>
+        </div>
+      </div>
+    );
   }
 
   return (

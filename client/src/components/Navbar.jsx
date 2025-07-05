@@ -4,7 +4,7 @@ import { useWallet, ADDRESS_BNSP, LSP_WHITELIST } from "../contexts/WalletContex
 
 export default function Navbar() {
   const location = useLocation();
-  const { isConnected, role, account, disconnectWallet } = useWallet();
+  const { isConnected, role, account, disconnectWallet, lspStatus } = useWallet();
   const isBNSP = isConnected && account && account.toLowerCase() === ADDRESS_BNSP.toLowerCase();
 
   // Whitelist address LSP
@@ -30,14 +30,17 @@ export default function Navbar() {
         {role === "bnsp" && (
           <Link to="/bnsp" className={location.pathname === "/bnsp" ? "active" : ""}>Dashboard</Link>
         )}
-        {role === "lsp-candidate" && (
+        {role === "lsp-candidate" && lspStatus === -1 && (
           <Link to="/ajukan" className={location.pathname === "/ajukan" ? "active" : ""}>Ajukan</Link>
+        )}
+        {role === "lsp-candidate" && lspStatus !== -1 && (
+          <Link to="/status" className={location.pathname === "/status" ? "active" : ""}>Status</Link>
         )}
         {role === "lsp" && (
           <Link to="/status" className={location.pathname === "/status" ? "active" : ""}>Status</Link>
         )}
         {role === "lsp" && (
-          <Link to="/peserta-lsp" className={location.pathname === "/peserta-lsp" ? "active" : ""}>Daftar Peserta</Link>
+          <Link to="/peserta-lsp" className={location.pathname === "/peserta-lsp" ? "active" : ""}>Partisipan</Link>
         )}
         {isConnected && role === "" && (
           <Link to="/daftar" className={location.pathname === "/daftar" ? "active" : ""}>Daftar</Link>

@@ -28,7 +28,7 @@ export default function DaftarLSP() {
   });
   const [status, setStatus] = useState("");
   const [lspStatus, setLspStatus] = useState(null); // 0: belum, 1: menunggu, 2: aktif, 3: ditolak
-  const { account, isConnected, setRole } = useWallet();
+  const { account, isConnected, setRole, checkRole } = useWallet();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -124,8 +124,11 @@ export default function DaftarLSP() {
       setStatus("Menunggu konfirmasi transaksi... Hash: " + tx.hash);
       await tx.wait();
       setStatus("Pengajuan berhasil! Data Anda sedang menunggu verifikasi dari BNSP.");
-      setLspStatus(1);
-      setRole("lsp");
+      setLspStatus(0);
+      setRole("lsp-candidate");
+      if (account && checkRole) {
+        await checkRole(account);
+      }
       setFormData({
         nama_lsp: "",
         alamat_kantor: "",
