@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import contractArtifact from "../abi/MainContract.json";
+import "./VerifikasiLSP.css";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
@@ -9,6 +10,9 @@ export default function VerifikasiLSP() {
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState("");
   const [feedback, setFeedback] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [modalCID, setModalCID] = useState("");
+  const [modalLSP, setModalLSP] = useState(null);
 
   useEffect(() => {
     fetchPendingLSPs();
@@ -54,19 +58,29 @@ export default function VerifikasiLSP() {
     setLoading(false);
   }
 
-  async function handleVerifikasi(lspAddr) {
-    const cid = prompt("Masukkan CID surat izin (IPFS):");
-    if (!cid) return;
-    setActionLoading(lspAddr+"-verif");
+  function openVerifikasiModal(lsp) {
+    setModalLSP(lsp);
+    setModalCID("");
+    setShowModal(true);
+    setFeedback("");
+  }
+
+  async function handleVerifikasi() {
+    if (!modalCID) {
+      setFeedback("❌ CID surat izin harus diisi.");
+      return;
+    }
+    setActionLoading(modalLSP.address+"-verif");
     setFeedback("");
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, contractArtifact.abi, signer);
-      const tx = await contract.verifikasiLSP(lspAddr, cid);
+      const tx = await contract.verifikasiLSP(modalLSP.address, modalCID);
       setFeedback("Menunggu konfirmasi transaksi... " + tx.hash);
       await tx.wait();
       setFeedback("✅ LSP berhasil diverifikasi!");
+      setShowModal(false);
       fetchPendingLSPs();
     } catch (err) {
       setFeedback("❌ Gagal verifikasi: " + (err.reason || err.message));
@@ -95,50 +109,96 @@ export default function VerifikasiLSP() {
   }
 
   return (
-    <div>
-      <h2 style={{marginBottom:24, color:"black"}}>Verifikasi LSP</h2>
-      {feedback && <div style={{marginBottom:16, color:feedback.startsWith('✅')? '#389e0d':'#cf1322', fontWeight:500}}>{feedback}</div>}
+    <div className="verif-lsp-container">
+      <h2 className="verif-lsp-title">Verifikasi LSP</h2>
+      {feedback && (
+        <div className={`verif-lsp-feedback ${feedback.startsWith('✅') ? 'success' : 'error'}`}>{feedback}</div>
+      )}
       {loading ? (
         <div>Loading data...</div>
       ) : pendingLSPs.length === 0 ? (
-        <div style={{
-          maxWidth: 420,
-          margin: "48px auto 0 auto",
-          background: "#fff",
-          borderRadius: 18,
-          boxShadow: "0 4px 24px #0002",
-          padding: "40px 28px 32px 28px",
-          textAlign: "center",
-          color: "#111"
-        }}>
-          <div style={{fontSize:54,marginBottom:12}}>📭</div>
-          <div style={{fontWeight:700,fontSize:22,marginBottom:8}}>Belum Ada Pengajuan LSP</div>
-          <div style={{fontSize:16,color:"#444",marginBottom:0}}>Saat ini belum ada LSP yang menunggu verifikasi.<br/>Silakan cek kembali nanti.</div>
+        <div className="verif-lsp-empty">
+          <div className="verif-lsp-empty-icon">📭</div>
+          <div className="verif-lsp-empty-title">Belum Ada Pengajuan LSP</div>
+          <div className="verif-lsp-empty-desc">Saat ini belum ada LSP yang menunggu verifikasi.<br/>Silakan cek kembali nanti.</div>
         </div>
       ) : (
-        <table style={{width:'100%',background:'#fff',borderRadius:12,boxShadow:'0 2px 8px #0001',overflow:'hidden',color:'#111'}}>
-          <thead style={{background:'#f5f5f5'}}>
+        <table className="verif-lsp-table">
+          <thead>
             <tr>
-              <th style={{padding:8}}>Wallet</th>
-              <th style={{padding:8}}>Nama LSP</th>
-              <th style={{padding:8}}>Email</th>
-              <th style={{padding:8}}>Aksi</th>
+              <th>Wallet</th>
+              <th>Nama LSP</th>
+              <th>Email</th>
+              <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
             {pendingLSPs.map(lsp => (
-              <tr key={lsp.address} style={{borderBottom:'1px solid #eee'}}>
-                <td style={{padding:8,fontFamily:'monospace'}}>{lsp.address}</td>
-                <td style={{padding:8}}>{lsp.metadata?.nama_lsp || <i>Unknown</i>}</td>
-                <td style={{padding:8}}>{lsp.metadata?.email_kontak || <i>-</i>}</td>
-                <td style={{padding:8}}>
-                  <button onClick={()=>handleVerifikasi(lsp.address)} disabled={actionLoading!==''} style={{marginRight:8,background:'#389e0d',color:'#fff',border:'none',padding:'6px 14px',borderRadius:6,cursor:'pointer'}}>Verifikasi</button>
-                  <button onClick={()=>handleTolak(lsp.address)} disabled={actionLoading!==''} style={{background:'#cf1322',color:'#fff',border:'none',padding:'6px 14px',borderRadius:6,cursor:'pointer'}}>Tolak</button>
+              <tr key={lsp.address}>
+                <td style={{fontFamily:'monospace'}}>{lsp.address}</td>
+                <td>{lsp.metadata?.nama_lsp || <i>Unknown</i>}</td>
+                <td>{lsp.metadata?.email_kontak || <i>-</i>}</td>
+                <td>
+                  <button
+                    className="verif-lsp-btn verif"
+                    onClick={()=>openVerifikasiModal(lsp)}
+                    disabled={actionLoading!==''}
+                  >
+                    Verifikasi
+                  </button>
+                  <button
+                    className="verif-lsp-btn tolak"
+                    onClick={()=>handleTolak(lsp.address)}
+                    disabled={actionLoading!==''}
+                  >
+                    Tolak
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      )}
+      {/* Modal Verifikasi CID */}
+      {showModal && (
+        <div className="verif-lsp-modal-bg">
+          <form
+            onSubmit={e=>{e.preventDefault();handleVerifikasi();}}
+            className="verif-lsp-modal"
+          >
+            <h3 className="verif-lsp-modal-title">Verifikasi LSP</h3>
+            <div className="verif-lsp-modal-info">
+              <span><b>Wallet:</b> <span style={{fontFamily:'monospace',fontSize:15}}>{modalLSP?.address}</span></span>
+              <span><b>Nama LSP:</b> {modalLSP?.metadata?.nama_lsp || '-'}</span>
+            </div>
+            <label className="verif-lsp-modal-label">CID Surat Izin (IPFS)</label>
+            <input
+              type="text"
+              value={modalCID}
+              onChange={e=>setModalCID(e.target.value)}
+              placeholder="Masukkan CID surat izin..."
+              className="verif-lsp-modal-input"
+              required
+              autoFocus
+            />
+            <div className="verif-lsp-modal-actions">
+              <button
+                type="submit"
+                className="verif-lsp-modal-btn simpan"
+                disabled={actionLoading!==''}
+              >
+                Kirim
+              </button>
+              <button
+                type="button"
+                className="verif-lsp-modal-btn batal"
+                onClick={()=>setShowModal(false)}
+              >
+                Batal
+              </button>
+            </div>
+          </form>
+        </div>
       )}
     </div>
   );
