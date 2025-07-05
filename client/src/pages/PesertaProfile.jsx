@@ -57,6 +57,8 @@ export default function PesertaProfile() {
         if (pesertaInfo.sertifikasiAktif !== "0x0000000000000000000000000000000000000000") {
           const sertifikasiData = await contract.getSertifikasi(pesertaInfo.sertifikasiAktif);
           setSertifikasiAktif(sertifikasiData);
+        } else {
+          setSertifikasiAktif(null);
         }
         
         setStatus("Mengambil data dari IPFS...");
@@ -72,6 +74,8 @@ export default function PesertaProfile() {
       }
     }
     fetchData();
+    // expose fetchData to be called after ajukan sertifikasi
+    PesertaProfile.fetchData = fetchData;
   }, [account]);
 
   // Fungsi ajukan sertifikasi
@@ -99,10 +103,10 @@ export default function PesertaProfile() {
       setStatus("✅ Sertifikasi berhasil diajukan!");
       setShowModal(false);
       
-      // Refresh data sertifikasi
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
+      // Refresh data sertifikasi tanpa reload
+      if (typeof PesertaProfile.fetchData === 'function') {
+        await PesertaProfile.fetchData();
+      }
       
     } catch (err) {
       console.error("Error submitting certification:", err);
