@@ -4,6 +4,7 @@ import MonitoringPeserta from "./MonitoringPeserta";
 import MonitoringLSP from "./MonitoringLSP";
 import MonitoringSertifikat from "./MonitoringSertifikat";
 import UploadSuratIzin from "./UploadSuratIzin";
+import WhitelistLSP from "./WhitelistLSP";
 import "./BNSPDashboard.css";
 
 const MENU = [
@@ -12,6 +13,7 @@ const MENU = [
   { key: "lsp", label: "Monitoring LSP" },
   { key: "sertifikat", label: "Monitoring Sertifikat" },
   { key: "upload", label: "Upload Surat Izin" },
+  { key: "whitelist", label: "Whitelist LSP" },
 ];
 
 export default function BNSPDashboard() {
@@ -39,6 +41,7 @@ export default function BNSPDashboard() {
         {activeMenu === "lsp" && <MonitoringLSP />}
         {activeMenu === "sertifikat" && <MonitoringSertifikat />}
         {activeMenu === "upload" && <UploadSuratIzin />}
+        {activeMenu === "whitelist" && <WhitelistLSP />}
       </main>
     </div>
   );

@@ -66,30 +66,32 @@ export function WalletProvider({ children }) {
         setLspStatus(null);
         return;
       }
-      // Cek whitelist LSP
-      if (LSP_WHITELIST.includes(address.toLowerCase())) {
+      // Selalu cek status LSP ke smart contract
+      try {
+        lspStatusOnChain = await contract.getStatusLSP(address);
+      } catch (err) {
+        lspStatusOnChain = null;
+      }
+      const statusNum = Number(lspStatusOnChain);
+      setLspStatus(statusNum);
+      if (statusNum === 1) {
+        setRole("lsp"); // Sudah diverifikasi/aktif
+        return;
+      } else if (statusNum === 0 || statusNum === 2) {
+        setRole("lsp-candidate"); // Menunggu atau ditolak
+        return;
+      } else if (statusNum === -1) {
+        // Cek whitelist manual di smart contract
+        let isWhitelisted = false;
         try {
-          lspStatusOnChain = await contract.getStatusLSP(address);
-        } catch (err) {
-          lspStatusOnChain = null;
+          isWhitelisted = await contract.lspWhitelist(address);
+        } catch {}
+        if (isWhitelisted) {
+          setRole("lsp-candidate"); // Boleh ajukan
+        } else {
+          setRole(""); // Belum pernah daftar/di-whitelist, menu Daftar
         }
-        const statusNum = Number(lspStatusOnChain);
-        setLspStatus(statusNum);
-        if (statusNum === -1) {
-          setRole("lsp-candidate"); // Belum pernah daftar, boleh ajukan
-          return;
-        } else if (statusNum === 0) {
-          setRole("lsp-candidate"); // Sudah daftar, menunggu verifikasi
-          return;
-        } else if (statusNum === 1) {
-          setRole("lsp"); // Sudah diverifikasi/aktif
-          return;
-        } else if (statusNum === 2) {
-          setRole("lsp-candidate"); // Ditolak, bisa ajukan ulang
-          return;
-        }
-      } else {
-        setLspStatus(null);
+        return;
       }
       // Fallback: jika bukan peserta/lsp, set role ke string kosong
       setRole("");

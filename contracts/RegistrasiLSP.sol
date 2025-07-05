@@ -17,6 +17,7 @@ contract RegistrasiLSP is SertifikasiStorage {
 
     mapping(address => LSP) public lspList;
     mapping(address => bool) public isLSPTerdaftar;
+    mapping(address => bool) public lspWhitelist; // Whitelist manual oleh BNSP
 
     event LSPDidaftarkan(address indexed lsp, string metadataCID);
     event LSPDiverifikasi(address indexed lsp, string suratIzinCID);
@@ -94,5 +95,13 @@ contract RegistrasiLSP is SertifikasiStorage {
     function hapusLSP(address lspAddress) external onlyBNSP {
         // ...hapus data LSP...
         isLSPTerdaftar[lspAddress] = false;
+    }
+
+    /// @notice BNSP dapat menambahkan wallet ke whitelist LSP secara manual
+    /// @param lspAddress Alamat wallet LSP
+    function addLSPToWhitelist(address lspAddress) external onlyBNSP validAddress(lspAddress) {
+        require(!lspWhitelist[lspAddress], "Sudah di-whitelist");
+        lspWhitelist[lspAddress] = true;
+        emit LSPDitambahkan(lspAddress, "-");
     }
 }
