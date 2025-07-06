@@ -20,6 +20,10 @@ export default function PesertaLSP() {
   const [inputTulis, setInputTulis] = useState(0);
   const [inputPraktek, setInputPraktek] = useState(0);
   const [inputWawancara, setInputWawancara] = useState(0);
+  const [uploadModal, setUploadModal] = useState(null);
+  const [sertifikatFile, setSertifikatFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState("");
 
   useEffect(() => {
     if (!isConnected) {
@@ -56,18 +60,27 @@ export default function PesertaLSP() {
           } catch {
             metadata = null;
           }
-          // Ambil sertifikasi aktif (hanya 1)
-          const sertifikasiID = info[3];
-          let nilai = { tulis: null, praktek: null, wawancara: null, sudahInput: false, sertifikasiID };
+          // Ambil riwayat sertifikasi dari contract.lihatRiwayatSertifikasi
+          let sertifikasiID = null;
+          let riwayat = [];
+          try {
+            riwayat = await contract.lihatRiwayatSertifikasi(addr);
+            if (riwayat.length > 0) {
+              sertifikasiID = riwayat[riwayat.length - 1]; // sertifikasi terakhir
+            }
+          } catch {}
+          let nilai = { tulis: null, praktek: null, wawancara: null, sudahInput: false, sertifikasiID: sertifikasiID || "0x0000000000000000000000000000000000000000", sertifikatCID: "" };
           if (sertifikasiID && sertifikasiID !== "0x0000000000000000000000000000000000000000") {
             try {
               const n = await contract.getNilaiPeserta(sertifikasiID);
+              const sertif = await contract.getSertifikasi(sertifikasiID);
               nilai = {
                 tulis: Number(n[0]),
                 praktek: Number(n[1]),
                 wawancara: Number(n[2]),
                 sudahInput: n[3],
-                sertifikasiID
+                sertifikasiID,
+                sertifikatCID: sertif.sertifikatCID || sertif[2]
               };
             } catch {}
           }
@@ -116,6 +129,53 @@ export default function PesertaLSP() {
     setActionLoading(false);
   }
 
+  function openUploadModal(peserta, sertifikasiID) {
+    setUploadModal({ peserta, sertifikasiID });
+    setSertifikatFile(null);
+    setUploadStatus("");
+  }
+
+  async function handleUploadSertifikat(e) {
+    e.preventDefault();
+    if (!sertifikatFile) {
+      setUploadStatus("Gagal: File belum dipilih");
+      return;
+    }
+    setUploading(true);
+    setUploadStatus("");
+    try {
+      // Upload ke Pinata
+      const PINATA_API_KEY = import.meta.env.VITE_PINATA_API_KEY;
+      const PINATA_SECRET_API_KEY = import.meta.env.VITE_PINATA_SECRET_API_KEY;
+      const url = "https://api.pinata.cloud/pinning/pinFileToIPFS";
+      const formData = new FormData();
+      formData.append("file", sertifikatFile);
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          pinata_api_key: PINATA_API_KEY,
+          pinata_secret_api_key: PINATA_SECRET_API_KEY,
+        },
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Gagal upload ke Pinata");
+      const data = await res.json();
+      const cid = data.IpfsHash;
+      // Update ke smart contract
+      if (!window.ethereum) throw new Error("Wallet tidak terdeteksi");
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, contractArtifact.abi, signer);
+      await contract.updateKelulusan(uploadModal.sertifikasiID, cid);
+      setUploadStatus("Berhasil upload dan update sertifikat!");
+      setUploadModal(null);
+      fetchPeserta();
+    } catch (err) {
+      setUploadStatus("Gagal: " + (err.reason || err.message));
+    }
+    setUploading(false);
+  }
+
   if (!isConnected) {
     return (
       <div className="peserta-lsp-container">
@@ -154,23 +214,42 @@ export default function PesertaLSP() {
               <th>Nama</th>
               <th>Email</th>
               <th>Input Nilai</th>
+              <th>Sertifikat</th>
             </tr>
           </thead>
           <tbody>
             {pesertaList.map(peserta => {
               const nilai = nilaiMap[peserta.address] || {};
+              const sudahAjukan = nilai.sertifikasiID && nilai.sertifikasiID !== "0x0000000000000000000000000000000000000000";
               return (
                 <tr key={peserta.address}>
-                  <td style={{fontFamily:'monospace'}}>{peserta.address}</td>
+                  <td className="wallet-cell">{peserta.address}</td>
                   <td>{peserta.metadata?.nama_lengkap || <i>Unknown</i>}</td>
                   <td>{peserta.metadata?.email_student_uii || <i>-</i>}</td>
-                  <td style={{textAlign:'center'}}>
-                    {nilai.sertifikasiID && nilai.sertifikasiID !== "0x0000000000000000000000000000000000000000" ? (
-                      nilai.sudahInput
-                        ? <span>Sudah dinilai</span>
-                        : <button className="peserta-lsp-btn" onClick={()=>openInputModal(peserta)}>Input Nilai</button>
+                  <td className="status-cell">
+                    {!sudahAjukan ? (
+                      <span className="empty-label">Belum mengajukan</span>
+                    ) : nilai.sudahInput ? (
+                      <span className="status-label dinilai">Sudah dinilai</span>
                     ) : (
-                      <span style={{color:'#bbb'}}>Belum mengajukan</span>
+                      <button className="peserta-lsp-btn input-nilai-btn" onClick={()=>openInputModal(peserta)}>Input Nilai</button>
+                    )}
+                  </td>
+                  <td className="sertifikat-cell">
+                    {!sudahAjukan ? (
+                      <span className="empty-label">-</span>
+                    ) : nilai.sudahInput ? (
+                      nilai.sertifikatCID ? (
+                        <div className="cid-cell" title={nilai.sertifikatCID}>
+                          <span className="cid-text">{nilai.sertifikatCID.slice(0, 8)}...{nilai.sertifikatCID.slice(-6)}</span>
+                          <button className="copy-btn" onClick={()=>navigator.clipboard.writeText(nilai.sertifikatCID)}>Copy CID</button>
+                          <a className="lihat-btn" href={`https://ipfs.io/ipfs/${nilai.sertifikatCID}`} target="_blank" rel="noopener noreferrer">Lihat</a>
+                        </div>
+                      ) : (
+                        <button className="peserta-lsp-btn upload-sertifikat-btn" onClick={()=>openUploadModal(peserta, nilai.sertifikasiID)}>Upload Sertifikat</button>
+                      )
+                    ) : (
+                      <span className="empty-label">-</span>
                     )}
                   </td>
                 </tr>
@@ -202,6 +281,22 @@ export default function PesertaLSP() {
               <button type="submit" className="peserta-lsp-modal-btn" disabled={actionLoading}>{actionLoading ? 'Menyimpan...' : 'Simpan'}</button>
               <button type="button" className="peserta-lsp-modal-btn-cancel" onClick={()=>setModal(null)} disabled={actionLoading}>Batal</button>
             </div>
+          </form>
+        </div>
+      )}
+      {/* Modal Upload Sertifikat */}
+      {uploadModal && (
+        <div className="peserta-lsp-modal-bg">
+          <form className="peserta-lsp-modal" onSubmit={handleUploadSertifikat}>
+            <h3>Upload Sertifikat Peserta</h3>
+            <div><b>Wallet:</b> {uploadModal.peserta.address}</div>
+            <div><b>Nama:</b> {uploadModal.peserta.metadata?.nama_lengkap || '-'}</div>
+            <input type="file" accept="application/pdf,image/*" required onChange={e=>setSertifikatFile(e.target.files[0])} />
+            <div className="peserta-lsp-modal-btn-row">
+              <button type="submit" className="peserta-lsp-modal-btn" disabled={uploading}>{uploading ? 'Mengupload...' : 'Upload'}</button>
+              <button type="button" className="peserta-lsp-modal-btn-cancel" onClick={()=>setUploadModal(null)} disabled={uploading}>Batal</button>
+            </div>
+            {uploadStatus && <div style={{marginTop:12, color:uploadStatus.startsWith('Gagal')?'#cf1322':'#389e0d'}}>{uploadStatus}</div>}
           </form>
         </div>
       )}
