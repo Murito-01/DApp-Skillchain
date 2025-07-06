@@ -119,10 +119,13 @@ export default function PesertaLSP() {
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, contractArtifact.abi, signer);
       const { peserta, sertifikasiID } = modal;
-      await contract.inputNilaiPeserta(sertifikasiID, Number(inputTulis), Number(inputPraktek), Number(inputWawancara));
+      const tx = await contract.inputNilaiPeserta(sertifikasiID, Number(inputTulis), Number(inputPraktek), Number(inputWawancara));
+      setFeedback("Menunggu konfirmasi blockchain...");
+      await tx.wait();
       setFeedback("Nilai berhasil diinput!");
+      await new Promise(res => setTimeout(res, 1000));
+      await fetchPeserta();
       setModal(null);
-      fetchPeserta();
     } catch (err) {
       setFeedback("Gagal input nilai: " + (err.reason || err.message));
     }
@@ -166,10 +169,14 @@ export default function PesertaLSP() {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, contractArtifact.abi, signer);
-      await contract.updateKelulusan(uploadModal.sertifikasiID, cid);
+      const tx = await contract.updateKelulusan(uploadModal.sertifikasiID, cid);
+      setUploadStatus("Menunggu konfirmasi blockchain...");
+      await tx.wait();
       setUploadStatus("Berhasil upload dan update sertifikat!");
+      // Tambahkan delay 1 detik agar node sync
+      await new Promise(res => setTimeout(res, 1000));
+      await fetchPeserta();
       setUploadModal(null);
-      fetchPeserta();
     } catch (err) {
       setUploadStatus("Gagal: " + (err.reason || err.message));
     }
