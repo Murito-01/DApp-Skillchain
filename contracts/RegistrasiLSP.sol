@@ -48,6 +48,7 @@ contract RegistrasiLSP is SertifikasiStorage {
         lsp.status = StatusLSP.Aktif;
         lsp.suratIzinCID = suratIzinCID;
         lsp.alasanTolak = "";
+        isLSP[lspAddress] = true;
         emit LSPDiverifikasi(lspAddress, suratIzinCID);
     }
 

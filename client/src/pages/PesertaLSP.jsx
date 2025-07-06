@@ -11,23 +11,25 @@ export default function PesertaLSP() {
   const { role, account, isConnected } = useWallet();
   const navigate = useNavigate();
   const [pesertaList, setPesertaList] = useState([]);
+  const [nilaiMap, setNilaiMap] = useState({}); // { [pesertaAddr]: { tulis, praktek, wawancara, sudahInput, sertifikasiID } }
   const [loading, setLoading] = useState(false);
-  const [selectedPeserta, setSelectedPeserta] = useState(null);
-  const [nilai, setNilai] = useState({ tulis: "", praktek: "", wawancara: "" });
+  const [modal, setModal] = useState(null); // { peserta, sertifikasiID, tipe: 'tulis'|'praktek'|'wawancara' }
+  const [inputValue, setInputValue] = useState("");
   const [feedback, setFeedback] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
+  const [inputTulis, setInputTulis] = useState(0);
+  const [inputPraktek, setInputPraktek] = useState(0);
+  const [inputWawancara, setInputWawancara] = useState(0);
 
   useEffect(() => {
-    // Validasi akses - hanya LSP yang sudah diverifikasi yang bisa akses
     if (!isConnected) {
       navigate("/");
       return;
     }
-    
     if (role !== "lsp") {
       navigate("/");
       return;
     }
-    
     fetchPeserta();
     // eslint-disable-next-line
   }, [isConnected, role, navigate]);
@@ -39,10 +41,10 @@ export default function PesertaLSP() {
       if (!window.ethereum) throw new Error("Wallet tidak terdeteksi");
       const provider = new ethers.BrowserProvider(window.ethereum);
       const contract = new ethers.Contract(contractAddress, contractArtifact.abi, provider);
-      // Ambil semua peserta dari event PesertaTerdaftar
       const filter = contract.filters.PesertaTerdaftar();
       const events = await contract.queryFilter(filter, 0, "latest");
       const list = [];
+      const nilaiMapTemp = {};
       for (const ev of events) {
         const addr = ev.args.peserta;
         const info = await contract.getPesertaInfo(addr);
@@ -54,6 +56,22 @@ export default function PesertaLSP() {
           } catch {
             metadata = null;
           }
+          // Ambil sertifikasi aktif (hanya 1)
+          const sertifikasiID = info[3];
+          let nilai = { tulis: null, praktek: null, wawancara: null, sudahInput: false, sertifikasiID };
+          if (sertifikasiID && sertifikasiID !== "0x0000000000000000000000000000000000000000") {
+            try {
+              const n = await contract.getNilaiPeserta(sertifikasiID);
+              nilai = {
+                tulis: Number(n[0]),
+                praktek: Number(n[1]),
+                wawancara: Number(n[2]),
+                sudahInput: n[3],
+                sertifikasiID
+              };
+            } catch {}
+          }
+          nilaiMapTemp[addr] = nilai;
           list.push({
             address: addr,
             metadataCID: info[0],
@@ -62,27 +80,42 @@ export default function PesertaLSP() {
         }
       }
       setPesertaList(list);
+      setNilaiMap(nilaiMapTemp);
     } catch (err) {
       setFeedback("Gagal mengambil data: " + (err.message || err));
     }
     setLoading(false);
   }
 
-  function openInputNilai(peserta) {
-    setSelectedPeserta(peserta);
-    setNilai({ tulis: "", praktek: "", wawancara: "" });
+  function openInputModal(peserta) {
+    const sertifikasiID = nilaiMap[peserta.address]?.sertifikasiID;
+    setModal({ peserta, sertifikasiID });
+    setInputTulis(0);
+    setInputPraktek(0);
+    setInputWawancara(0);
     setFeedback("");
   }
 
   async function handleSubmitNilai(e) {
     e.preventDefault();
+    setActionLoading(true);
     setFeedback("");
-    // TODO: Panggil smart contract untuk simpan nilai
-    setFeedback("(Simulasi) Nilai berhasil disimpan!");
-    setSelectedPeserta(null);
+    try {
+      if (!window.ethereum) throw new Error("Wallet tidak terdeteksi");
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, contractArtifact.abi, signer);
+      const { peserta, sertifikasiID } = modal;
+      await contract.inputNilaiPeserta(sertifikasiID, Number(inputTulis), Number(inputPraktek), Number(inputWawancara));
+      setFeedback("Nilai berhasil diinput!");
+      setModal(null);
+      fetchPeserta();
+    } catch (err) {
+      setFeedback("Gagal input nilai: " + (err.reason || err.message));
+    }
+    setActionLoading(false);
   }
 
-  // Jika tidak terhubung atau bukan LSP yang diverifikasi, tampilkan pesan error
   if (!isConnected) {
     return (
       <div className="peserta-lsp-container">
@@ -93,7 +126,6 @@ export default function PesertaLSP() {
       </div>
     );
   }
-
   if (role !== "lsp") {
     return (
       <div className="peserta-lsp-container">
@@ -109,7 +141,7 @@ export default function PesertaLSP() {
   return (
     <div className="peserta-lsp-container">
       <h2 className="peserta-lsp-title">Daftar Peserta</h2>
-      {feedback && <div style={{marginBottom:16, color:feedback.startsWith('(')? '#389e0d':'#cf1322', fontWeight:500}}>{feedback}</div>}
+      {feedback && <div style={{marginBottom:16, color:feedback.startsWith('Nilai')? '#389e0d':'#cf1322', fontWeight:500}}>{feedback}</div>}
       {loading ? (
         <div>Loading data...</div>
       ) : pesertaList.length === 0 ? (
@@ -121,42 +153,54 @@ export default function PesertaLSP() {
               <th>Wallet</th>
               <th>Nama</th>
               <th>Email</th>
-              <th>Aksi</th>
+              <th>Input Nilai</th>
             </tr>
           </thead>
           <tbody>
-            {pesertaList.map(peserta => (
-              <tr key={peserta.address}>
-                <td style={{fontFamily:'monospace'}}>{peserta.address}</td>
-                <td>{peserta.metadata?.nama_lengkap || <i>Unknown</i>}</td>
-                <td>{peserta.metadata?.email_student_uii || <i>-</i>}</td>
-                <td>
-                  <button className="peserta-lsp-btn" onClick={()=>openInputNilai(peserta)}>Input Nilai</button>
-                </td>
-              </tr>
-            ))}
+            {pesertaList.map(peserta => {
+              const nilai = nilaiMap[peserta.address] || {};
+              return (
+                <tr key={peserta.address}>
+                  <td style={{fontFamily:'monospace'}}>{peserta.address}</td>
+                  <td>{peserta.metadata?.nama_lengkap || <i>Unknown</i>}</td>
+                  <td>{peserta.metadata?.email_student_uii || <i>-</i>}</td>
+                  <td style={{textAlign:'center'}}>
+                    {nilai.sertifikasiID && nilai.sertifikasiID !== "0x0000000000000000000000000000000000000000" ? (
+                      nilai.sudahInput
+                        ? <span>Sudah dinilai</span>
+                        : <button className="peserta-lsp-btn" onClick={()=>openInputModal(peserta)}>Input Nilai</button>
+                    ) : (
+                      <span style={{color:'#bbb'}}>Belum mengajukan</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}
-      {/* Modal Input Nilai */}
-      {selectedPeserta && (
+      {/* Modal Input Nilai Sekaligus */}
+      {modal && (
         <div className="peserta-lsp-modal-bg">
           <form className="peserta-lsp-modal" onSubmit={handleSubmitNilai}>
             <h3>Input Nilai Peserta</h3>
-            <div><b>Wallet:</b> {selectedPeserta.address}</div>
-            <div><b>Nama:</b> {selectedPeserta.metadata?.nama_lengkap || '-'}</div>
-            <label>Ujian Tulis
-              <input type="number" min="0" max="100" required value={nilai.tulis} onChange={e=>setNilai({...nilai, tulis:e.target.value})} />
+            <div><b>Wallet:</b> {modal.peserta.address}</div>
+            <div><b>Nama:</b> {modal.peserta.metadata?.nama_lengkap || '-'}</div>
+            <label>
+              Nilai Tulis (0-100):
+              <input type="number" min="0" max="100" required value={inputTulis} onChange={e=>setInputTulis(e.target.value)} />
             </label>
-            <label>Ujian Praktek
-              <input type="number" min="0" max="100" required value={nilai.praktek} onChange={e=>setNilai({...nilai, praktek:e.target.value})} />
+            <label>
+              Nilai Praktek (0-100):
+              <input type="number" min="0" max="100" required value={inputPraktek} onChange={e=>setInputPraktek(e.target.value)} />
             </label>
-            <label>Ujian Wawancara
-              <input type="number" min="0" max="100" required value={nilai.wawancara} onChange={e=>setNilai({...nilai, wawancara:e.target.value})} />
+            <label>
+              Nilai Wawancara (0-100):
+              <input type="number" min="0" max="100" required value={inputWawancara} onChange={e=>setInputWawancara(e.target.value)} />
             </label>
             <div className="peserta-lsp-modal-btn-row">
-              <button type="submit" className="peserta-lsp-modal-btn">Simpan</button>
-              <button type="button" className="peserta-lsp-modal-btn-cancel" onClick={()=>setSelectedPeserta(null)}>Batal</button>
+              <button type="submit" className="peserta-lsp-modal-btn" disabled={actionLoading}>{actionLoading ? 'Menyimpan...' : 'Simpan'}</button>
+              <button type="button" className="peserta-lsp-modal-btn-cancel" onClick={()=>setModal(null)} disabled={actionLoading}>Batal</button>
             </div>
           </form>
         </div>

@@ -47,6 +47,14 @@ abstract contract SertifikasiStorage {
         string alasanGagal;           // Alasan jika tidak lulus sertifikasi
     }
 
+    /// @notice Struktur data nilai peserta.
+    struct Nilai {
+        uint8 tulis;
+        uint8 praktek;
+        uint8 wawancara;
+        bool sudahInput;
+    }
+
     // Alamat entitas pusat (BNSP)
     address public bnsp;
 
@@ -67,6 +75,9 @@ abstract contract SertifikasiStorage {
 
     // Jumlah total peserta yang terdaftar
     uint public pesertaCount;
+
+    // Mapping dari sertifikasiID ke nilai peserta
+    mapping(address => Nilai) public nilaiPeserta;
 
     // ---------------------------- //
     //        EVENT DEFINISI        //

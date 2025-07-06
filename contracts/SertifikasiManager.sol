@@ -170,4 +170,33 @@ contract SertifikasiManager is SertifikasiStorage {
         require(id <= _sertifikasiIdCounter && id > 0, "ID tidak valid");
         return sertifikasiById[id];
     }
+
+    /// @notice LSP menginput nilai peserta (sekali saja)
+    /// @param sertifikasiID Alamat sertifikasi
+    /// @param tulis Nilai ujian tulis (0-100)
+    /// @param praktek Nilai ujian praktek (0-100)
+    /// @param wawancara Nilai ujian wawancara (0-100)
+    function inputNilaiPeserta(
+        address sertifikasiID,
+        uint8 tulis,
+        uint8 praktek,
+        uint8 wawancara
+    ) external onlyLSP validAddress(sertifikasiID) {
+        require(!nilaiPeserta[sertifikasiID].sudahInput, "Nilai sudah diinput");
+        require(tulis <= 100 && praktek <= 100 && wawancara <= 100, "Nilai maksimal 100");
+        nilaiPeserta[sertifikasiID] = Nilai({
+            tulis: tulis,
+            praktek: praktek,
+            wawancara: wawancara,
+            sudahInput: true
+        });
+    }
+
+    /// @notice Mengambil nilai peserta berdasarkan sertifikasiID
+    /// @param sertifikasiID Alamat sertifikasi
+    /// @return tulis, praktek, wawancara, sudahInput
+    function getNilaiPeserta(address sertifikasiID) external view returns (uint8, uint8, uint8, bool) {
+        Nilai memory n = nilaiPeserta[sertifikasiID];
+        return (n.tulis, n.praktek, n.wawancara, n.sudahInput);
+    }
 }
