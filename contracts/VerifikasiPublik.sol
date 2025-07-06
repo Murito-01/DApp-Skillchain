@@ -44,6 +44,37 @@ contract VerifikasiPublik is SertifikasiStorage {
         return sertifikasiList[sertifikasiID];
     }
 
+    /// @notice Mencari sertifikasi berdasarkan CID sertifikat
+    /// @param sertifikatCID CID IPFS sertifikat yang ingin dicari
+    /// @return sertifikasiID Alamat sertifikasi jika ditemukan, address(0) jika tidak ditemukan
+    function cariSertifikasiByCID(string calldata sertifikatCID) external view returns (address sertifikasiID) {
+        require(bytes(sertifikatCID).length > 0, "CID tidak boleh kosong");
+        
+        // Menggunakan mapping untuk pencarian yang efisien
+        return sertifikasiByCID[sertifikatCID];
+    }
+
+    /// @notice Verifikasi sertifikasi berdasarkan CID sertifikat
+    /// @param sertifikatCID CID IPFS sertifikat
+    /// @return valid True jika sertifikasi valid dan sudah lulus
+    /// @return sertifikasiID Alamat sertifikasi jika ditemukan
+    function verifikasiKelulusanByCID(string calldata sertifikatCID) external view returns (bool valid, address sertifikasiID) {
+        require(bytes(sertifikatCID).length > 0, "CID tidak boleh kosong");
+        
+        // Cari sertifikasiID berdasarkan CID
+        sertifikasiID = sertifikasiByCID[sertifikatCID];
+        
+        if (sertifikasiID == address(0)) {
+            return (false, address(0));
+        }
+        
+        // Verifikasi kelulusan
+        Sertifikasi memory s = sertifikasiList[sertifikasiID];
+        valid = s.lulus && !s.aktif;
+        
+        return (valid, sertifikasiID);
+    }
+
     /// @notice Verifikasi sertifikasi secara lengkap (status, data, kelulusan, dsb)
     /// @param sertifikasiID Alamat sertifikasi
     /// @return exists Apakah sertifikasi ditemukan

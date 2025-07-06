@@ -79,6 +79,9 @@ abstract contract SertifikasiStorage {
     // Mapping dari sertifikasiID ke nilai peserta
     mapping(address => Nilai) public nilaiPeserta;
 
+    // Mapping dari sertifikatCID ke sertifikasiID untuk optimasi pencarian
+    mapping(string => address) public sertifikasiByCID;
+
     // ---------------------------- //
     //        EVENT DEFINISI        //
     // ---------------------------- //

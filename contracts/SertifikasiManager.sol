@@ -73,6 +73,9 @@ contract SertifikasiManager is SertifikasiStorage {
         s.tanggalSelesai = block.timestamp;
         s.lspPenilai = msg.sender;
 
+        // Simpan mapping CID ke sertifikasiID untuk optimasi pencarian
+        sertifikasiByCID[sertifikatCID] = sertifikasiID;
+
         // Reset sertifikasi aktif peserta
         pesertaList[s.peserta].sertifikasiAktif = address(0);
 

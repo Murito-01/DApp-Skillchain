@@ -6,7 +6,7 @@ import MainContract from "../abi/MainContract.json";
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
 function VerifikasiSertifikat() {
-  const [sertifikasiID, setSertifikasiID] = useState("");
+  const [cid, setCid] = useState("");
   const [hasil, setHasil] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -24,17 +24,24 @@ function VerifikasiSertifikat() {
         await provider
       );
 
-      const isValid = await contract.verifikasiKelulusan(sertifikasiID);
+      // Verifikasi menggunakan CID
+      const [isValid, sertifikasiID] = await contract.verifikasiKelulusanByCID(cid);
+      let detail = null;
+      let metadata = "";
+      let skemaNama = "";
+
+      if (isValid && sertifikasiID !== "0x0000000000000000000000000000000000000000") {
+        detail = await contract.getDetailSertifikasi(sertifikasiID);
+        metadata = await contract.getPesertaMetadata(detail.peserta);
+        skemaNama = await contract.getSkemaNama(detail.skema);
+      }
 
       if (!isValid) {
         setHasil({
           valid: false,
+          cid: cid
         });
       } else {
-        const detail = await contract.getDetailSertifikasi(sertifikasiID);
-        const metadata = await contract.getPesertaMetadata(detail.peserta);
-        const skemaNama = await contract.getSkemaNama(detail.skema);
-
         setHasil({
           valid: true,
           peserta: detail.peserta,
@@ -42,14 +49,21 @@ function VerifikasiSertifikat() {
           metadataCID: metadata,
           skema: skemaNama,
           tanggalSelesai: new Date(Number(detail.tanggalSelesai) * 1000).toLocaleDateString(),
+          sertifikasiID: sertifikasiID,
+          cid: cid
         });
       }
     } catch (err) {
-      setError("Terjadi kesalahan. Pastikan sertifikasi ID valid dan MetaMask terhubung.");
+      setError("Terjadi kesalahan. Pastikan CID valid dan MetaMask terhubung.");
       console.error(err);
     }
 
     setLoading(false);
+  };
+
+  const isInputValid = () => {
+    // Validasi CID: harus ada karakter dan tidak kosong
+    return cid.trim().length > 0;
   };
 
   return (
@@ -58,11 +72,11 @@ function VerifikasiSertifikat() {
         <h2>Verifikasi Sertifikat</h2>
         <input
           type="text"
-          placeholder="Masukkan Sertifikasi ID"
-          value={sertifikasiID}
-          onChange={(e) => setSertifikasiID(e.target.value)}
+          placeholder="Masukkan CID Sertifikat (contoh: QmX...)"
+          value={cid}
+          onChange={(e) => setCid(e.target.value)}
         />
-        <button onClick={handleVerifikasi} disabled={loading || !sertifikasiID}>
+        <button onClick={handleVerifikasi} disabled={loading || !isInputValid()}>
           {loading ? "Memeriksa..." : "Verifikasi"}
         </button>
 
@@ -72,12 +86,25 @@ function VerifikasiSertifikat() {
           <div className="hasil-verifikasi">
             {hasil.valid ? (
               <>
-                <p><strong>Status:</strong> ✅ Sertifikasi Valid</p>
-                <p><strong>Alamat Peserta:</strong> {hasil.peserta}</p>
-                <p><strong>Skema:</strong> {hasil.skema}</p>
-                <p><strong>Sertifikat CID:</strong> <a href={`https://ipfs.io/ipfs/${hasil.sertifikatCID}`} target="_blank" rel="noopener noreferrer">{hasil.sertifikatCID}</a></p>
-                <p><strong>Metadata Peserta:</strong> <a href={`https://ipfs.io/ipfs/${hasil.metadataCID}`} target="_blank" rel="noopener noreferrer">{hasil.metadataCID}</a></p>
-                <p><strong>Tanggal Selesai:</strong> {hasil.tanggalSelesai}</p>
+                <div className="status-box">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="10" fill="#43a047"/><path d="M6 10.5l3 3 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  Status: <span>Sertifikasi Valid</span>
+                </div>
+                <div className="detail-row"><span className="detail-label">CID Sertifikat:</span><span className="detail-value">{hasil.cid}</span></div>
+                <div className="detail-row"><span className="detail-label">ID Sertifikasi:</span><span className="detail-value">{hasil.sertifikasiID}</span></div>
+                <div className="detail-row"><span className="detail-label">Alamat Peserta:</span><span className="detail-value">{hasil.peserta}</span></div>
+                <div className="detail-row"><span className="detail-label">Skema:</span><span className="detail-value">{hasil.skema}</span></div>
+                <div className="detail-row"><span className="detail-label">Sertifikat CID:</span><a className="detail-link" href={`https://ipfs.io/ipfs/${hasil.sertifikatCID}`} target="_blank" rel="noopener noreferrer">{hasil.sertifikatCID} <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M8.5 2.5h5v5" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M7 9l6-6" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M13 9.5v2A2.5 2.5 0 0 1 10.5 14h-6A2.5 2.5 0 0 1 2 11.5v-6A2.5 2.5 0 0 1 4.5 3H7" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></a></div>
+                <div className="detail-row"><span className="detail-label">Metadata Peserta:</span><a className="detail-link" href={`https://ipfs.io/ipfs/${hasil.metadataCID}`} target="_blank" rel="noopener noreferrer">{hasil.metadataCID} <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M8.5 2.5h5v5" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M7 9l6-6" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M13 9.5v2A2.5 2.5 0 0 1 10.5 14h-6A2.5 2.5 0 0 1 2 11.5v-6A2.5 2.5 0 0 1 4.5 3H7" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></a></div>
+                <div className="detail-row"><span className="detail-label">Tanggal Selesai:</span><span className="detail-value">{hasil.tanggalSelesai}</span></div>
+                <a
+                  href={`https://ipfs.io/ipfs/${hasil.sertifikatCID}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="lihat-sertifikat-btn"
+                >
+                  Lihat Sertifikat di IPFS
+                </a>
               </>
             ) : (
               <p className="invalid">❌ Sertifikasi Tidak Valid / Tidak Lulus</p>
