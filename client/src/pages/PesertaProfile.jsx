@@ -22,6 +22,8 @@ export default function PesertaProfile() {
   const [showModal, setShowModal] = useState(false);
   const [selectedSkema, setSelectedSkema] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sertifikatCID, setSertifikatCID] = useState("");
+  const [loadingSertifikat, setLoadingSertifikat] = useState(false);
 
   // Ambil wallet yang sedang login
   useEffect(() => {
@@ -76,6 +78,35 @@ export default function PesertaProfile() {
     fetchData();
     // expose fetchData to be called after ajukan sertifikasi
     PesertaProfile.fetchData = fetchData;
+  }, [account]);
+
+  useEffect(() => {
+    async function fetchSertifikatTerakhir() {
+      if (!window.ethereum || !account) return;
+      setLoadingSertifikat(true);
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const contract = new ethers.Contract(import.meta.env.VITE_CONTRACT_ADDRESS, contractArtifact.abi, provider);
+        const riwayat = await contract.lihatRiwayatSertifikasi(account);
+        if (riwayat.length > 0) {
+          const sertifikasiID = riwayat[riwayat.length - 1];
+          const sertif = await contract.getSertifikasi(sertifikasiID);
+          if (sertif.sertifikatCID && sertif.sertifikatCID.length > 0) {
+            setSertifikatCID(sertif.sertifikatCID);
+          } else if (sertif[2] && sertif[2].length > 0) {
+            setSertifikatCID(sertif[2]);
+          } else {
+            setSertifikatCID("");
+          }
+        } else {
+          setSertifikatCID("");
+        }
+      } catch {
+        setSertifikatCID("");
+      }
+      setLoadingSertifikat(false);
+    }
+    fetchSertifikatTerakhir();
   }, [account]);
 
   // Fungsi ajukan sertifikasi
@@ -198,6 +229,20 @@ export default function PesertaProfile() {
       ) : !status && (
         <div>Data peserta tidak ditemukan atau belum mendaftar.</div>
       )}
+
+      {/* Tambahkan section Sertifikat Terakhir jika ada */}
+      {loadingSertifikat ? (
+        <div style={{marginTop:24, textAlign:'center'}}>Memuat sertifikat terakhir...</div>
+      ) : sertifikatCID ? (
+        <div className="peserta-sertifikat-section">
+          <h3>Sertifikat Terakhir</h3>
+          <div className="sertifikat-cid-row">
+            <span className="cid-text" title={sertifikatCID}>{sertifikatCID.slice(0, 10)}...{sertifikatCID.slice(-6)}</span>
+            <button className="copy-btn" onClick={()=>navigator.clipboard.writeText(sertifikatCID)}>Copy CID</button>
+            <a className="lihat-btn" href={`https://ipfs.io/ipfs/${sertifikatCID}`} target="_blank" rel="noopener noreferrer" download>Unduh Sertifikat</a>
+          </div>
+        </div>
+      ) : null}
 
       {/* Modal Pilih Skema */}
       {showModal && (
