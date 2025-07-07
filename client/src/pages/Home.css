@@ -285,3 +285,92 @@ html, body {
   transform: translateY(-2px);
   box-shadow: 0 6px 24px rgba(251,191,36,0.18);
 }
+
+/* Root background dan layout utama */
+.home-root {
+  min-height: 100vh;
+  width: 100vw;
+  background: radial-gradient(circle at 60% 20%, #f3f4f7 0%, #e8e9ec 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Header dan subheader */
+.home-header {
+  width: 100vw;
+  text-align: center;
+  margin-top: 36px;
+  margin-bottom: 32px;
+}
+.home-title-main {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 4px;
+  letter-spacing: -0.5px;
+}
+.home-subtitle {
+  font-size: 1rem;
+  color: #666;
+  font-weight: 400;
+  margin-bottom: 0;
+}
+
+/* Center container agar card benar-benar di tengah, tapi sedikit lebih ke atas */
+.home-center-container {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100vw;
+  margin-top: 4vh;
+  /* Tambahan agar tetap responsif di layar kecil */
+}
+
+/* Card putih di tengah */
+.home-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+  padding: 38px 38px 32px 38px;
+  min-width: 320px;
+  max-width: 350px;
+  margin: 0 auto;
+  text-align: center;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-gateway-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 0.7rem;
+}
+
+.home-gateway-desc {
+  font-size: 1.08rem;
+  color: #444;
+  margin-bottom: 1.7rem;
+}
+
+/* Tombol wallet tetap pakai style yang sudah ada (connect-wallet-btn) */
+
+@media (max-width: 600px) {
+  .home-card {
+    padding: 22px 8px 18px 8px;
+    min-width: 0;
+    max-width: 98vw;
+  }
+  .home-title-main {
+    font-size: 1.2rem;
+  }
+  .home-center-container {
+    margin-top: 2vh;
+  }
+}
