@@ -9,8 +9,8 @@ const WalletContext = createContext();
 // Address BNSP hardcode dari wallet 0 Hardhat
 export const ADDRESS_BNSP = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
-// Whitelist LSP
-export const LSP_WHITELIST = [
+// Waitinglist LSP
+export const LSP_WAITINGLIST = [
   "0x70997970C51812dc3A010C7d01b50e0d17dc79C8".toLowerCase(),
   "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc".toLowerCase(),
 ];
@@ -81,15 +81,15 @@ export function WalletProvider({ children }) {
         setRole("lsp-candidate"); // Menunggu atau ditolak
         return;
       } else if (statusNum === -1) {
-        // Cek whitelist manual di smart contract
-        let isWhitelisted = false;
+        // Cek waitinglist manual di smart contract
+        let isWaitinglisted = false;
         try {
-          isWhitelisted = await contract.lspWhitelist(address);
+          isWaitinglisted = await contract.lspWaitinglist(address);
         } catch {}
-        if (isWhitelisted) {
+        if (isWaitinglisted) {
           setRole("lsp-candidate"); // Boleh ajukan
         } else {
-          setRole(""); // Belum pernah daftar/di-whitelist, menu Daftar
+          setRole(""); // Belum pernah daftar/di-waitinglist, menu Daftar
         }
         return;
       }
