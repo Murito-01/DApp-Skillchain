@@ -12,6 +12,7 @@ import StatusLSP from "./pages/StatusLSP";
 import PesertaLSP from "./pages/PesertaLSP";
 import BNSPDashboard from "./pages/BNSPDashboard";
 import LSPDashboard from "./pages/LSPDashboard";
+import PesertaDashboard from "./pages/PesertaDashboard";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/status" element={<StatusLSP />} />
           <Route path="/peserta-lsp" element={<PesertaLSP />} />
           <Route path="/lsp" element={<LSPDashboard />} />
+          <Route path="/peserta" element={<PesertaDashboard />} />
         </Routes>
       </Router>
     </WalletProvider>

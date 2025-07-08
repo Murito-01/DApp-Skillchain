@@ -33,6 +33,9 @@ export default function Navbar() {
         {role === "lsp" && (
           <Link to="/lsp" className={location.pathname === "/lsp" ? "active" : ""}>Dashboard LSP</Link>
         )}
+        {role === "peserta" && (
+          <Link to="/peserta" className={location.pathname === "/peserta" ? "active" : ""}>Dashboard Peserta</Link>
+        )}
         {role === "lsp-candidate" && lspStatus === -1 && (
           <Link to="/ajukan" className={location.pathname === "/ajukan" ? "active" : ""}>Ajukan</Link>
         )}
@@ -41,9 +44,6 @@ export default function Navbar() {
         )}
         {isConnected && role === "" && (
           <Link to="/daftar" className={location.pathname === "/daftar" ? "active" : ""}>Daftar</Link>
-        )}
-        {isConnected && role === "peserta" && (
-          <Link to="/profile" className={location.pathname === "/profile" ? "active" : ""}>Profil</Link>
         )}
       </div>
     </nav>

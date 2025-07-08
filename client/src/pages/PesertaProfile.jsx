@@ -157,13 +157,12 @@ export default function PesertaProfile() {
   };
 
   return (
-    <div className="profile-container">
+    <div className="profile-container" style={{marginTop: 0, paddingTop: 8}}>
       <h2 className="profile-title">Profil Peserta</h2>
       {status && <div className={"profile-status" + (status.startsWith("❌") ? " error" : status.startsWith("✅") ? " success" : "")}>{status}</div>}
-      
       {profile ? (
-        <div className="profile-sections-row">
-          <div className="profile-section">
+        <div className="profile-sections-row" style={{marginTop: 0, justifyContent: 'center', alignItems: 'flex-start'}}>
+          <div className="profile-section" style={{minWidth:340,maxWidth:520,margin:'0 auto'}}>
             <h3>Data Pribadi</h3>
             <div className="profile-row"><span className="profile-label">Alamat Wallet:</span><span className="profile-value">{account}</span></div>
             <div className="profile-row"><span className="profile-label">CID Metadata:</span><span className="profile-value">{metadataCID}</span></div>
@@ -177,111 +176,8 @@ export default function PesertaProfile() {
             <div className="profile-row"><span className="profile-label">Nomor HP:</span><span className="profile-value">{profile.nomor_hp}</span></div>
             <div className="profile-row"><span className="profile-label">ID Sosial Media:</span><span className="profile-value">{profile.id_sosmed}</span></div>
           </div>
-
-          <div className="profile-section">
-            <h3>Status Sertifikasi</h3>
-            {sertifikasiAktif ? (
-              <div>
-                <div className="profile-row">
-                  <span className="profile-label">Status:</span>
-                  <span className="profile-value">
-                    {sertifikasiAktif.aktif ? "🟡 Sudah Terdaftar" : sertifikasiAktif.lulus ? "🟢 Lulus" : "🔴 Tidak Lulus"}
-                  </span>
-                </div>
-                <div className="profile-row">
-                  <span className="profile-label">Skema:</span>
-                  <span className="profile-value">{SKEMA_SERTIFIKASI[sertifikasiAktif.skema]}</span>
-                </div>
-                <div className="profile-row">
-                  <span className="profile-label">Tanggal Pengajuan:</span>
-                  <span className="profile-value">{formatTimestamp(sertifikasiAktif.tanggalPengajuan)}</span>
-                </div>
-                <div className="profile-row">
-                  <span className="profile-label">Tanggal Selesai:</span>
-                  <span className="profile-value">{formatTimestamp(sertifikasiAktif.tanggalSelesai)}</span>
-                </div>
-                <div className="profile-row">
-                  <span className="profile-label">LSP Penilai:</span>
-                  <span className="profile-value">{sertifikasiAktif.lspPenilai !== "0x0000000000000000000000000000000000000000" ? sertifikasiAktif.lspPenilai : "-"}</span>
-                </div>
-                <div className="profile-row">
-                  <span className="profile-label">Sertifikat CID:</span>
-                  <span className="profile-value">{sertifikasiAktif.sertifikatCID && sertifikasiAktif.sertifikatCID !== "" ? sertifikasiAktif.sertifikatCID : "-"}</span>
-                </div>
-                <div className="profile-row">
-                  <span className="profile-label">Alasan Gagal:</span>
-                  <span className="profile-value error">{sertifikasiAktif.alasanGagal && sertifikasiAktif.alasanGagal !== "" ? sertifikasiAktif.alasanGagal : "-"}</span>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <p>Belum ada sertifikasi yang diajukan.</p>
-                <button 
-                  onClick={() => setShowModal(true)} 
-                  className="btn-ajukan-sertifikasi"
-                >
-                  📝 Ajukan Sertifikasi
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      ) : !status && (
-        <div>Data peserta tidak ditemukan atau belum mendaftar.</div>
-      )}
-
-      {/* Tambahkan section Sertifikat Terakhir jika ada */}
-      {loadingSertifikat ? (
-        <div style={{marginTop:24, textAlign:'center'}}>Memuat sertifikat terakhir...</div>
-      ) : sertifikatCID ? (
-        <div className="peserta-sertifikat-section">
-          <h3>Sertifikat Terakhir</h3>
-          <div className="sertifikat-cid-row">
-            <span className="cid-text" title={sertifikatCID}>{sertifikatCID.slice(0, 10)}...{sertifikatCID.slice(-6)}</span>
-            <button className="copy-btn" onClick={()=>navigator.clipboard.writeText(sertifikatCID)}>Copy CID</button>
-            <a className="lihat-btn" href={`https://ipfs.io/ipfs/${sertifikatCID}`} target="_blank" rel="noopener noreferrer" download>Unduh Sertifikat</a>
-          </div>
         </div>
       ) : null}
-
-      {/* Modal Pilih Skema */}
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>Pilih Skema Sertifikasi</h3>
-            <div className="skema-options">
-              {Object.entries(SKEMA_SERTIFIKASI).map(([key, value]) => (
-                <label key={key} className="skema-option">
-                  <input
-                    type="radio"
-                    name="skema"
-                    value={key}
-                    checked={selectedSkema === parseInt(key)}
-                    onChange={(e) => setSelectedSkema(parseInt(e.target.value))}
-                  />
-                  <span>{value}</span>
-                </label>
-              ))}
-            </div>
-            <div className="modal-actions">
-              <button 
-                onClick={() => setShowModal(false)} 
-                disabled={isSubmitting}
-                className="btn-cancel"
-              >
-                Batal
-              </button>
-              <button 
-                onClick={ajukanSertifikasi} 
-                disabled={isSubmitting}
-                className="btn-submit"
-              >
-                {isSubmitting ? "Mengirim..." : "Ajukan Sertifikasi"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 } 
