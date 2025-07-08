@@ -1,0 +1,115 @@
+/* LSPDashboardSidebar.css (meniru BNSPDashboardSidebar.css) */
+
+.bnsp-sidebar-layout {
+  display: flex;
+  min-height: 90vh;
+  background: #f4f6fa;
+}
+
+.bnsp-sidebar {
+  width: 220px;
+  background: #232946;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 32px 0 0 0;
+  min-height: 100vh;
+  box-shadow: 2px 0 12px #0001;
+}
+.bnsp-sidebar.bnsp-sidebar-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 16px #0001, 0 1.5px 6px #0001;
+  color: #232946;
+  margin: 0 0 32px 0;
+  min-width: 210px;
+  max-width: 240px;
+  padding: 32px 0 32px 0;
+  align-items: stretch;
+  border: 1px solid #f0f0f0;
+}
+.bnsp-sidebar-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 28px;
+  letter-spacing: 0.5px;
+  color: #232946;
+}
+.bnsp-sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 18px;
+}
+.bnsp-sidebar-menu-item {
+  background: none;
+  border: none;
+  color: #232946;
+  font-size: 1.08rem;
+  font-weight: 500;
+  padding: 13px 18px 13px 14px;
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background 0.18s, color 0.18s;
+  box-shadow: none;
+}
+.bnsp-sidebar-menu-item.active, .bnsp-sidebar-menu-item:hover {
+  background: #f4f6fa;
+  color: #4f46e5;
+}
+.bnsp-sidebar-menu-icon {
+  font-size: 1.25em;
+  display: inline-flex;
+  align-items: center;
+  width: 1.7em;
+  justify-content: center;
+}
+
+.bnsp-sidebar-content {
+  flex: 1;
+  padding: 40px 32px;
+  background: #f4f6fa;
+  min-height: 100vh;
+  overflow-x: auto;
+}
+
+@media (max-width: 700px) {
+  .bnsp-sidebar-layout {
+    flex-direction: column;
+  }
+  .bnsp-sidebar.bnsp-sidebar-card {
+    width: 100%;
+    min-width: unset;
+    max-width: unset;
+    min-height: unset;
+    flex-direction: row;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+  }
+  .bnsp-sidebar-menu {
+    flex-direction: row;
+    gap: 0;
+    padding: 0 4px;
+    width: 100%;
+    justify-content: space-around;
+  }
+  .bnsp-sidebar-menu-item {
+    flex: 1;
+    text-align: center;
+    border-radius: 0;
+    padding: 14px 0;
+    justify-content: center;
+  }
+  .bnsp-sidebar-content {
+    padding: 18px 6px;
+  }
+} 

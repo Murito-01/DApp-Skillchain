@@ -11,6 +11,7 @@ import DaftarLSP from "./pages/DaftarLSP";
 import StatusLSP from "./pages/StatusLSP";
 import PesertaLSP from "./pages/PesertaLSP";
 import BNSPDashboard from "./pages/BNSPDashboard";
+import LSPDashboard from "./pages/LSPDashboard";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/ajukan" element={<DaftarLSP />} />
           <Route path="/status" element={<StatusLSP />} />
           <Route path="/peserta-lsp" element={<PesertaLSP />} />
+          <Route path="/lsp" element={<LSPDashboard />} />
         </Routes>
       </Router>
     </WalletProvider>

@@ -241,7 +241,7 @@ export default function PesertaLSP() {
               <th>Wallet</th>
               <th>Nama</th>
               <th>Email</th>
-              <th>Input Nilai</th>
+              <th>Nilai</th>
               <th>Sertifikat</th>
             </tr>
           </thead>
@@ -267,7 +267,7 @@ export default function PesertaLSP() {
                         <span className="status-label dinilai" style={{color:'#cf1322', fontWeight:600}}>Gagal</span>
                       )
                     ) : (
-                      <button className="peserta-lsp-btn input-nilai-btn" onClick={()=>openInputModal(peserta)}>Input Nilai</button>
+                      <button className="peserta-lsp-btn input-nilai-btn" onClick={()=>openInputModal(peserta)}>Input</button>
                     )}
                   </td>
                   <td className="sertifikat-cell">
