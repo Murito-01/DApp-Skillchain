@@ -24,6 +24,8 @@ export default function PesertaLSP() {
   const [sertifikatFile, setSertifikatFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState("");
+  const [kelulusan, setKelulusan] = useState("lulus"); // lulus/gagal
+  const [alasanGagal, setAlasanGagal] = useState("");
 
   useEffect(() => {
     if (!isConnected) {
@@ -80,7 +82,8 @@ export default function PesertaLSP() {
                 wawancara: Number(n[2]),
                 sudahInput: n[3],
                 sertifikasiID,
-                sertifikatCID: sertif.sertifikatCID || sertif[2]
+                sertifikatCID: sertif.sertifikatCID || sertif[2],
+                lulus: sertif.lulus !== undefined ? sertif.lulus : sertif[3] // fallback ke index jika perlu
               };
             } catch {}
           }
@@ -106,6 +109,8 @@ export default function PesertaLSP() {
     setInputTulis(0);
     setInputPraktek(0);
     setInputWawancara(0);
+    setKelulusan("lulus");
+    setAlasanGagal("");
     setFeedback("");
   }
 
@@ -119,10 +124,26 @@ export default function PesertaLSP() {
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, contractArtifact.abi, signer);
       const { peserta, sertifikasiID } = modal;
-      const tx = await contract.inputNilaiPeserta(sertifikasiID, Number(inputTulis), Number(inputPraktek), Number(inputWawancara));
-      setFeedback("Menunggu konfirmasi blockchain...");
-      await tx.wait();
-      setFeedback("Nilai berhasil diinput!");
+      // Input nilai sekaligus status lulus/gagal
+      const txNilai = await contract.inputNilaiPeserta(
+        sertifikasiID,
+        Number(inputTulis),
+        Number(inputPraktek),
+        Number(inputWawancara),
+        kelulusan === "lulus"
+      );
+      setFeedback("Menunggu konfirmasi blockchain (input nilai)...");
+      await txNilai.wait();
+      if (kelulusan === "lulus") {
+        setFeedback("Nilai berhasil diinput! Peserta dinyatakan lulus. Silakan upload sertifikat.");
+        // Upload sertifikat dilakukan di modal terpisah
+      } else {
+        // updateKegagalan tetap dipanggil untuk alasan gagal
+        const txGagal = await contract.updateKegagalan(sertifikasiID, alasanGagal);
+        setFeedback("Menunggu konfirmasi blockchain (update gagal)...");
+        await txGagal.wait();
+        setFeedback("Nilai berhasil diinput! Peserta dinyatakan gagal.");
+      }
       await new Promise(res => setTimeout(res, 1000));
       await fetchPeserta();
       setModal(null);
@@ -228,6 +249,9 @@ export default function PesertaLSP() {
             {pesertaList.map(peserta => {
               const nilai = nilaiMap[peserta.address] || {};
               const sudahAjukan = nilai.sertifikasiID && nilai.sertifikasiID !== "0x0000000000000000000000000000000000000000";
+              // Status kelulusan: gunakan field lulus dari smart contract
+              const isLulus = nilai.sudahInput && nilai.lulus;
+              const isGagal = nilai.sudahInput && !nilai.lulus;
               return (
                 <tr key={peserta.address}>
                   <td className="wallet-cell">{peserta.address}</td>
@@ -237,7 +261,11 @@ export default function PesertaLSP() {
                     {!sudahAjukan ? (
                       <span className="empty-label">Belum mengajukan</span>
                     ) : nilai.sudahInput ? (
-                      <span className="status-label dinilai">Sudah dinilai</span>
+                      isLulus ? (
+                        <span className="status-label dinilai" style={{color:'#389e0d', fontWeight:600}}>Lulus</span>
+                      ) : (
+                        <span className="status-label dinilai" style={{color:'#cf1322', fontWeight:600}}>Gagal</span>
+                      )
                     ) : (
                       <button className="peserta-lsp-btn input-nilai-btn" onClick={()=>openInputModal(peserta)}>Input Nilai</button>
                     )}
@@ -246,14 +274,18 @@ export default function PesertaLSP() {
                     {!sudahAjukan ? (
                       <span className="empty-label">-</span>
                     ) : nilai.sudahInput ? (
-                      nilai.sertifikatCID ? (
-                        <div className="cid-cell" title={nilai.sertifikatCID}>
-                          <span className="cid-text">{nilai.sertifikatCID.slice(0, 8)}...{nilai.sertifikatCID.slice(-6)}</span>
-                          <button className="copy-btn" onClick={()=>navigator.clipboard.writeText(nilai.sertifikatCID)}>Copy CID</button>
-                          <a className="lihat-btn" href={`https://ipfs.io/ipfs/${nilai.sertifikatCID}`} target="_blank" rel="noopener noreferrer">Lihat</a>
-                        </div>
+                      isLulus ? (
+                        nilai.sertifikatCID ? (
+                          <div className="cid-cell" title={nilai.sertifikatCID}>
+                            <span className="cid-text">{nilai.sertifikatCID.slice(0, 8)}...{nilai.sertifikatCID.slice(-6)}</span>
+                            <button className="copy-btn" onClick={()=>navigator.clipboard.writeText(nilai.sertifikatCID)}>Copy CID</button>
+                            <a className="lihat-btn" href={`https://ipfs.io/ipfs/${nilai.sertifikatCID}`} target="_blank" rel="noopener noreferrer">Lihat</a>
+                          </div>
+                        ) : (
+                          <button className="peserta-lsp-btn upload-sertifikat-btn" onClick={()=>openUploadModal(peserta, nilai.sertifikasiID)}>Upload Sertifikat</button>
+                        )
                       ) : (
-                        <button className="peserta-lsp-btn upload-sertifikat-btn" onClick={()=>openUploadModal(peserta, nilai.sertifikasiID)}>Upload Sertifikat</button>
+                        <span className="empty-label">-</span>
                       )
                     ) : (
                       <span className="empty-label">-</span>
@@ -284,6 +316,23 @@ export default function PesertaLSP() {
               Nilai Wawancara (0-100):
               <input type="number" min="0" max="100" required value={inputWawancara} onChange={e=>setInputWawancara(e.target.value)} />
             </label>
+            <div className="kelulusan-radio-row">
+              <span className="kelulusan-radio-label">Status Kelulusan:</span>
+              <div className="kelulusan-radio-options">
+                <label>
+                  <input type="radio" name="kelulusan" value="lulus" checked={kelulusan==="lulus"} onChange={()=>setKelulusan("lulus")} /> Lulus
+                </label>
+                <label>
+                  <input type="radio" name="kelulusan" value="gagal" checked={kelulusan==="gagal"} onChange={()=>setKelulusan("gagal")} /> Gagal
+                </label>
+              </div>
+            </div>
+            {kelulusan === "gagal" && (
+              <label>
+                Alasan Gagal:
+                <input type="text" required value={alasanGagal} onChange={e=>setAlasanGagal(e.target.value)} className="input-alasan-gagal" />
+              </label>
+            )}
             <div className="peserta-lsp-modal-btn-row">
               <button type="submit" className="peserta-lsp-modal-btn" disabled={actionLoading}>{actionLoading ? 'Menyimpan...' : 'Simpan'}</button>
               <button type="button" className="peserta-lsp-modal-btn-cancel" onClick={()=>setModal(null)} disabled={actionLoading}>Batal</button>

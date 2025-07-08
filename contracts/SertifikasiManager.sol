@@ -174,16 +174,18 @@ contract SertifikasiManager is SertifikasiStorage {
         return sertifikasiById[id];
     }
 
-    /// @notice LSP menginput nilai peserta (sekali saja)
+    /// @notice LSP menginput nilai peserta (sekali saja) dan bisa langsung set status lulus
     /// @param sertifikasiID Alamat sertifikasi
     /// @param tulis Nilai ujian tulis (0-100)
     /// @param praktek Nilai ujian praktek (0-100)
     /// @param wawancara Nilai ujian wawancara (0-100)
+    /// @param lulus Status kelulusan (true=lulus, false=gagal)
     function inputNilaiPeserta(
         address sertifikasiID,
         uint8 tulis,
         uint8 praktek,
-        uint8 wawancara
+        uint8 wawancara,
+        bool lulus
     ) external onlyLSP validAddress(sertifikasiID) {
         require(!nilaiPeserta[sertifikasiID].sudahInput, "Nilai sudah diinput");
         require(tulis <= 100 && praktek <= 100 && wawancara <= 100, "Nilai maksimal 100");
@@ -193,6 +195,8 @@ contract SertifikasiManager is SertifikasiStorage {
             wawancara: wawancara,
             sudahInput: true
         });
+        Sertifikasi storage s = sertifikasiList[sertifikasiID];
+        s.lulus = lulus;
     }
 
     /// @notice Mengambil nilai peserta berdasarkan sertifikasiID

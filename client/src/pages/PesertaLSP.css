@@ -273,3 +273,83 @@
     font-size: 11px;
   }
 } 
+
+/* Tambahan untuk radio button kelulusan sejajar */
+/* Radio button styling untuk Status Kelulusan */
+.kelulusan-radio-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 16px 0;
+  width: 100%;
+}
+
+.kelulusan-radio-label {
+  font-weight: 500;
+  color: #222;
+  margin-right: 16px;
+}
+
+.kelulusan-radio-options {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.kelulusan-radio-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 400;
+  color: #222;
+  cursor: pointer;
+  margin: 0;
+}
+
+.kelulusan-radio-options input[type="radio"] {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.kelulusan-radio-options input[type="radio"]:checked {
+  border-color: #4f46e5;
+  background-color: #fff;
+}
+
+.kelulusan-radio-options input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #4f46e5;
+}
+
+.kelulusan-radio-options input[type="radio"]:hover {
+  border-color: #4f46e5;
+}
+
+/* Field alasan gagal sama seperti input nilai */
+.input-alasan-gagal {
+  margin-left: 8px;
+  padding: 4px 8px;
+  border: 1px solid #c7d2fe;
+  border-radius: 5px;
+  width: 60%;
+  min-width: 100px;
+  max-width: 220px;
+  font-size: 1rem;
+  color: #222;
+  background: #f9f9ff;
+  box-sizing: border-box;
+  text-align: left;
+} 
