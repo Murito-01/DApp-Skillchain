@@ -8,11 +8,11 @@ import WaitinglistLSP from "./WaitinglistLSP";
 import "./BNSPDashboard.css";
 
 const MENU = [
-  { key: "verif", label: "Verifikasi LSP" },
-  { key: "peserta", label: "Monitoring Peserta" },
-  { key: "lsp", label: "Monitoring LSP" },
-  { key: "sertifikat", label: "Monitoring Sertifikat" },
-  { key: "waitinglist", label: "Waitinglist LSP" },
+  { key: "verif", label: "Verifikasi LSP", icon: "🗂️" },
+  { key: "peserta", label: "Monitoring Peserta", icon: "👥" },
+  { key: "lsp", label: "Monitoring LSP", icon: "🏢" },
+  { key: "sertifikat", label: "Monitoring Sertifikat", icon: "📄" },
+  { key: "waitinglist", label: "Waitinglist LSP", icon: "⏳" },
 ];
 
 export default function BNSPDashboard() {
@@ -20,7 +20,7 @@ export default function BNSPDashboard() {
 
   return (
     <div className="bnsp-sidebar-layout">
-      <aside className="bnsp-sidebar">
+      <aside className="bnsp-sidebar bnsp-sidebar-card">
         <div className="bnsp-sidebar-title">BNSP Admin</div>
         <nav className="bnsp-sidebar-menu">
           {MENU.map(m => (
@@ -29,7 +29,8 @@ export default function BNSPDashboard() {
               className={"bnsp-sidebar-menu-item" + (activeMenu === m.key ? " active" : "")}
               onClick={() => setActiveMenu(m.key)}
             >
-              {m.label}
+              <span className="bnsp-sidebar-menu-icon">{m.icon}</span>
+              <span>{m.label}</span>
             </button>
           ))}
         </nav>

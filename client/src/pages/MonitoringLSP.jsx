@@ -74,7 +74,7 @@ export default function MonitoringLSP() {
 
   return (
     <div>
-      <h2 style={{marginBottom:24}}>Monitoring LSP</h2>
+      <h2 style={{marginBottom:24, color:'#111'}}>Monitoring LSP</h2>
       <input
         type="text"
         placeholder="Cari nama, email, wallet, atau status..."

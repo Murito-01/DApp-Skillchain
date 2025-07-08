@@ -66,7 +66,7 @@ export default function MonitoringPeserta() {
 
   return (
     <div>
-      <h2 style={{marginBottom:24}}>Monitoring Peserta</h2>
+      <h2 style={{marginBottom:24, color:'#111'}}>Monitoring Peserta</h2>
       <input
         type="text"
         placeholder="Cari nama, email, atau wallet..."

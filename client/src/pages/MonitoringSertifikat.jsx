@@ -68,7 +68,7 @@ export default function MonitoringSertifikat() {
 
   return (
     <div>
-      <h2 style={{marginBottom:24}}>Monitoring Sertifikat</h2>
+      <h2 style={{marginBottom:24, color:'#111'}}>Monitoring Sertifikat</h2>
       <input
         type="text"
         placeholder="Cari wallet, skema, atau status..."
