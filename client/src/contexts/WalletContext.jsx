@@ -57,7 +57,6 @@ export function WalletProvider({ children }) {
       let pesertaInfo, lspStatusOnChain;
       try {
         pesertaInfo = await contract.getPesertaInfo(address);
-        // PesertaInfo: [metadataCID, terdaftar, aktif, ...]
       } catch {
         pesertaInfo = null;
       }
@@ -66,7 +65,6 @@ export function WalletProvider({ children }) {
         setLspStatus(null);
         return;
       }
-      // Selalu cek status LSP ke smart contract
       try {
         lspStatusOnChain = await contract.getStatusLSP(address);
       } catch (err) {
@@ -75,25 +73,15 @@ export function WalletProvider({ children }) {
       const statusNum = Number(lspStatusOnChain);
       setLspStatus(statusNum);
       if (statusNum === 1) {
-        setRole("lsp"); // Sudah diverifikasi/aktif
+        setRole("lsp");
         return;
       } else if (statusNum === 0 || statusNum === 2) {
-        setRole("lsp-candidate"); // Menunggu atau ditolak
+        setRole("lsp-candidate");
         return;
       } else if (statusNum === -1) {
-        // Cek waitinglist manual di smart contract
-        let isWaitinglisted = false;
-        try {
-          isWaitinglisted = await contract.lspWaitinglist(address);
-        } catch {}
-        if (isWaitinglisted) {
-          setRole("lsp-candidate"); // Boleh ajukan
-        } else {
-          setRole(""); // Belum pernah daftar/di-waitinglist, menu Daftar
-        }
+        setRole(""); // Tidak ada role, menu Ajukan & Daftar
         return;
       }
-      // Fallback: jika bukan peserta/lsp, set role ke string kosong
       setRole("");
     } catch {
       setRole("");
