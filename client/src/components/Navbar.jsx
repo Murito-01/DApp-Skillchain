@@ -7,13 +7,6 @@ export default function Navbar() {
   const { isConnected, role, account, disconnectWallet, lspStatus } = useWallet();
   const isBNSP = isConnected && account && account.toLowerCase() === ADDRESS_BNSP.toLowerCase();
 
-  // Waitinglist address LSP
-  // const LSP_WAITINGLIST = [
-  //   "0x70997970C51812dc3A010C7d01b50e0d17dc79C8".toLowerCase(),
-  //   "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc".toLowerCase(),
-  // ];
-  // const isLSPWaitinglisted = isConnected && account && LSP_WAITINGLIST.includes(account.toLowerCase());
-
   return (
     <nav className="navbar">
       <div className="navbar-logo">

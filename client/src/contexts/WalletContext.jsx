@@ -11,8 +11,7 @@ export const ADDRESS_BNSP = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
 // Waitinglist LSP
 export const LSP_WAITINGLIST = [
-  "0x70997970C51812dc3A010C7d01b50e0d17dc79C8".toLowerCase(),
-  "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc".toLowerCase(),
+  
 ];
 
 export function WalletProvider({ children }) {
@@ -31,7 +30,7 @@ export function WalletProvider({ children }) {
       if (accounts.length > 0) {
         setAccount(accounts[0]);
         setIsConnected(true);
-        setRole(""); // Reset role ke kosong sebelum checkRole
+        setRole("");
         await checkRole(accounts[0]);
         setLoading(false);
         return true;
@@ -44,7 +43,6 @@ export function WalletProvider({ children }) {
     return false;
   };
 
-  // Fungsi untuk cek role peserta ke smart contract
   const checkRole = async (address) => {
     if (address.toLowerCase() === ADDRESS_BNSP.toLowerCase()) {
       setRole("bnsp");
@@ -79,7 +77,7 @@ export function WalletProvider({ children }) {
         setRole("lsp-candidate");
         return;
       } else if (statusNum === -1) {
-        setRole(""); // Tidak ada role, menu Ajukan & Daftar
+        setRole("");
         return;
       }
       setRole("");
@@ -89,21 +87,18 @@ export function WalletProvider({ children }) {
     }
   };
 
-  // Fungsi disconnect wallet
   const disconnectWallet = () => {
     setAccount("");
     setIsConnected(false);
     setRole("");
   };
 
-  // Cek status peserta ke smart contract setiap kali account berubah dan wallet connect
   useEffect(() => {
     if (isConnected && account) {
       checkRole(account);
     } else {
       setRole("");
     }
-    // eslint-disable-next-line
   }, [isConnected, account]);
 
   return (
