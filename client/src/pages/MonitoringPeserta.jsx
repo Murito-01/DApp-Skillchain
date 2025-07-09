@@ -12,7 +12,6 @@ export default function MonitoringPeserta() {
 
   useEffect(() => {
     fetchPeserta();
-    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {

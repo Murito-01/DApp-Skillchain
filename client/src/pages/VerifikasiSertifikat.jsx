@@ -62,7 +62,6 @@ function VerifikasiSertifikat() {
   };
 
   const isInputValid = () => {
-    // Validasi CID: harus ada karakter dan tidak kosong
     return cid.trim().length > 0;
   };
 

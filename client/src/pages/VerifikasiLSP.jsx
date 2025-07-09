@@ -22,7 +22,6 @@ export default function VerifikasiLSP() {
 
   useEffect(() => {
     fetchPendingLSPs();
-    // eslint-disable-next-line
   }, []);
 
   async function fetchPendingLSPs() {

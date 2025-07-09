@@ -21,7 +21,6 @@ export default function MonitoringSertifikat({ hanyaPeserta = false }) {
 
   useEffect(() => {
     fetchSertifikat();
-    // eslint-disable-next-line
   }, [account]);
 
   useEffect(() => {
@@ -51,9 +50,6 @@ export default function MonitoringSertifikat({ hanyaPeserta = false }) {
         const peserta = ev.args.peserta;
         const sertifikasiID = ev.args.sertifikasiID;
         const s = await contract.getSertifikasi(sertifikasiID);
-        // Hanya tampilkan jika:
-        // - Jika hanyaPeserta true, peserta === account
-        // - Sertifikasi sudah selesai (lulus/gagal/tidak aktif)
         const sudahSelesai = !s.aktif;
         if (hanyaPeserta) {
           if (peserta.toLowerCase() !== account?.toLowerCase()) continue;

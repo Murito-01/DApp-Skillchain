@@ -18,7 +18,6 @@ body, html {
   width: 100vw;
 }
 
-/* Container utama untuk full viewport */
 .verifikasi-wrapper {
   min-height: 100vh;
   width: 100vw;
@@ -69,7 +68,6 @@ body, html {
   margin-top: 0;
 }
 
-/* Input Type Selector */
 .input-type-selector {
   margin-bottom: 1.5rem;
   padding: 1rem;
@@ -266,7 +264,6 @@ body, html {
   border: 1px solid rgba(254, 178, 178, 0.2);
 }
 
-/* Status valid styling */
 .hasil-verifikasi p:first-child {
   font-size: 1.2rem;
   font-weight: 700;
@@ -279,7 +276,6 @@ body, html {
   margin-bottom: 1.5rem;
 }
 
-/* Responsive design */
 @media (max-width: 900px) {
   .verifikasi-container, .hasil-verifikasi {
     max-width: 98vw;

@@ -274,8 +274,6 @@
   }
 } 
 
-/* Tambahan untuk radio button kelulusan sejajar */
-/* Radio button styling untuk Status Kelulusan */
 .kelulusan-radio-row {
   display: flex;
   align-items: center;
@@ -338,7 +336,6 @@
   border-color: #4f46e5;
 }
 
-/* Field alasan gagal sama seperti input nilai */
 .input-alasan-gagal {
   margin-left: 8px;
   padding: 4px 8px;

@@ -5,7 +5,6 @@
   box-sizing: border-box;
 }
 
-/* Pastikan full height untuk semua parent elements */
 html, body {
   height: 100%;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -18,7 +17,6 @@ html, body {
   flex-direction: column;
 }
 
-/* Container utama - full viewport height */
 .home-container {
   min-height: 100vh;
   width: 100vw;
@@ -30,7 +28,6 @@ html, body {
   position: relative;
 }
 
-/* Tambahan efek visual */
 .home-container::before {
   content: '';
   position: absolute;
@@ -43,7 +40,6 @@ html, body {
   pointer-events: none;
 }
 
-/* Kotak konten - diperbaiki untuk responsive */
 .home-box {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -61,7 +57,6 @@ html, body {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Judul - diperbaiki styling */
 .home-title {
   font-size: 2.2rem;
   font-weight: 700;
@@ -71,7 +66,6 @@ html, body {
   line-height: 1.2;
 }
 
-/* Deskripsi - diperbaiki readability */
 .home-description {
   font-size: 1.1rem;
   color: #555;
@@ -82,7 +76,6 @@ html, body {
   margin-right: auto;
 }
 
-/* Container tombol */
 .home-buttons {
   display: flex;
   gap: 20px;
@@ -91,7 +84,6 @@ html, body {
   align-items: center;
 }
 
-/* Base styling untuk semua tombol */
 .home-button {
   padding: 15px 30px;
   border-radius: 12px;
@@ -107,7 +99,6 @@ html, body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Tombol primary */
 .home-button.primary {
   background: linear-gradient(135deg, #1e3c72, #2a5298);
   color: white;
@@ -120,7 +111,6 @@ html, body {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
 
-/* Tombol secondary */
 .home-button.secondary {
   background: rgba(255, 255, 255, 0.9);
   color: #1e3c72;
@@ -135,7 +125,6 @@ html, body {
   box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3);
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .home-container {
     padding: 15px;
@@ -182,7 +171,6 @@ html, body {
   }
 }
 
-/* Untuk landscape mobile */
 @media (max-height: 600px) and (orientation: landscape) {
   .home-container {
     min-height: 100vh;
@@ -286,7 +274,6 @@ html, body {
   box-shadow: 0 6px 24px rgba(251,191,36,0.18);
 }
 
-/* Root background dan layout utama */
 .home-root {
   min-height: 100vh;
   width: 100vw;
@@ -297,7 +284,6 @@ html, body {
   justify-content: flex-start;
 }
 
-/* Header dan subheader */
 .home-header {
   width: 100vw;
   text-align: center;
@@ -318,7 +304,6 @@ html, body {
   margin-bottom: 0;
 }
 
-/* Center container agar card benar-benar di tengah, tapi sedikit lebih ke atas */
 .home-center-container {
   flex: 1;
   display: flex;
@@ -326,10 +311,8 @@ html, body {
   justify-content: center;
   width: 100vw;
   margin-top: 4vh;
-  /* Tambahan agar tetap responsif di layar kecil */
 }
 
-/* Card putih di tengah */
 .home-card {
   background: #fff;
   border-radius: 18px;
@@ -358,8 +341,6 @@ html, body {
   color: #444;
   margin-bottom: 1.7rem;
 }
-
-/* Tombol wallet tetap pakai style yang sudah ada (connect-wallet-btn) */
 
 @media (max-width: 600px) {
   .home-card {

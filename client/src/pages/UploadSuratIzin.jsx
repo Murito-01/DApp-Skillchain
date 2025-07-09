@@ -30,7 +30,6 @@ export default function UploadSuratIzin() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      // Custom fetch with progress
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "https://api.pinata.cloud/pinning/pinFileToIPFS");
       xhr.setRequestHeader("pinata_api_key", PINATA_API_KEY);

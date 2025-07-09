@@ -25,7 +25,6 @@ function AjukanSertifikasiPage() {
 
   useEffect(() => {
     fetchStatusAktif();
-    // eslint-disable-next-line
   }, [account]);
 
   async function fetchStatusAktif() {

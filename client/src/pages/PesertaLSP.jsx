@@ -11,9 +11,9 @@ export default function PesertaLSP() {
   const { role, account, isConnected } = useWallet();
   const navigate = useNavigate();
   const [pesertaList, setPesertaList] = useState([]);
-  const [nilaiMap, setNilaiMap] = useState({}); // { [pesertaAddr]: { tulis, praktek, wawancara, sudahInput, sertifikasiID } }
+  const [nilaiMap, setNilaiMap] = useState({});
   const [loading, setLoading] = useState(false);
-  const [modal, setModal] = useState(null); // { peserta, sertifikasiID, tipe: 'tulis'|'praktek'|'wawancara' }
+  const [modal, setModal] = useState(null);
   const [inputValue, setInputValue] = useState("");
   const [feedback, setFeedback] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
@@ -24,7 +24,7 @@ export default function PesertaLSP() {
   const [sertifikatFile, setSertifikatFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState("");
-  const [kelulusan, setKelulusan] = useState("lulus"); // lulus/gagal
+  const [kelulusan, setKelulusan] = useState("lulus");
   const [alasanGagal, setAlasanGagal] = useState("");
 
   useEffect(() => {
@@ -37,7 +37,6 @@ export default function PesertaLSP() {
       return;
     }
     fetchPeserta();
-    // eslint-disable-next-line
   }, [isConnected, role, navigate]);
 
   async function fetchPeserta() {
@@ -61,7 +60,6 @@ export default function PesertaLSP() {
           } catch {
             metadata = null;
           }
-          // Ambil seluruh riwayat sertifikasi
           let riwayat = [];
           try {
             riwayat = await contract.lihatRiwayatSertifikasi(addr);

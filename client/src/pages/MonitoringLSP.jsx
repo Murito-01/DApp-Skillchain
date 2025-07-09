@@ -18,7 +18,6 @@ export default function MonitoringLSP() {
 
   useEffect(() => {
     fetchLSP();
-    // eslint-disable-next-line
   }, []);
 
   useEffect(() => {

@@ -22,7 +22,7 @@
   border-radius: 18px;
   box-shadow: 0 2px 16px #0001, 0 1.5px 6px #0001;
   color: #232946;
-  margin: 0 0 32px 0; /* Remove top margin so sidebar is flush with header */
+  margin: 0 0 32px 0;
   min-width: 210px;
   max-width: 240px;
   padding: 32px 0 32px 0;

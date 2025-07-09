@@ -42,7 +42,6 @@ export default function DaftarLSP() {
     if (isConnected && account) {
       checkLSPStatus(account);
     }
-    // eslint-disable-next-line
   }, [isConnected, account]);
 
   const checkLSPStatus = async (address) => {
@@ -72,7 +71,6 @@ export default function DaftarLSP() {
       const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
       });
-      // WalletContext akan update account & isConnected
       setStatus("");
     } catch (error) {
       setStatus("❌ Gagal terhubung ke wallet: " + error.message);

@@ -19,7 +19,6 @@ export default function DaftarSertifikatPeserta() {
 
   useEffect(() => {
     fetchSertifikat();
-    // eslint-disable-next-line
   }, [account]);
 
   async function fetchSertifikat() {

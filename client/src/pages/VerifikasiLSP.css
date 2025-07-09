@@ -128,17 +128,15 @@
   background: #f8f8f8;
 }
 
-/* PERBAIKAN UTAMA: Container untuk button actions */
 .verif-lsp-modal-actions {
   display: flex;
   gap: 12px;
   margin-top: 8px;
   width: 100%;
-  align-items: stretch; /* Ubah dari center ke stretch */
+  align-items: stretch;
   justify-content: center;
 }
 
-/* PERBAIKAN UTAMA: Styling button yang lebih konsisten */
 .verif-lsp-modal-btn {
   flex: 1;
   box-sizing: border-box;
@@ -161,13 +159,13 @@
   justify-content: center;
   min-width: 0;
   max-width: none;
-  vertical-align: bottom; /* Tambahkan ini */
+  vertical-align: bottom;
 }
 
 .verif-lsp-modal-btn.simpan {
   background: #22c55e;
   color: #fff;
-  align-self: flex-end; /* Pastikan button simpan juga menempel ke bawah */
+  align-self: flex-end;
 }
 
 .verif-lsp-modal-btn.simpan:hover {
@@ -186,8 +184,8 @@
 .verif-lsp-modal-btn.batal {
   background: #ef4444;
   color: #fff;
-  align-self: flex-end; /* Paksa button batal menempel ke bawah */
-  margin-top: auto; /* Tambahkan ini jika perlu */
+  align-self: flex-end;
+  margin-top: auto;
 }
 
 .verif-lsp-modal-btn.batal:hover {

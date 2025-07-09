@@ -23,7 +23,6 @@ export default function StatusLSP() {
     if (isConnected && account) {
       fetchStatus();
     }
-    // eslint-disable-next-line
   }, [isConnected, account]);
 
   const fetchStatus = async () => {
@@ -37,9 +36,9 @@ export default function StatusLSP() {
       
       // Update role berdasarkan status
       if (statusNumber === 1) {
-        setRole("lsp"); // Sudah diverifikasi
+        setRole("lsp"); 
       } else if (statusNumber === -1 || statusNumber === 0 || statusNumber === 2) {
-        setRole("lsp-candidate"); // Belum diverifikasi atau ditolak
+        setRole("lsp-candidate");
       }
       
       if (statusNumber === 1) {

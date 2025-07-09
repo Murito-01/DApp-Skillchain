@@ -41,7 +41,6 @@ export default function DaftarPeserta() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Fungsi untuk koneksi ke MetaMask
   const connectWallet = async () => {
     try {
       if (!window.ethereum) {
@@ -65,7 +64,6 @@ export default function DaftarPeserta() {
     }
   };
 
-  // Fungsi untuk upload ke Pinata
   const uploadToPinata = async (jsonData) => {
     if (!PINATA_API_KEY || !PINATA_SECRET_API_KEY) {
       throw new Error("API Key/Secret Pinata tidak ditemukan di .env");
@@ -98,7 +96,6 @@ export default function DaftarPeserta() {
     setStatus("Validasi data...");
 
     try {
-      // 1. Ambil schema dari public
       const schema = await fetch("/metadata-peserta.schema.json").then(res => res.json());
       const ajv = new Ajv();
       const validate = ajv.compile(schema);
@@ -161,7 +158,6 @@ export default function DaftarPeserta() {
 
   const ajukanSertifikasi = async (skema) => {
     const tx = await contract.ajukanSertifikasi(skema);
-    // Otomatis: tanggalPengajuan, aktif: true, sertifikasiAktif terisi
   };
 
   return (

@@ -13,10 +13,8 @@ export default function BNSPDashboard() {
 
   useEffect(() => {
     fetchPendingLSPs();
-    // eslint-disable-next-line
   }, []);
 
-  // Ambil semua LSP yang statusnya menunggu verifikasi
   async function fetchPendingLSPs() {
     setLoading(true);
     setFeedback("");
@@ -24,8 +22,6 @@ export default function BNSPDashboard() {
       if (!window.ethereum) throw new Error("Wallet tidak terdeteksi");
       const provider = new ethers.BrowserProvider(window.ethereum);
       const contract = new ethers.Contract(contractAddress, contractArtifact.abi, provider);
-      // Cari semua address LSP yang statusnya 0 (Menunggu)
-      // Karena tidak ada array di contract, kita brute force dari event LSPDidaftarkan
       const filter = contract.filters.LSPDidaftarkan();
       const events = await contract.queryFilter(filter, 0, "latest");
       const lspList = [];
