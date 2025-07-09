@@ -182,34 +182,72 @@ export default function VerifikasiLSP() {
         </div>
       ) : (
         <table className="verif-lsp-table">
+          <colgroup>
+            <col style={{width:'13%'}} />
+            <col style={{width:'16%'}} />
+            <col style={{width:'13%'}} />
+            <col style={{width:'11%'}} />
+            <col style={{width:'8%'}} />
+            <col style={{width:'13%'}} />
+            <col style={{width:'18%'}} />
+            <col style={{width:'8%'}} />
+          </colgroup>
           <thead>
             <tr>
-              <th>Wallet</th>
-              <th>Nama LSP</th>
-              <th>Email</th>
-              <th>Aksi</th>
+              <th style={{textAlign:'center'}}>Wallet</th>
+              <th style={{textAlign:'center'}}>Nama LSP</th>
+              <th style={{textAlign:'center'}}>Email</th>
+              <th style={{textAlign:'center'}}>Telepon</th>
+              <th style={{textAlign:'center'}}>Jenis LSP</th>
+              <th style={{textAlign:'center'}}>Website</th>
+              <th style={{textAlign:'center'}}>CID Akte Notaris</th>
+              <th style={{textAlign:'center', minWidth:90, maxWidth:110}}>Aksi</th>
             </tr>
           </thead>
           <tbody>
             {pendingLSPs.map(lsp => (
-              <tr key={lsp.address}>
-                <td style={{fontFamily:'monospace'}}>{lsp.address}</td>
-                <td>{lsp.metadata?.nama_lsp || <i>Unknown</i>}</td>
-                <td>{lsp.metadata?.email_kontak || <i>-</i>}</td>
-                <td>
+              <tr key={lsp.address} className="verif-lsp-row">
+                <td style={{fontFamily:'monospace', fontSize:13, textAlign:'center', maxWidth:120, wordBreak:'break-all', padding:'10px 8px'}}>{lsp.address}</td>
+                <td style={{textAlign:'center', padding:'10px 8px'}}>{lsp.metadata?.nama_lsp || <i>Unknown</i>}</td>
+                <td style={{textAlign:'center', padding:'10px 8px'}}>{lsp.metadata?.email_kontak || <i>-</i>}</td>
+                <td style={{textAlign:'center', padding:'10px 8px'}}>{lsp.metadata?.telepon || <i>-</i>}</td>
+                <td style={{textAlign:'center', padding:'10px 8px', color:'#22c55e', fontWeight:600}}>{lsp.metadata?.jenis_lsp || <i>-</i>}</td>
+                <td style={{textAlign:'center', padding:'10px 8px'}}>{lsp.metadata?.website ? (
+                  <a href={lsp.metadata.website} target="_blank" rel="noopener noreferrer" style={{color:'#256d13',textDecoration:'underline',fontWeight:500}}>
+                    {lsp.metadata.website.replace(/^https?:\/\//, '').split('/')[0]}
+                  </a>
+                ) : <i>-</i>}</td>
+                <td style={{textAlign:'center', padding:'10px 8px'}}>
+                  {lsp.metadata?.akte_notaris_cid ? (
+                    <span style={{background:'#e6f0ff', color:'#111', padding:'2px 6px', borderRadius:4, display:'inline-block', position:'relative'}} title={lsp.metadata.akte_notaris_cid}>
+                      {lsp.metadata.akte_notaris_cid.slice(0,8)}...{lsp.metadata.akte_notaris_cid.slice(-6)}
+                      <a href={`https://ipfs.io/ipfs/${lsp.metadata.akte_notaris_cid}`} target="_blank" rel="noopener noreferrer" style={{marginLeft:10, color:'#fff', textDecoration:'none', fontSize:14, verticalAlign:'middle', fontWeight:600, padding:'4px 16px', borderRadius:4, background:'#7c3aed', display:'inline-block'}}>Lihat</a>
+                    </span>
+                  ) : <i>-</i>}
+                </td>
+                <td style={{textAlign:'center', padding:'10px 4px', minWidth:90, maxWidth:110}}>
                   <button
                     className="verif-lsp-btn verif"
+                    style={{padding:'0', width:36, height:36, minWidth:36, minHeight:36, maxWidth:36, maxHeight:36, borderRadius:8, fontSize:20, display:'inline-flex', alignItems:'center', justifyContent:'center', marginRight:6}}
                     onClick={()=>openVerifikasiModal(lsp)}
                     disabled={actionLoading!==''}
+                    title="Verifikasi"
                   >
-                    Verifikasi
+                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M6 12.5L10 16.5L16 7.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </button>
                   <button
                     className="verif-lsp-btn tolak"
+                    style={{padding:'0', width:36, height:36, minWidth:36, minHeight:36, maxWidth:36, maxHeight:36, borderRadius:8, fontSize:20, display:'inline-flex', alignItems:'center', justifyContent:'center'}}
                     onClick={()=>handleTolak(lsp.address)}
                     disabled={actionLoading!==''}
+                    title="Tolak"
                   >
-                    Tolak
+                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <line x1="6" y1="6" x2="16" y2="16" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                      <line x1="16" y1="6" x2="6" y2="16" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                    </svg>
                   </button>
                 </td>
               </tr>
