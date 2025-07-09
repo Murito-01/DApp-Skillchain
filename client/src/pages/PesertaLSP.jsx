@@ -233,7 +233,19 @@ export default function PesertaLSP() {
       {loading ? (
         <div>Loading data...</div>
       ) : pesertaList.length === 0 ? (
-        <div className="bnsp-card">Belum ada peserta.</div>
+        <div className="bnsp-card" style={{textAlign:'center', padding:'40px 20px', color:'#595959'}}>
+          <div style={{fontSize:48, marginBottom:16}}>🎓</div>
+          <h3 style={{color:'#3b3b99', marginBottom:8}}>Belum ada peserta yang mendaftar</h3>
+          <p style={{marginBottom:8}}>
+            Saat ini, belum ada peserta yang terdaftar untuk sertifikasi di LSP Anda.<br/>
+            Peserta yang sudah mendaftar akan otomatis muncul di halaman ini.
+          </p>
+          <ul style={{textAlign:'left', display:'inline-block', margin:'16px auto 0', paddingLeft:20, color:'#888'}}>
+            <li>Pastikan peserta sudah melakukan pendaftaran melalui aplikasi.</li>
+            <li>Halaman ini akan terupdate otomatis jika ada peserta baru.</li>
+            <li>Refresh halaman jika data belum muncul setelah beberapa saat.</li>
+          </ul>
+        </div>
       ) : (
         <table className="peserta-lsp-table">
           <thead>
