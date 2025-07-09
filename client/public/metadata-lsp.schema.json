@@ -5,8 +5,9 @@
   "type": "object",
   "required": [
     "nama_lsp",
+    "singkatan_lsp",
+    "jenis_lsp",
     "alamat_kantor",
-    "no_izin",
     "email_kontak",
     "telepon",
     "penanggung_jawab"
@@ -16,13 +17,18 @@
       "type": "string",
       "description": "Nama lengkap LSP sesuai dokumen resmi"
     },
+    "singkatan_lsp": {
+      "type": "string",
+      "description": "Nama singkatan LSP (akronim)"
+    },
+    "jenis_lsp": {
+      "type": "string",
+      "enum": ["LSP P1", "LSP P2", "LSP P3"],
+      "description": "Jenis LSP sesuai klasifikasi BNSP"
+    },
     "alamat_kantor": {
       "type": "string",
       "description": "Alamat lengkap kantor pusat LSP"
-    },
-    "no_izin": {
-      "type": "string",
-      "description": "Nomor izin operasional dari BNSP atau lembaga terkait"
     },
     "email_kontak": {
       "type": "string",

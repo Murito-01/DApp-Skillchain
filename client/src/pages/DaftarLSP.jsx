@@ -19,13 +19,20 @@ const STATUS_LABELS = [
 export default function DaftarLSP() {
   const [formData, setFormData] = useState({
     nama_lsp: "",
+    singkatan_lsp: "",
+    jenis_lsp: "LSP P1",
     alamat_kantor: "",
-    no_izin: "",
     email_kontak: "",
     telepon: "",
     penanggung_jawab: "",
     website: "",
+    akte_notaris_cid: "",
   });
+  const [akteFile, setAkteFile] = useState(null);
+  const [akteUploadProgress, setAkteUploadProgress] = useState(0);
+  const [akteUploading, setAkteUploading] = useState(false);
+  const [akteCID, setAkteCID] = useState("");
+  const [akteUploadStatus, setAkteUploadStatus] = useState("");
   const [status, setStatus] = useState("");
   const [lspStatus, setLspStatus] = useState(null); // 0: belum, 1: menunggu, 2: aktif, 3: ditolak
   const { account, isConnected, setRole, checkRole } = useWallet();
@@ -93,6 +100,59 @@ export default function DaftarLSP() {
     return data.IpfsHash;
   };
 
+  const uploadAkteToPinata = async (file) => {
+    return new Promise((resolve, reject) => {
+      if (!PINATA_API_KEY || !PINATA_SECRET_API_KEY) {
+        reject("API Key/Secret Pinata tidak ditemukan di .env");
+        return;
+      }
+      const url = "https://api.pinata.cloud/pinning/pinFileToIPFS";
+      const formData = new FormData();
+      formData.append("file", file);
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", url);
+      xhr.setRequestHeader("pinata_api_key", PINATA_API_KEY);
+      xhr.setRequestHeader("pinata_secret_api_key", PINATA_SECRET_API_KEY);
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          setAkteUploadProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      };
+      xhr.onload = () => {
+        setAkteUploading(false);
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          setAkteCID(data.IpfsHash);
+          setAkteUploadStatus("✅ Upload berhasil!");
+          resolve(data.IpfsHash);
+        } else {
+          setAkteUploadStatus("❌ Gagal upload ke Pinata");
+          reject("Gagal upload ke Pinata");
+        }
+      };
+      xhr.onerror = () => {
+        setAkteUploading(false);
+        setAkteUploadStatus("❌ Gagal upload ke Pinata");
+        reject("Gagal upload ke Pinata");
+      };
+      setAkteUploading(true);
+      setAkteUploadProgress(0);
+      setAkteUploadStatus("");
+      xhr.send(formData);
+    });
+  };
+
+  const handleAkteFileChange = (e) => {
+    const file = e.target.files[0];
+    setAkteFile(file);
+    setAkteCID("");
+    setAkteUploadProgress(0);
+    setAkteUploadStatus("");
+    if (file) {
+      uploadAkteToPinata(file).catch(() => {});
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isConnected) {
@@ -111,11 +171,15 @@ export default function DaftarLSP() {
       setStatus("❌ Pendaftaran Anda ditolak oleh BNSP. Silakan hubungi admin.");
       return;
     }
+    if (!akteFile || !akteCID) {
+      setStatus("❌ Mohon upload dokumen Akte Notaris (PDF) dan tunggu hingga upload selesai.");
+      return;
+    }
     setStatus("Membuat file JSON...");
     try {
-      const jsonString = JSON.stringify(formData, null, 2);
+      const dataToUpload = { ...formData, akte_notaris_cid: akteCID };
       setStatus("Upload ke IPFS (Pinata)...");
-      const cid = await uploadToPinata(formData);
+      const cid = await uploadToPinata(dataToUpload);
       setStatus("Mengirim transaksi ke blockchain...");
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
@@ -131,13 +195,19 @@ export default function DaftarLSP() {
       }
       setFormData({
         nama_lsp: "",
+        singkatan_lsp: "",
+        jenis_lsp: "LSP P1",
         alamat_kantor: "",
-        no_izin: "",
         email_kontak: "",
         telepon: "",
         penanggung_jawab: "",
         website: "",
+        akte_notaris_cid: "",
       });
+      setAkteFile(null);
+      setAkteCID("");
+      setAkteUploadProgress(0);
+      setAkteUploadStatus("");
       setTimeout(() => navigate("/status"), 1000);
     } catch (err) {
       if (err.code === 4001) {
@@ -181,32 +251,61 @@ export default function DaftarLSP() {
         ) : (
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>Nama LSP</label>
+              <label>Nama LSP (Lengkap)</label>
               <input name="nama_lsp" value={formData.nama_lsp} onChange={handleChange} required />
             </div>
             <div className="form-group">
-              <label>Alamat Kantor</label>
+              <label>Nama Singkatan LSP</label>
+              <input name="singkatan_lsp" value={formData.singkatan_lsp} onChange={handleChange} required />
+            </div>
+            <div className="form-group">
+              <label>Jenis LSP</label>
+              <select name="jenis_lsp" value={formData.jenis_lsp} onChange={handleChange} required>
+                <option value="LSP P1">LSP P1</option>
+                <option value="LSP P2">LSP P2</option>
+                <option value="LSP P3">LSP P3</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Alamat Kantor LSP</label>
               <input name="alamat_kantor" value={formData.alamat_kantor} onChange={handleChange} required />
             </div>
             <div className="form-group">
-              <label>Nomor Izin</label>
-              <input name="no_izin" value={formData.no_izin} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label>Email Kontak</label>
+              <label>Email Resmi LSP</label>
               <input name="email_kontak" type="email" value={formData.email_kontak} onChange={handleChange} required />
             </div>
             <div className="form-group">
-              <label>Telepon</label>
+              <label>Telepon Resmi</label>
               <input name="telepon" value={formData.telepon} onChange={handleChange} pattern="^08[0-9]{8,11}$" title="Nomor telepon harus diawali 08 dan 10-13 digit" required />
             </div>
             <div className="form-group">
-              <label>Penanggung Jawab</label>
+              <label>Nama Lengkap Penanggung Jawab</label>
               <input name="penanggung_jawab" value={formData.penanggung_jawab} onChange={handleChange} required />
             </div>
             <div className="form-group">
-              <label>Website (opsional)</label>
+              <label>Website Resmi</label>
               <input name="website" value={formData.website} onChange={handleChange} type="url" placeholder="https://..." />
+            </div>
+            <div className="form-group">
+              <label>Upload Akte Notaris (PDF)</label>
+              <input type="file" accept="application/pdf" onChange={handleAkteFileChange} required />
+              {akteUploading && (
+                <div style={{marginTop:8}}>
+                  <div style={{height:8,background:"#eee",borderRadius:6,overflow:"hidden"}}>
+                    <div style={{width:`${akteUploadProgress}%`,height:8,background:"#4f46e5",transition:"width .3s"}}></div>
+                  </div>
+                  <div style={{fontSize:12,marginTop:2,color:"#111"}}>{akteUploadProgress}%</div>
+                </div>
+              )}
+              {akteUploadStatus && (
+                <div style={{marginTop:8, color: akteUploadStatus.startsWith('✅') ? '#389e0d' : '#cf1322'}}>{akteUploadStatus}</div>
+              )}
+              {akteCID && (
+                <div style={{marginTop:8, fontSize:13, background:'#e6f0ff', padding:'6px 10px', borderRadius:6, color:'#111', display:'inline-block'}}>
+                  <b>CID Akte Notaris:</b> <span style={{fontFamily:'monospace', color:'#111'}}>{akteCID}</span>
+                  <button type="button" style={{marginLeft:8}} onClick={()=>{navigator.clipboard.writeText(akteCID)}}>Copy CID</button>
+                </div>
+              )}
             </div>
             <button type="submit" className="submit-btn">Daftarkan LSP</button>
           </form>
