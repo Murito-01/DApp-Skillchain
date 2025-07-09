@@ -50,7 +50,6 @@ export default function PesertaLSP() {
       const filter = contract.filters.PesertaTerdaftar();
       const events = await contract.queryFilter(filter, 0, "latest");
       const list = [];
-      const nilaiMapTemp = {};
       for (const ev of events) {
         const addr = ev.args.peserta;
         const info = await contract.getPesertaInfo(addr);
@@ -62,41 +61,38 @@ export default function PesertaLSP() {
           } catch {
             metadata = null;
           }
-          // Ambil riwayat sertifikasi dari contract.lihatRiwayatSertifikasi
-          let sertifikasiID = null;
+          // Ambil seluruh riwayat sertifikasi
           let riwayat = [];
           try {
             riwayat = await contract.lihatRiwayatSertifikasi(addr);
-            if (riwayat.length > 0) {
-              sertifikasiID = riwayat[riwayat.length - 1]; // sertifikasi terakhir
-            }
           } catch {}
-          let nilai = { tulis: null, praktek: null, wawancara: null, sudahInput: false, sertifikasiID: sertifikasiID || "0x0000000000000000000000000000000000000000", sertifikatCID: "" };
-          if (sertifikasiID && sertifikasiID !== "0x0000000000000000000000000000000000000000") {
-            try {
-              const n = await contract.getNilaiPeserta(sertifikasiID);
-              const sertif = await contract.getSertifikasi(sertifikasiID);
-              nilai = {
-                tulis: Number(n[0]),
-                praktek: Number(n[1]),
-                wawancara: Number(n[2]),
-                sudahInput: n[3],
-                sertifikasiID,
-                sertifikatCID: sertif.sertifikatCID || sertif[2],
-                lulus: sertif.lulus !== undefined ? sertif.lulus : sertif[3] // fallback ke index jika perlu
-              };
-            } catch {}
+          for (const sertifikasiID of riwayat) {
+            if (sertifikasiID && sertifikasiID !== "0x0000000000000000000000000000000000000000") {
+              let nilai = { tulis: null, praktek: null, wawancara: null, sudahInput: false, sertifikasiID, sertifikatCID: "", lulus: null };
+              try {
+                const n = await contract.getNilaiPeserta(sertifikasiID);
+                const sertif = await contract.getSertifikasi(sertifikasiID);
+                nilai = {
+                  tulis: Number(n[0]),
+                  praktek: Number(n[1]),
+                  wawancara: Number(n[2]),
+                  sudahInput: n[3],
+                  sertifikasiID,
+                  sertifikatCID: sertif.sertifikatCID || sertif[2],
+                  lulus: sertif.lulus !== undefined ? sertif.lulus : sertif[3]
+                };
+              } catch {}
+              list.push({
+                address: addr,
+                metadataCID: info[0],
+                metadata,
+                nilai
+              });
+            }
           }
-          nilaiMapTemp[addr] = nilai;
-          list.push({
-            address: addr,
-            metadataCID: info[0],
-            metadata,
-          });
         }
       }
       setPesertaList(list);
-      setNilaiMap(nilaiMapTemp);
     } catch (err) {
       setFeedback("Gagal mengambil data: " + (err.message || err));
     }
@@ -104,7 +100,7 @@ export default function PesertaLSP() {
   }
 
   function openInputModal(peserta) {
-    const sertifikasiID = nilaiMap[peserta.address]?.sertifikasiID;
+    const sertifikasiID = peserta.nilai?.sertifikasiID;
     setModal({ peserta, sertifikasiID });
     setInputTulis(0);
     setInputPraktek(0);
@@ -258,14 +254,13 @@ export default function PesertaLSP() {
             </tr>
           </thead>
           <tbody>
-            {pesertaList.map(peserta => {
-              const nilai = nilaiMap[peserta.address] || {};
+            {pesertaList.map((peserta, idx) => {
+              const nilai = peserta.nilai || {};
               const sudahAjukan = nilai.sertifikasiID && nilai.sertifikasiID !== "0x0000000000000000000000000000000000000000";
-              // Status kelulusan: gunakan field lulus dari smart contract
               const isLulus = nilai.sudahInput && nilai.lulus;
               const isGagal = nilai.sudahInput && !nilai.lulus;
               return (
-                <tr key={peserta.address}>
+                <tr key={peserta.address + "-" + nilai.sertifikasiID + "-" + idx}>
                   <td className="wallet-cell">{peserta.address}</td>
                   <td>{peserta.metadata?.nama_lengkap || <i>Unknown</i>}</td>
                   <td>{peserta.metadata?.email_student_uii || <i>-</i>}</td>
