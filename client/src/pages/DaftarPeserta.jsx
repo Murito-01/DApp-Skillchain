@@ -142,7 +142,7 @@ export default function DaftarPeserta() {
         nomor_hp: "",
         id_sosmed: "",
       });
-      setTimeout(() => navigate("/profile"), 1000);
+      setTimeout(() => navigate("/peserta"), 1000);
     } catch (err) {
       console.error("Error during registration:", err);
       if (err.message.includes("Pinata")) {
