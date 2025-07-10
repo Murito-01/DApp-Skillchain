@@ -76,7 +76,13 @@ export default function MonitoringPeserta() {
       {loading ? (
         <div>Loading data...</div>
       ) : filtered.length === 0 ? (
-        <div style={{marginTop:24}}>Tidak ada peserta ditemukan.</div>
+        <div style={{marginTop:48, display:'flex', justifyContent:'center'}}>
+          <div style={{background:'#fff', borderRadius:16, boxShadow:'0 2px 12px #0001', padding:'40px 48px', textAlign:'center', minWidth:320}}>
+            <div style={{fontSize:54, marginBottom:12}}>👥</div>
+            <div style={{fontWeight:700, fontSize:22, color:'#222', marginBottom:8}}>Belum Ada Peserta</div>
+            <div style={{fontSize:16, color:'#444'}}>Saat ini belum ada peserta yang terdaftar atau sesuai pencarian.<br/>Silakan cek kembali nanti.</div>
+          </div>
+        </div>
       ) : (
         <table style={{width:'100%',background:'#fff',borderRadius:12,boxShadow:'0 2px 8px #0001',overflow:'hidden',color:'#111'}}>
           <thead style={{background:'#f5f5f5',color:'#111'}}>
