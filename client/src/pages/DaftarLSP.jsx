@@ -217,7 +217,20 @@ export default function DaftarLSP() {
       }
       setStatus("Upload ke IPFS (Pinata)...");
       const randomJsonFilename = generateRandomFilename();
-      const cid = await uploadToPinata(encryptedJson, randomJsonFilename);
+      console.log("[DaftarLSP] Mulai upload metadata ke Pinata...");
+      let cid = null;
+      try {
+        cid = await uploadToPinata(encryptedJson, randomJsonFilename);
+        console.log("[DaftarLSP] CID metadata yang didapat dari Pinata:", cid);
+      } catch (uploadErr) {
+        console.error("[DaftarLSP] Gagal upload metadata ke Pinata:", uploadErr);
+        setStatus("❌ Gagal upload metadata ke Pinata. Coba lagi.");
+        return;
+      }
+      if (!cid) {
+        setStatus("❌ Upload ke Pinata gagal, CID kosong!");
+        return;
+      }
       setStatus("Mengirim transaksi ke blockchain...");
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import contractArtifact from "../abi/MainContract.json";
 import "./VerifikasiLSP.css";
-import { decryptData, getOrCreateAesKeyIv, decryptFileFromIPFS } from "../lib/encrypt";
+import { decryptData, getOrCreateAesKeyIv, decryptFileFromIPFS, encryptData, generateRandomFilename } from "../lib/encrypt";
 import CryptoJS from "crypto-js";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
@@ -11,30 +11,26 @@ const PINATA_SECRET_API_KEY = import.meta.env.VITE_PINATA_SECRET_API_KEY;
 
 // Fungsi utilitas untuk fetch dan dekripsi JSON terenkripsi dari Pinata
 async function fetchAndDecryptJsonFromPinata(cid) {
-  const res = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`);
-  const encrypted = await res.text();
-  const { key, iv, keyHex, ivHex } = getOrCreateAesKeyIv();
-  console.log("[DECRYPT] CID:", cid);
-  console.log("[DECRYPT] Encrypted string:", encrypted);
-  console.log("[DECRYPT] Panjang ciphertext:", encrypted.length);
-  const base64Regex = /^[A-Za-z0-9+/=]+$/;
-  if (encrypted.length % 4 !== 0 || !base64Regex.test(encrypted)) {
-    console.error("[DECRYPT] Ciphertext bukan base64 valid:", encrypted);
-    return null;
-  }
-  console.log("[DECRYPT] KeyHex:", keyHex, "IVHex:", ivHex);
+  if (!cid) return { error: 'CID kosong/null' };
   try {
-    // Log dekripsi manual
-    const decryptedWordArray = CryptoJS.AES.decrypt(encrypted, key, { iv });
-    console.log("[DECRYPT] WordArray:", decryptedWordArray);
-    const plaintext = decryptedWordArray.toString(CryptoJS.enc.Utf8);
-    console.log("[DECRYPT] Plaintext:", plaintext);
-    const obj = JSON.parse(plaintext);
-    console.log("[DECRYPT] JSON:", obj);
-    return obj;
+    const res = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`);
+    const encrypted = await res.text();
+    const { key, iv, keyHex, ivHex } = getOrCreateAesKeyIv();
+    console.log('[DEBUG] CID:', cid, '| keyHex:', keyHex, '| ivHex:', ivHex, '| encrypted.length:', encrypted.length);
+    try {
+      const decryptedWordArray = CryptoJS.AES.decrypt(encrypted, key, { iv });
+      const plaintext = decryptedWordArray.toString(CryptoJS.enc.Utf8);
+      console.log('[DEBUG] plaintext:', plaintext);
+      if (!plaintext) throw new Error('Malformed UTF-8 data');
+      const obj = JSON.parse(plaintext);
+      return obj;
+    } catch (e) {
+      console.error('[DECRYPT] Error:', e, '| encrypted:', encrypted, '| keyHex:', keyHex, '| ivHex:', ivHex);
+      return { error: 'Gagal dekripsi' };
+    }
   } catch (e) {
-    console.error("[DECRYPT] Error:", e);
-    return null;
+    console.error('[FETCH] Error:', e);
+    return { error: 'Gagal fetch data IPFS' };
   }
 }
 
@@ -73,20 +69,24 @@ export default function VerifikasiLSP() {
         const status = await contract.getStatusLSP(lspAddr);
         if (Number(status) === 0) {
           const lspData = await contract.getLSP(lspAddr);
+          console.log('[DEBUG] getLSP result', { lspAddr, lspData });
           let metadata = null;
           try {
             metadata = await fetchAndDecryptJsonFromPinata(lspData[0]);
           } catch {
             metadata = null;
           }
-          lspList.push({
-            address: lspAddr,
-            metadataCID: lspData[0],
-            status: Number(status),
-            suratIzinCID: lspData[2],
-            alasanTolak: lspData[3],
-            metadata,
-          });
+          // Filter: hanya masukkan LSP yang metadata-nya berhasil didekripsi
+          if (!metadata?.error) {
+            lspList.push({
+              address: lspAddr,
+              metadataCID: lspData[0],
+              status: Number(status),
+              suratIzinCID: lspData[2],
+              alasanTolak: lspData[3],
+              metadata,
+            });
+          }
         }
       }
       setPendingLSPs(lspList);
@@ -108,6 +108,11 @@ export default function VerifikasiLSP() {
   }
 
   async function handleVerifikasi() {
+    console.log('[DEBUG] handleVerifikasi', {
+      lspAddress: modalLSP?.address,
+      modalCID,
+      modalLSP
+    });
     if (!modalCID) {
       setFeedback("❌ CID surat izin harus diisi.");
       return;
@@ -121,9 +126,9 @@ export default function VerifikasiLSP() {
       const tx = await contract.verifikasiLSP(modalLSP.address, modalCID);
       setFeedback("Menunggu konfirmasi transaksi... " + tx.hash);
       await tx.wait();
-      setFeedback("✅ LSP berhasil diverifikasi!");
+      setFeedback("✅ LSP berhasil diverifikasi! Data akan diperbarui.");
       setShowModal(false);
-      fetchPendingLSPs();
+      await fetchPendingLSPs(); // pastikan refresh benar-benar selesai
     } catch (err) {
       setFeedback("❌ Gagal verifikasi: " + (err.reason || err.message));
     }
@@ -158,8 +163,23 @@ export default function VerifikasiLSP() {
     setUploadedCID("");
     setFeedback("");
     try {
+      // 1. Baca file sebagai base64
+      const fileBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      // 2. Enkripsi base64
+      const { key, iv } = getOrCreateAesKeyIv();
+      const encrypted = encryptData(fileBase64, key, iv);
+      // 3. Buat file blob terenkripsi
+      const encryptedBlob = new Blob([encrypted], { type: "text/plain" });
+      // 4. Random filename
+      const randomName = generateRandomFilename();
+      // 5. Upload ke Pinata
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", encryptedBlob, randomName);
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "https://api.pinata.cloud/pinning/pinFileToIPFS");
       xhr.setRequestHeader("pinata_api_key", PINATA_API_KEY);
@@ -261,18 +281,18 @@ export default function VerifikasiLSP() {
             {pendingLSPs.map(lsp => (
               <tr key={lsp.address} className="verif-lsp-row">
                 <td style={{fontFamily:'monospace', fontSize:13, textAlign:'center', maxWidth:120, wordBreak:'break-all', padding:'10px 8px'}}>{lsp.address}</td>
-                <td style={{textAlign:'center', padding:'10px 8px'}}>{lsp.metadata?.nama_lsp || <i>Unknown</i>}</td>
-                <td style={{textAlign:'center', padding:'10px 8px'}}>{lsp.metadata?.email_kontak || <i>-</i>}</td>
-                <td style={{textAlign:'center', padding:'10px 8px'}}>{lsp.metadata?.telepon || <i>-</i>}</td>
-                <td style={{textAlign:'center', padding:'10px 8px', color:'#22c55e', fontWeight:600}}>{lsp.metadata?.jenis_lsp || <i>-</i>}</td>
-                <td style={{textAlign:'center', padding:'10px 8px'}}>{lsp.metadata?.website ? (
+                <td style={{textAlign:'center', padding:'10px 8px'}}>{lsp.metadata?.error ? <span style={{color:'#e11d48',fontStyle:'italic'}}>{lsp.metadata.error}</span> : (lsp.metadata?.nama_lsp || <i>Unknown</i>)}</td>
+                <td style={{textAlign:'center', padding:'10px 8px'}}>{lsp.metadata?.error ? '-' : (lsp.metadata?.email_kontak || <i>-</i>)}</td>
+                <td style={{textAlign:'center', padding:'10px 8px'}}>{lsp.metadata?.error ? '-' : (lsp.metadata?.telepon || <i>-</i>)}</td>
+                <td style={{textAlign:'center', padding:'10px 8px', color:'#22c55e', fontWeight:600}}>{lsp.metadata?.error ? '-' : (lsp.metadata?.jenis_lsp || <i>-</i>)}</td>
+                <td style={{textAlign:'center', padding:'10px 8px'}}>{lsp.metadata?.error ? '-' : (lsp.metadata?.website ? (
                   <a href={lsp.metadata.website} target="_blank" rel="noopener noreferrer" style={{color:'#256d13',textDecoration:'underline',fontWeight:500}}>
                     {lsp.metadata.website.replace(/^https?:\/\//, '').split('/')[0]}
                   </a>
-                ) : <i>-</i>}</td>
+                ) : <i>-</i>)}</td>
                 <td style={{textAlign:'center', padding:'10px 8px'}}>
                   {lsp.metadata?.akte_notaris_cid ? (
-                    <span style={{background:'#e6f0ff', color:'#111', padding:'2px 6px', borderRadius:4, display:'inline-block', position:'relative'}} title={lsp.metadata.akte_notaris_cid}>
+                    <span style={{background:'#e6ffed', color:'#111', padding:'2px 6px', borderRadius:4, display:'inline-block', position:'relative'}} title={lsp.metadata.akte_notaris_cid}>
                       {lsp.metadata.akte_notaris_cid.slice(0,8)}...{lsp.metadata.akte_notaris_cid.slice(-6)}
                       <button
                         style={{marginLeft:10, color:'#fff', textDecoration:'none', fontSize:14, verticalAlign:'middle', fontWeight:600, padding:'4px 16px', borderRadius:4, background:'#7c3aed', display:'inline-block', border:'none', cursor:'pointer'}}
@@ -363,7 +383,7 @@ export default function VerifikasiLSP() {
                 <div style={{fontSize:15,marginBottom:6}}><b>CID Surat Izin:</b></div>
                 <div style={{fontFamily:'monospace',fontSize:15,wordBreak:'break-all',marginBottom:8}}>{uploadedCID}</div>
                 <button type="button" onClick={handleCopyCID} style={{padding:"7px 18px",background:"#4f46e5",color:"#fff",border:"none",borderRadius:7,cursor:"pointer",fontWeight:600,fontSize:15,boxShadow:"0 2px 8px #0001"}}>Copy CID</button>
-                <a href={`https://ipfs.io/ipfs/${uploadedCID}`} target="_blank" rel="noopener noreferrer" style={{marginLeft:12,fontSize:15,color:'#4f46e5',textDecoration:'underline',fontWeight:600}}>Lihat</a>
+                <button type="button" onClick={()=>handleLihatAkteNotaris(uploadedCID, file ? file.name : "surat_izin.pdf")} style={{marginLeft:12,fontSize:15,color:'#fff',background:'#7c3aed',textDecoration:'none',fontWeight:600,padding:'7px 18px',borderRadius:7,border:'none',cursor:'pointer'}}>Lihat</button>
               </div>
             )}
             <div className="verif-lsp-modal-actions">
@@ -388,7 +408,6 @@ export default function VerifikasiLSP() {
       {showFileModal && (
         <div className="verif-lsp-modal-bg" onClick={()=>setShowFileModal(false)}>
           <div className="verif-lsp-modal" onClick={e=>e.stopPropagation()} style={{maxWidth:600}}>
-            <h3>Lihat Akte Notaris</h3>
             {fileBlobUrl ? (
               fileType.startsWith("image/") ? (
                 <img src={fileBlobUrl} alt="Akte Notaris" style={{maxWidth:"100%", maxHeight:400, marginTop:16}} />

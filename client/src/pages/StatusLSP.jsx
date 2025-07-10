@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import contractArtifact from "../abi/MainContract.json";
 import { useWallet } from "../contexts/WalletContext";
 import "./DaftarLSP.css";
+import { decryptFileFromIPFS, getOrCreateAesKeyIv } from "../lib/encrypt";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
@@ -18,12 +19,28 @@ export default function StatusLSP() {
   const [lspStatus, setLspStatus] = useState(null);
   const [loading, setLoading] = useState(false);
   const [suratIzinCID, setSuratIzinCID] = useState("");
+  const [showFileModal, setShowFileModal] = useState(false);
+  const [fileBlobUrl, setFileBlobUrl] = useState("");
+  const [fileType, setFileType] = useState("");
 
+  // Setelah upload/verifikasi, fetchStatus() dipanggil ulang
   useEffect(() => {
     if (isConnected && account) {
       fetchStatus();
     }
   }, [isConnected, account]);
+
+  // Tambahkan polling sederhana setelah upload/verifikasi
+  const [polling, setPolling] = useState(false);
+  async function pollStatusAfterAction() {
+    setPolling(true);
+    for (let i = 0; i < 6; i++) { // polling max 6x (30 detik)
+      await new Promise(res => setTimeout(res, 5000));
+      await fetchStatus();
+      if (lspStatus === 1 && suratIzinCID) break;
+    }
+    setPolling(false);
+  }
 
   const fetchStatus = async () => {
     setLoading(true);
@@ -54,6 +71,27 @@ export default function StatusLSP() {
     }
     setLoading(false);
   };
+
+  async function handleLihatSuratIzin(cid, filenameGuess = "surat_izin.pdf") {
+    setShowFileModal(true);
+    setFileBlobUrl("");
+    setFileType("");
+    try {
+      const res = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`);
+      const encrypted = await res.text();
+      const { keyHex, ivHex } = getOrCreateAesKeyIv();
+      const bytes = decryptFileFromIPFS(encrypted, keyHex, ivHex);
+      let type = "application/pdf";
+      if (filenameGuess.endsWith(".jpg") || filenameGuess.endsWith(".jpeg")) type = "image/jpeg";
+      if (filenameGuess.endsWith(".png")) type = "image/png";
+      const blob = new Blob([bytes], { type });
+      setFileBlobUrl(URL.createObjectURL(blob));
+      setFileType(type);
+    } catch (e) {
+      alert("Gagal mendekripsi file: " + e.message);
+      setShowFileModal(false);
+    }
+  }
 
   return (
     <div className="daftar-container" style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'70vh'}}>
@@ -92,11 +130,8 @@ export default function StatusLSP() {
               <div style={{marginTop:18,fontSize:15}}>
                 <b style={{color:'#111'}}>CID Surat Izin:</b> <span style={{fontFamily:'monospace',color:'#222'}}>{suratIzinCID}</span>
                 <div style={{marginTop:12}}>
-                  <a
-                    href={`https://gateway.pinata.cloud/ipfs/${suratIzinCID}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download
+                  <button
+                    onClick={() => handleLihatSuratIzin(suratIzinCID, "surat_izin.pdf")}
                     style={{
                       display: 'inline-block',
                       marginTop: 8,
@@ -112,8 +147,8 @@ export default function StatusLSP() {
                       boxShadow: '0 2px 8px #0001'
                     }}
                   >
-                    Unduh Surat Izin
-                  </a>
+                    Lihat/Unduh Surat Izin
+                  </button>
                 </div>
               </div>
             )}
@@ -134,6 +169,29 @@ export default function StatusLSP() {
           </div>
         ) : null}
       </div>
+      {polling && (
+        <div style={{marginTop:16, color:'#ad8b00', fontSize:14}}>Menunggu konfirmasi blockchain... Data akan diperbarui otomatis.</div>
+      )}
+      {showFileModal && (
+        <div className="verif-lsp-modal-bg" onClick={()=>setShowFileModal(false)}>
+          <div className="verif-lsp-modal" onClick={e=>e.stopPropagation()} style={{maxWidth:600}}>
+            <h3>Lihat Surat Izin</h3>
+            {fileBlobUrl ? (
+              fileType.startsWith("image/") ? (
+                <img src={fileBlobUrl} alt="Surat Izin" style={{maxWidth:"100%", maxHeight:400, marginTop:16}} />
+              ) : (
+                <iframe src={fileBlobUrl} style={{width:"100%",height:"400px", marginTop:16}} title="Surat Izin" />
+              )
+            ) : (
+              <div>Loading file...</div>
+            )}
+            {fileBlobUrl && (
+              <a href={fileBlobUrl} download="surat_izin" style={{marginTop:18,display:"inline-block",fontWeight:600,color:'#4f46e5',textDecoration:'underline'}}>Download File</a>
+            )}
+            <button onClick={()=>setShowFileModal(false)} style={{marginLeft:10,marginTop:18,padding:'8px 18px',borderRadius:7,background:'#ef4444',color:'#fff',border:'none',fontWeight:600,cursor:'pointer'}}>Tutup</button>
+          </div>
+        </div>
+      )}
       <style>{`
         @keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
       `}</style>

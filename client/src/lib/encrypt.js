@@ -43,21 +43,15 @@ export function generateRandomFilename() {
   return uuidv4() + ".enc";
 }
 
-// Ambil atau buat kunci & IV AES256 di localStorage
+// Key dan IV global (hex string, 32 byte untuk key, 16 byte untuk IV)
+const GLOBAL_KEY = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"; // 64 hex = 32 byte
+const GLOBAL_IV = "abcdef9876543210abcdef9876543210"; // 32 hex = 16 byte
+
 export function getOrCreateAesKeyIv() {
-  let key = localStorage.getItem("lsp_aes_key");
-  let iv = localStorage.getItem("lsp_aes_iv");
-  if (!key || !iv) {
-    const { key: k, iv: v } = generateRandomKeyIv();
-    key = k.toString(CryptoJS.enc.Hex);
-    iv = v.toString(CryptoJS.enc.Hex);
-    localStorage.setItem("lsp_aes_key", key);
-    localStorage.setItem("lsp_aes_iv", iv);
-  }
   return {
-    key: CryptoJS.enc.Hex.parse(key),
-    iv: CryptoJS.enc.Hex.parse(iv),
-    keyHex: key,
-    ivHex: iv,
+    key: CryptoJS.enc.Hex.parse(GLOBAL_KEY),
+    iv: CryptoJS.enc.Hex.parse(GLOBAL_IV),
+    keyHex: GLOBAL_KEY,
+    ivHex: GLOBAL_IV,
   };
 } 

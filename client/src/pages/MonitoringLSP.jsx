@@ -13,21 +13,25 @@ const STATUS_LABELS = [
 
 // Fungsi utilitas untuk fetch dan dekripsi JSON terenkripsi dari Pinata
 async function fetchAndDecryptJsonFromPinata(cid) {
-  const res = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`);
-  const encrypted = await res.text();
-  const { key, iv, keyHex, ivHex } = getOrCreateAesKeyIv();
-  console.log("[DECRYPT] CID:", cid);
-  console.log("[DECRYPT] Encrypted string:", encrypted);
-  console.log("[DECRYPT] KeyHex:", keyHex, "IVHex:", ivHex);
+  if (!cid) return { error: 'CID kosong/null' };
   try {
-    const plain = decryptData(encrypted, key, iv);
-    console.log("[DECRYPT] Plaintext:", plain);
-    const obj = JSON.parse(plain);
-    console.log("[DECRYPT] JSON:", obj);
-    return obj;
+    const res = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`);
+    const encrypted = await res.text();
+    const { key, iv, keyHex, ivHex } = getOrCreateAesKeyIv();
+    console.log('[DEBUG] CID:', cid, '| keyHex:', keyHex, '| ivHex:', ivHex, '| encrypted.length:', encrypted.length);
+    try {
+      const plain = decryptData(encrypted, key, iv);
+      console.log('[DEBUG] plaintext:', plain);
+      if (!plain) throw new Error('Malformed UTF-8 data');
+      const obj = JSON.parse(plain);
+      return obj;
+    } catch (e) {
+      console.error('[DECRYPT] Error:', e, '| encrypted:', encrypted, '| keyHex:', keyHex, '| ivHex:', ivHex);
+      return { error: 'Gagal dekripsi' };
+    }
   } catch (e) {
-    console.error("[DECRYPT] Error:", e);
-    return null;
+    console.error('[FETCH] Error:', e);
+    return { error: 'Gagal fetch data IPFS' };
   }
 }
 
@@ -75,14 +79,17 @@ export default function MonitoringLSP() {
         } catch {
           metadata = null;
         }
-        list.push({
-          address: addr,
-          metadataCID: lspData[0],
-          status: Number(status),
-          suratIzinCID: lspData[2],
-          alasanTolak: lspData[3],
-          metadata,
-        });
+        // Filter: hanya masukkan LSP yang metadata-nya berhasil didekripsi
+        if (!metadata?.error) {
+          list.push({
+            address: addr,
+            metadataCID: lspData[0],
+            status: Number(status),
+            suratIzinCID: lspData[2],
+            alasanTolak: lspData[3],
+            metadata,
+          });
+        }
       }
       setLspList(list);
     } catch (err) {
@@ -108,7 +115,7 @@ export default function MonitoringLSP() {
           <div style={{background:'#fff', borderRadius:16, boxShadow:'0 2px 12px #0001', padding:'40px 48px', textAlign:'center', minWidth:320}}>
             <div style={{fontSize:54, marginBottom:12}}>🏢</div>
             <div style={{fontWeight:700, fontSize:22, color:'#222', marginBottom:8}}>Belum Ada LSP</div>
-            <div style={{fontSize:16, color:'#444'}}>Saat ini belum ada LSP yang terdaftar atau sesuai pencarian.<br/>Silakan cek kembali nanti.</div>
+            <div style={{fontSize:16, color:'#444'}}>Saat ini belum ada LSP yang terdaftar atau sesuai pencarian.<br/>Silakan cek kembali nanti.<br/><span style={{color:'#ad8b00',fontSize:13}}></span></div>
           </div>
         </div>
       ) : (
@@ -127,8 +134,8 @@ export default function MonitoringLSP() {
             {filtered.map(lsp => (
               <tr key={lsp.address}>
                 <td style={{fontFamily:'monospace',padding:8}}>{lsp.address}</td>
-                <td style={{padding:8}}>{lsp.metadata?.nama_lsp || <i>Unknown</i>}</td>
-                <td style={{padding:8}}>{lsp.metadata?.email_kontak || <i>-</i>}</td>
+                <td style={{padding:8}}>{lsp.metadata?.error ? <span style={{color:'#e11d48',fontStyle:'italic'}}>{lsp.metadata.error}</span> : (lsp.metadata?.nama_lsp || <i>Unknown</i>)}</td>
+                <td style={{padding:8}}>{lsp.metadata?.error ? '-' : (lsp.metadata?.email_kontak || <i>-</i>)}</td>
                 <td style={{padding:8}}>{STATUS_LABELS[lsp.status] || '-'}</td>
                 <td style={{padding:8,fontFamily:'monospace'}}>{lsp.suratIzinCID || <i>-</i>}</td>
                 <td style={{padding:8}}>{lsp.alasanTolak || <i>-</i>}</td>
