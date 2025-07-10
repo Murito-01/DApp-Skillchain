@@ -5,13 +5,15 @@ import MonitoringLSP from "./MonitoringLSP";
 import MonitoringSertifikat from "./MonitoringSertifikat";
 import UploadSuratIzin from "./UploadSuratIzin";
 import WaitinglistLSP from "./WaitinglistLSP";
+import KeySettings from "./KeySettings";
 import "./BNSPDashboard.css";
 
 const MENU = [
   { key: "verif", label: "Verifikasi LSP", icon: "\ud83d\uddc2\ufe0f" },
   { key: "peserta", label: "Monitoring Peserta", icon: "\ud83d\udc65" },
   { key: "lsp", label: "Monitoring LSP", icon: "\ud83c\udfe2" },
-  { key: "sertifikat", label: "Monitoring Sertifikat", icon: "\ud83d\udcc4" }
+  { key: "sertifikat", label: "Monitoring Sertifikat", icon: "\ud83d\udcc4" },
+  { key: "key", label: "Pengaturan Kunci", icon: "\ud83d\udd11" }
 ];
 
 export default function BNSPDashboard() {
@@ -39,6 +41,7 @@ export default function BNSPDashboard() {
         {activeMenu === "peserta" && <MonitoringPeserta />}
         {activeMenu === "lsp" && <MonitoringLSP />}
         {activeMenu === "sertifikat" && <MonitoringSertifikat />}
+        {activeMenu === "key" && <KeySettings />}
       </main>
     </div>
   );

@@ -41,4 +41,23 @@ export function decryptFileFromIPFS(encrypted, keyHex, ivHex) {
 // Generate random filename (uuid + .enc)
 export function generateRandomFilename() {
   return uuidv4() + ".enc";
+}
+
+// Ambil atau buat kunci & IV AES256 di localStorage
+export function getOrCreateAesKeyIv() {
+  let key = localStorage.getItem("lsp_aes_key");
+  let iv = localStorage.getItem("lsp_aes_iv");
+  if (!key || !iv) {
+    const { key: k, iv: v } = generateRandomKeyIv();
+    key = k.toString(CryptoJS.enc.Hex);
+    iv = v.toString(CryptoJS.enc.Hex);
+    localStorage.setItem("lsp_aes_key", key);
+    localStorage.setItem("lsp_aes_iv", iv);
+  }
+  return {
+    key: CryptoJS.enc.Hex.parse(key),
+    iv: CryptoJS.enc.Hex.parse(iv),
+    keyHex: key,
+    ivHex: iv,
+  };
 } 

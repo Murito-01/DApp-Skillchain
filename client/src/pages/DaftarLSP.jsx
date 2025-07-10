@@ -4,6 +4,7 @@ import contractArtifact from "../abi/MainContract.json";
 import "./DaftarLSP.css";
 import { useWallet } from "../contexts/WalletContext";
 import { useNavigate } from "react-router-dom";
+import { encryptData, getOrCreateAesKeyIv, generateRandomFilename } from "../lib/encrypt";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 const PINATA_API_KEY = import.meta.env.VITE_PINATA_API_KEY;
@@ -77,28 +78,53 @@ export default function DaftarLSP() {
     }
   };
 
-  const uploadToPinata = async (jsonData) => {
+  // Tambahkan fungsi utilitas untuk konversi file ke base64
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Enkripsi dan upload file Akte Notaris
+  async function encryptAndUploadAkte(file) {
+    const base64 = await fileToBase64(file);
+    const { key, iv } = getOrCreateAesKeyIv();
+    const encrypted = encryptData(base64, key, iv);
+    const blob = new Blob([encrypted], { type: "text/plain" });
+    const randomFilename = generateRandomFilename();
+    return await uploadAkteToPinata(blob, randomFilename);
+  }
+
+  // Modifikasi uploadToPinata agar menerima string terenkripsi dan upload sebagai text/plain
+  const uploadToPinata = async (encryptedString, fileName = null) => {
     if (!PINATA_API_KEY || !PINATA_SECRET_API_KEY) {
       throw new Error("API Key/Secret Pinata tidak ditemukan di .env");
     }
-    const url = "https://api.pinata.cloud/pinning/pinJSONToIPFS";
+    const url = "https://api.pinata.cloud/pinning/pinFileToIPFS";
+    const formData = new FormData();
+    // Pastikan file berisi string terenkripsi, bukan JSON
+    const file = new File([
+      encryptedString
+    ], fileName || generateRandomFilename(), { type: "text/plain" });
+    formData.append("file", file);
     const res = await fetch(url, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         pinata_api_key: PINATA_API_KEY,
         pinata_secret_api_key: PINATA_SECRET_API_KEY,
       },
-      body: JSON.stringify({
-        pinataContent: jsonData,
-      }),
+      body: formData,
     });
     if (!res.ok) throw new Error("Gagal upload ke Pinata");
     const data = await res.json();
     return data.IpfsHash;
   };
 
-  const uploadAkteToPinata = async (file) => {
+  // Modifikasi uploadAkteToPinata agar bisa menerima blob terenkripsi dan nama file custom
+  const uploadAkteToPinata = async (file, fileName = null) => {
     return new Promise((resolve, reject) => {
       if (!PINATA_API_KEY || !PINATA_SECRET_API_KEY) {
         reject("API Key/Secret Pinata tidak ditemukan di .env");
@@ -106,7 +132,7 @@ export default function DaftarLSP() {
       }
       const url = "https://api.pinata.cloud/pinning/pinFileToIPFS";
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", file, fileName || generateRandomFilename());
       const xhr = new XMLHttpRequest();
       xhr.open("POST", url);
       xhr.setRequestHeader("pinata_api_key", PINATA_API_KEY);
@@ -140,6 +166,7 @@ export default function DaftarLSP() {
     });
   };
 
+  // Ubah handleAkteFileChange agar upload file terenkripsi
   const handleAkteFileChange = (e) => {
     const file = e.target.files[0];
     setAkteFile(file);
@@ -147,10 +174,11 @@ export default function DaftarLSP() {
     setAkteUploadProgress(0);
     setAkteUploadStatus("");
     if (file) {
-      uploadAkteToPinata(file).catch(() => {});
+      encryptAndUploadAkte(file).catch(() => {});
     }
   };
 
+  // Ubah handleSubmit agar data JSON juga dienkripsi sebelum upload
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isConnected) {
@@ -173,11 +201,23 @@ export default function DaftarLSP() {
       setStatus("❌ Mohon upload dokumen Akte Notaris (PDF) dan tunggu hingga upload selesai.");
       return;
     }
-    setStatus("Membuat file JSON...");
+    const { key, iv, keyHex, ivHex } = getOrCreateAesKeyIv();
+    console.log("[DaftarLSP] Kunci saat submit:", keyHex, "IV:", ivHex, "(WordArray)", key, iv);
+    setStatus("Membuat file JSON terenkripsi...");
     try {
       const dataToUpload = { ...formData, akte_notaris_cid: akteCID };
+      const encryptedJson = encryptData(dataToUpload, key, iv);
+      // Log panjang ciphertext dan validasi base64
+      console.log("[DaftarLSP] Panjang ciphertext:", encryptedJson.length);
+      const base64Regex = /^[A-Za-z0-9+/=]+$/;
+      if (encryptedJson.length % 4 !== 0 || !base64Regex.test(encryptedJson)) {
+        console.error("[DaftarLSP] Ciphertext bukan base64 valid:", encryptedJson);
+        setStatus("❌ Ciphertext tidak valid base64!");
+        return;
+      }
       setStatus("Upload ke IPFS (Pinata)...");
-      const cid = await uploadToPinata(dataToUpload);
+      const randomJsonFilename = generateRandomFilename();
+      const cid = await uploadToPinata(encryptedJson, randomJsonFilename);
       setStatus("Mengirim transaksi ke blockchain...");
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();

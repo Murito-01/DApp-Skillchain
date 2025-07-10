@@ -2,10 +2,41 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import contractArtifact from "../abi/MainContract.json";
 import "./VerifikasiLSP.css";
+import { decryptData, getOrCreateAesKeyIv, decryptFileFromIPFS } from "../lib/encrypt";
+import CryptoJS from "crypto-js";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 const PINATA_API_KEY = import.meta.env.VITE_PINATA_API_KEY;
 const PINATA_SECRET_API_KEY = import.meta.env.VITE_PINATA_SECRET_API_KEY;
+
+// Fungsi utilitas untuk fetch dan dekripsi JSON terenkripsi dari Pinata
+async function fetchAndDecryptJsonFromPinata(cid) {
+  const res = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`);
+  const encrypted = await res.text();
+  const { key, iv, keyHex, ivHex } = getOrCreateAesKeyIv();
+  console.log("[DECRYPT] CID:", cid);
+  console.log("[DECRYPT] Encrypted string:", encrypted);
+  console.log("[DECRYPT] Panjang ciphertext:", encrypted.length);
+  const base64Regex = /^[A-Za-z0-9+/=]+$/;
+  if (encrypted.length % 4 !== 0 || !base64Regex.test(encrypted)) {
+    console.error("[DECRYPT] Ciphertext bukan base64 valid:", encrypted);
+    return null;
+  }
+  console.log("[DECRYPT] KeyHex:", keyHex, "IVHex:", ivHex);
+  try {
+    // Log dekripsi manual
+    const decryptedWordArray = CryptoJS.AES.decrypt(encrypted, key, { iv });
+    console.log("[DECRYPT] WordArray:", decryptedWordArray);
+    const plaintext = decryptedWordArray.toString(CryptoJS.enc.Utf8);
+    console.log("[DECRYPT] Plaintext:", plaintext);
+    const obj = JSON.parse(plaintext);
+    console.log("[DECRYPT] JSON:", obj);
+    return obj;
+  } catch (e) {
+    console.error("[DECRYPT] Error:", e);
+    return null;
+  }
+}
 
 export default function VerifikasiLSP() {
   const [pendingLSPs, setPendingLSPs] = useState([]);
@@ -19,6 +50,9 @@ export default function VerifikasiLSP() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedCID, setUploadedCID] = useState("");
+  const [showFileModal, setShowFileModal] = useState(false);
+  const [fileBlobUrl, setFileBlobUrl] = useState("");
+  const [fileType, setFileType] = useState("");
 
   useEffect(() => {
     fetchPendingLSPs();
@@ -41,8 +75,7 @@ export default function VerifikasiLSP() {
           const lspData = await contract.getLSP(lspAddr);
           let metadata = null;
           try {
-            const res = await fetch(`https://gateway.pinata.cloud/ipfs/${lspData[0]}`);
-            metadata = await res.json();
+            metadata = await fetchAndDecryptJsonFromPinata(lspData[0]);
           } catch {
             metadata = null;
           }
@@ -165,6 +198,27 @@ export default function VerifikasiLSP() {
     }
   }
 
+  async function handleLihatAkteNotaris(cid, filenameGuess = "akte_notaris.pdf") {
+    setShowFileModal(true);
+    setFileBlobUrl("");
+    setFileType("");
+    try {
+      const res = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`);
+      const encrypted = await res.text();
+      const { keyHex, ivHex } = getOrCreateAesKeyIv();
+      const bytes = decryptFileFromIPFS(encrypted, keyHex, ivHex);
+      let type = "application/pdf";
+      if (filenameGuess.endsWith(".jpg") || filenameGuess.endsWith(".jpeg")) type = "image/jpeg";
+      if (filenameGuess.endsWith(".png")) type = "image/png";
+      const blob = new Blob([bytes], { type });
+      setFileBlobUrl(URL.createObjectURL(blob));
+      setFileType(type);
+    } catch (e) {
+      alert("Gagal mendekripsi file: " + e.message);
+      setShowFileModal(false);
+    }
+  }
+
   return (
     <div className="verif-lsp-container">
       <h2 className="verif-lsp-title">Verifikasi LSP</h2>
@@ -189,7 +243,7 @@ export default function VerifikasiLSP() {
             <col style={{width:'8%'}} />
             <col style={{width:'13%'}} />
             <col style={{width:'18%'}} />
-            <col style={{width:'8%'}} />
+            <col style={{textAlign:'center', minWidth:90, maxWidth:110}} />
           </colgroup>
           <thead>
             <tr>
@@ -220,7 +274,12 @@ export default function VerifikasiLSP() {
                   {lsp.metadata?.akte_notaris_cid ? (
                     <span style={{background:'#e6f0ff', color:'#111', padding:'2px 6px', borderRadius:4, display:'inline-block', position:'relative'}} title={lsp.metadata.akte_notaris_cid}>
                       {lsp.metadata.akte_notaris_cid.slice(0,8)}...{lsp.metadata.akte_notaris_cid.slice(-6)}
-                      <a href={`https://ipfs.io/ipfs/${lsp.metadata.akte_notaris_cid}`} target="_blank" rel="noopener noreferrer" style={{marginLeft:10, color:'#fff', textDecoration:'none', fontSize:14, verticalAlign:'middle', fontWeight:600, padding:'4px 16px', borderRadius:4, background:'#7c3aed', display:'inline-block'}}>Lihat</a>
+                      <button
+                        style={{marginLeft:10, color:'#fff', textDecoration:'none', fontSize:14, verticalAlign:'middle', fontWeight:600, padding:'4px 16px', borderRadius:4, background:'#7c3aed', display:'inline-block', border:'none', cursor:'pointer'}}
+                        onClick={() => handleLihatAkteNotaris(lsp.metadata.akte_notaris_cid, "akte_notaris.pdf")}
+                      >
+                        Lihat
+                      </button>
                     </span>
                   ) : <i>-</i>}
                 </td>
@@ -324,6 +383,26 @@ export default function VerifikasiLSP() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+      {showFileModal && (
+        <div className="verif-lsp-modal-bg" onClick={()=>setShowFileModal(false)}>
+          <div className="verif-lsp-modal" onClick={e=>e.stopPropagation()} style={{maxWidth:600}}>
+            <h3>Lihat Akte Notaris</h3>
+            {fileBlobUrl ? (
+              fileType.startsWith("image/") ? (
+                <img src={fileBlobUrl} alt="Akte Notaris" style={{maxWidth:"100%", maxHeight:400, marginTop:16}} />
+              ) : (
+                <iframe src={fileBlobUrl} style={{width:"100%",height:"400px", marginTop:16}} title="Akte Notaris" />
+              )
+            ) : (
+              <div>Loading file...</div>
+            )}
+            {fileBlobUrl && (
+              <a href={fileBlobUrl} download="akte_notaris" style={{marginTop:18,display:"inline-block",fontWeight:600,color:'#4f46e5',textDecoration:'underline'}}>Download File</a>
+            )}
+            <button onClick={()=>setShowFileModal(false)} style={{marginLeft:10,marginTop:18,padding:'8px 18px',borderRadius:7,background:'#ef4444',color:'#fff',border:'none',fontWeight:600,cursor:'pointer'}}>Tutup</button>
+          </div>
         </div>
       )}
     </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import contractArtifact from "../abi/MainContract.json";
+import { decryptData, getOrCreateAesKeyIv } from "../lib/encrypt";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
@@ -9,6 +10,26 @@ const STATUS_LABELS = [
   "Aktif",
   "Ditolak"
 ];
+
+// Fungsi utilitas untuk fetch dan dekripsi JSON terenkripsi dari Pinata
+async function fetchAndDecryptJsonFromPinata(cid) {
+  const res = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`);
+  const encrypted = await res.text();
+  const { key, iv, keyHex, ivHex } = getOrCreateAesKeyIv();
+  console.log("[DECRYPT] CID:", cid);
+  console.log("[DECRYPT] Encrypted string:", encrypted);
+  console.log("[DECRYPT] KeyHex:", keyHex, "IVHex:", ivHex);
+  try {
+    const plain = decryptData(encrypted, key, iv);
+    console.log("[DECRYPT] Plaintext:", plain);
+    const obj = JSON.parse(plain);
+    console.log("[DECRYPT] JSON:", obj);
+    return obj;
+  } catch (e) {
+    console.error("[DECRYPT] Error:", e);
+    return null;
+  }
+}
 
 export default function MonitoringLSP() {
   const [lspList, setLspList] = useState([]);
@@ -50,8 +71,7 @@ export default function MonitoringLSP() {
         const status = await contract.getStatusLSP(addr);
         let metadata = null;
         try {
-          const res = await fetch(`https://gateway.pinata.cloud/ipfs/${lspData[0]}`);
-          metadata = await res.json();
+          metadata = await fetchAndDecryptJsonFromPinata(lspData[0]);
         } catch {
           metadata = null;
         }
