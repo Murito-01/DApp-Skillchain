@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import contractArtifact from "../abi/MainContract.json";
+import { decryptData, getOrCreateAesKeyIv } from "../lib/encrypt";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
@@ -44,7 +45,10 @@ export default function MonitoringPeserta() {
           let metadata = null;
           try {
             const res = await fetch(`https://gateway.pinata.cloud/ipfs/${info[0]}`);
-            metadata = await res.json();
+            const encrypted = await res.text();
+            const { key, iv } = getOrCreateAesKeyIv();
+            const plaintext = decryptData(encrypted, key, iv);
+            metadata = JSON.parse(plaintext);
           } catch {
             metadata = null;
           }

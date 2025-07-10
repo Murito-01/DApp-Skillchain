@@ -5,6 +5,7 @@ import "./DaftarPeserta.css";
 import Ajv from "ajv";
 import { useWallet } from "../contexts/WalletContext";
 import { useNavigate } from "react-router-dom";
+import { encryptData, getOrCreateAesKeyIv, generateRandomFilename } from "../lib/encrypt";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 const PINATA_API_KEY = import.meta.env.VITE_PINATA_API_KEY;
@@ -64,25 +65,25 @@ export default function DaftarPeserta() {
     }
   };
 
-  const uploadToPinata = async (jsonData) => {
+  const uploadToPinata = async (encryptedString, fileName = null) => {
     if (!PINATA_API_KEY || !PINATA_SECRET_API_KEY) {
       throw new Error("API Key/Secret Pinata tidak ditemukan di .env");
     }
-    const url = "https://api.pinata.cloud/pinning/pinJSONToIPFS";
+    const url = "https://api.pinata.cloud/pinning/pinFileToIPFS";
+    const formData = new FormData();
+    const file = new File([encryptedString], fileName || generateRandomFilename(), { type: "text/plain" });
+    formData.append("file", file);
     const res = await fetch(url, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         pinata_api_key: PINATA_API_KEY,
         pinata_secret_api_key: PINATA_SECRET_API_KEY,
       },
-      body: JSON.stringify({
-        pinataContent: jsonData,
-      }),
+      body: formData,
     });
     if (!res.ok) throw new Error("Gagal upload ke Pinata");
     const data = await res.json();
-    return data.IpfsHash; // CID
+    return data.IpfsHash;
   };
 
   const handleSubmit = async (e) => {
@@ -104,11 +105,13 @@ export default function DaftarPeserta() {
         return;
       }
 
-      setStatus("Membuat file JSON...");
-      const jsonString = JSON.stringify(formData, null, 2);
+      setStatus("Membuat file JSON terenkripsi...");
+      const { key, iv } = getOrCreateAesKeyIv();
+      const encryptedJson = encryptData(formData, key, iv);
 
       setStatus("Upload ke IPFS (Pinata)...");
-      const cid = await uploadToPinata(formData);
+      const randomJsonFilename = generateRandomFilename();
+      const cid = await uploadToPinata(encryptedJson, randomJsonFilename);
 
       setStatus("Terhubung ke wallet...");
       if (!window.ethereum) {

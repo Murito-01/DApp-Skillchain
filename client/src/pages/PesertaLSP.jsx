@@ -4,6 +4,7 @@ import contractArtifact from "../abi/MainContract.json";
 import "./PesertaLSP.css";
 import { useWallet } from "../contexts/WalletContext";
 import { useNavigate } from "react-router-dom";
+import { decryptData, getOrCreateAesKeyIv } from "../lib/encrypt";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
@@ -56,7 +57,10 @@ export default function PesertaLSP() {
           let metadata = null;
           try {
             const res = await fetch(`https://gateway.pinata.cloud/ipfs/${info[0]}`);
-            metadata = await res.json();
+            const encrypted = await res.text();
+            const { key, iv } = getOrCreateAesKeyIv();
+            const plaintext = decryptData(encrypted, key, iv);
+            metadata = JSON.parse(plaintext);
           } catch {
             metadata = null;
           }

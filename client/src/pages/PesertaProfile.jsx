@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import contractArtifact from "../abi/MainContract.json";
 import "./PesertaProfile.css";
+import { decryptData, getOrCreateAesKeyIv } from "../lib/encrypt";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
@@ -68,7 +69,10 @@ export default function PesertaProfile() {
         const url = `https://gateway.pinata.cloud/ipfs/${pesertaInfo.metadataCID}`;
         const res = await fetch(url);
         if (!res.ok) throw new Error("Gagal fetch data dari IPFS");
-        const data = await res.json();
+        const encrypted = await res.text();
+        const { key, iv } = getOrCreateAesKeyIv();
+        const plaintext = decryptData(encrypted, key, iv);
+        const data = JSON.parse(plaintext);
         setProfile(data);
         setStatus("");
       } catch (err) {
