@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import contractArtifact from "../abi/MainContract.json";
 import { useWallet } from "../contexts/WalletContext";
+import { decryptFileFromIPFS, getOrCreateAesKeyIv } from "../lib/encrypt";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
@@ -113,11 +114,34 @@ export default function DaftarSertifikatPeserta() {
                           onMouseOver={e=>e.currentTarget.style.background='#3730a3'}
                           onMouseOut={e=>e.currentTarget.style.background='#4f46e5'}
                         >Copy CID</button>
-                        <a href={`https://ipfs.io/ipfs/${srt.sertifikatCID}`} target="_blank" rel="noopener noreferrer" download
+                        <button
                           style={{padding:'4px 12px',borderRadius:6,border:'none',background:'#4f46e5',color:'#fff',fontSize:14,fontWeight:500,textDecoration:'none',transition:'background 0.18s',cursor:'pointer'}}
                           onMouseOver={e=>e.currentTarget.style.background='#3730a3'}
                           onMouseOut={e=>e.currentTarget.style.background='#4f46e5'}
-                        >Unduh</a>
+                          onClick={async()=>{
+                            try {
+                              // Fetch encrypted file from IPFS
+                              const res = await fetch(`https://gateway.pinata.cloud/ipfs/${srt.sertifikatCID}`);
+                              const encrypted = await res.text();
+                              const { keyHex, ivHex } = getOrCreateAesKeyIv();
+                              const bytes = decryptFileFromIPFS(encrypted, keyHex, ivHex);
+                              // Default type PDF, bisa diubah jika ingin support lain
+                              const blob = new Blob([bytes], { type: "application/pdf" });
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = 'sertifikat.pdf';
+                              document.body.appendChild(a);
+                              a.click();
+                              setTimeout(()=>{
+                                URL.revokeObjectURL(url);
+                                a.remove();
+                              }, 1000);
+                            } catch (e) {
+                              alert('Gagal mendekripsi atau mengunduh file: ' + (e.message || e));
+                            }
+                          }}
+                        >Unduh</button>
                       </>
                     ) : '-'}
                   </td>
