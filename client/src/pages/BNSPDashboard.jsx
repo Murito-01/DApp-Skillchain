@@ -3,9 +3,6 @@ import VerifikasiLSP from "./VerifikasiLSP";
 import MonitoringPeserta from "./MonitoringPeserta";
 import MonitoringLSP from "./MonitoringLSP";
 import MonitoringSertifikat from "./MonitoringSertifikat";
-import UploadSuratIzin from "./UploadSuratIzin";
-import WaitinglistLSP from "./WaitinglistLSP";
-import KeySettings from "./KeySettings";
 import "./BNSPDashboard.css";
 
 const MENU = [
