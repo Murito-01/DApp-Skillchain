@@ -169,7 +169,6 @@ export default function PesertaProfile() {
           <div className="profile-section" style={{minWidth:340,maxWidth:520,margin:'0 auto'}}>
             <h3>Data Pribadi</h3>
             <div className="profile-row"><span className="profile-label">Alamat Wallet:</span><span className="profile-value">{account}</span></div>
-            <div className="profile-row"><span className="profile-label">CID Metadata:</span><span className="profile-value">{metadataCID}</span></div>
             <div className="profile-row"><span className="profile-label">Nama Lengkap:</span><span className="profile-value">{profile.nama_lengkap}</span></div>
             <div className="profile-row"><span className="profile-label">NIK:</span><span className="profile-value">{profile.nik}</span></div>
             <div className="profile-row"><span className="profile-label">Tempat Lahir:</span><span className="profile-value">{profile.tempat_lahir}</span></div>
