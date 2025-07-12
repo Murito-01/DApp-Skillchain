@@ -1,0 +1,115 @@
+/* MonitoringSertifikat.css */
+.ms-container {
+  width: 100%;
+}
+.ms-title {
+  margin-bottom: 24px;
+  color: #111;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.ms-search {
+  padding: 10px;
+  margin-bottom: 22px;
+  border-radius: 8px;
+  border: 1.5px solid #bbb;
+  width: 340px;
+  max-width: 100%;
+  font-size: 16px;
+  background: #fff;
+}
+.ms-table-wrapper {
+  overflow-x: auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 0;
+}
+.ms-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 15px;
+  min-width: 900px;
+  color: #111;
+}
+.ms-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f5f5f5;
+  color: #111;
+}
+.ms-table th {
+  padding: 14px 10px;
+  font-weight: 700;
+  text-align: left;
+  border-bottom: 2px solid #f0f0f0;
+  color: #111;
+}
+.ms-table td {
+  padding: 13px 10px;
+  vertical-align: middle;
+  background: #fff;
+  color: #111;
+}
+.ms-table tbody tr:nth-child(odd) {
+  background: #fcfcff;
+}
+.ms-table tbody tr:nth-child(even) {
+  background: #f7f8fa;
+}
+.ms-table tbody tr:hover {
+  background: #e8eafd;
+}
+.ms-monospace {
+  font-family: monospace;
+  font-size: 15px;
+  color: #111;
+}
+.ms-wallet-cell {
+  max-width: 180px;
+  word-break: break-all;
+}
+.ms-lsp-cell {
+  max-width: 180px;
+  word-break: break-all;
+}
+.ms-cid-cell {
+  max-width: 220px;
+  word-break: break-all;
+}
+.ms-status-label {
+  display: inline-block;
+  padding: 3px 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+}
+.ms-status-sedang {
+  background: #fffbe6;
+  color: #ad8b00;
+}
+.ms-status-lulus {
+  background: #52c41a;
+  color: #fff;
+}
+.ms-status-gagal {
+  background: #ff4d4f;
+  color: #fff;
+}
+.ms-empty-cell {
+  text-align: center;
+  padding: 32px;
+  color: #888;
+}
+@media (max-width: 900px) {
+  .ms-table {
+    font-size: 13px;
+    min-width: 700px;
+  }
+  .ms-search {
+    width: 100%;
+    font-size: 14px;
+  }
+} 

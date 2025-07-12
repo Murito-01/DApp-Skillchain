@@ -1,0 +1,173 @@
+/* MonitoringPeserta.css */
+.mp-container {
+  width: 100%;
+}
+.mp-title {
+  margin-bottom: 24px;
+  color: #111;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.mp-search {
+  padding: 8px;
+  margin-bottom: 18px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  width: 320px;
+  max-width: 100%;
+  font-size: 1rem;
+}
+.mp-table-wrapper {
+  overflow-x: auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 0;
+}
+.mp-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 15px;
+  min-width: 800px;
+  color: #111;
+}
+.mp-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f5f5f5;
+  color: #111;
+}
+.mp-table th {
+  padding: 10px 8px;
+  font-weight: 700;
+  text-align: left;
+  border-bottom: 2px solid #f0f0f0;
+  color: #111;
+}
+.mp-table td {
+  padding: 10px 8px;
+  vertical-align: middle;
+  background: #fff;
+}
+.mp-table tbody tr:nth-child(odd) td {
+  background: #f7f8fa;
+}
+.mp-table tbody tr:hover td {
+  background: #e0e7ff;
+}
+.mp-monospace {
+  font-family: monospace;
+  font-size: 15px;
+}
+.mp-btn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: none;
+  background: #4f46e5;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.mp-btn:hover {
+  background: #3730a3;
+}
+.mp-empty-row {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 40px 48px;
+  text-align: center;
+  min-width: 320px;
+  margin-top: 48px;
+}
+.mp-empty-icon {
+  font-size: 54px;
+  margin-bottom: 12px;
+}
+.mp-empty-title {
+  font-weight: 700;
+  font-size: 22px;
+  color: #222;
+  margin-bottom: 8px;
+}
+.mp-empty-desc {
+  font-size: 16px;
+  color: #444;
+}
+/* Modal */
+.mp-modal-bg {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: #0008;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mp-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 36px;
+  min-width: 320px;
+  max-width: 440px;
+  box-shadow: 0 2px 24px #0003;
+  position: relative;
+  color: #222;
+}
+.mp-modal-title {
+  margin-bottom: 22px;
+  font-weight: 700;
+  font-size: 24px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+.mp-modal-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.mp-modal-list li {
+  margin-bottom: 12px;
+  word-break: break-word;
+}
+.mp-modal-label {
+  font-weight: 600;
+  color: #4f46e5;
+}
+.mp-modal-monospace {
+  font-family: monospace;
+}
+.mp-modal-btn {
+  margin-top: 18px;
+  padding: 10px 28px;
+  border-radius: 8px;
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 16px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  transition: background 0.18s;
+}
+.mp-modal-btn:hover {
+  background: #b91c1c;
+}
+@media (max-width: 900px) {
+  .mp-table {
+    font-size: 13px;
+    min-width: 600px;
+  }
+  .mp-modal {
+    padding: 18px 8px;
+    min-width: 0;
+    max-width: 98vw;
+  }
+} 

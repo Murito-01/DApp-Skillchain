@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import contractArtifact from "../abi/MainContract.json";
 import { useWallet } from "../contexts/WalletContext";
 import { decryptFileFromIPFS, getOrCreateAesKeyIv } from "../lib/encrypt";
+import "./DaftarSertifikatPeserta.css";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
@@ -55,77 +56,54 @@ export default function DaftarSertifikatPeserta() {
   }
 
   return (
-    <div>
-      <h2 style={{marginBottom:24, color:'#111'}}>Daftar Sertifikat</h2>
-      <div style={{overflowX:'auto',background:'#fff',borderRadius:16,boxShadow:'0 2px 12px #0001',padding:0}}>
-        <table style={{width:'100%',borderCollapse:'separate',borderSpacing:0,fontSize:15,minWidth:900,color:'#111'}}>
-          <thead style={{position:'sticky',top:0,zIndex:2,background:'#f5f5f5',color:'#111'}}>
+    <div className="dsp-container">
+      <h2 className="dsp-title">Daftar Sertifikat</h2>
+      <div className="dsp-table-wrapper">
+        <table className="dsp-table">
+          <thead>
             <tr>
-              <th style={{padding:'14px 10px',fontWeight:700,textAlign:'left',borderBottom:'2px solid #f0f0f0',color:'#111'}}>Skema</th>
-              <th style={{padding:'14px 10px',fontWeight:700,textAlign:'left',borderBottom:'2px solid #f0f0f0',color:'#111'}}>Status</th>
-              <th style={{padding:'14px 10px',fontWeight:700,textAlign:'left',borderBottom:'2px solid #f0f0f0',color:'#111'}}>Tanggal Pengajuan</th>
-              <th style={{padding:'14px 10px',fontWeight:700,textAlign:'left',borderBottom:'2px solid #f0f0f0',color:'#111'}}>Tanggal Selesai</th>
-              <th style={{padding:'14px 10px',fontWeight:700,textAlign:'left',borderBottom:'2px solid #f0f0f0',color:'#111'}}>LSP Penilai</th>
-              <th style={{padding:'14px 10px',fontWeight:700,textAlign:'left',borderBottom:'2px solid #f0f0f0',color:'#111'}}>CID Sertifikat</th>
-              <th style={{padding:'14px 10px',fontWeight:700,textAlign:'left',borderBottom:'2px solid #f0f0f0',color:'#111'}}>Aksi</th>
+              <th>Skema</th>
+              <th>Status</th>
+              <th>Tanggal Pengajuan</th>
+              <th>Tanggal Selesai</th>
+              <th>LSP Penilai</th>
+              <th>CID Sertifikat</th>
+              <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={7} style={{textAlign:'center',padding:32,color:'#888'}}>Memuat data...</td></tr>
+              <tr><td colSpan={7} className="dsp-empty-row">Memuat data...</td></tr>
             ) : sertifikatList.length === 0 ? (
-              <tr><td colSpan={7} style={{textAlign:'center',padding:32,color:'#888'}}>Tidak ada sertifikat ditemukan.</td></tr>
+              <tr><td colSpan={7} className="dsp-empty-row">Tidak ada sertifikat ditemukan.</td></tr>
             ) : sertifikatList.map((srt, i) => {
               const statusLabel = (() => {
-                if (srt.lulus) return {text:'Lulus', color:'#fff', bg:'#52c41a'};
-                return {text:'Tidak Lulus', color:'#fff', bg:'#ff4d4f'};
+                if (srt.lulus) return {text:'Lulus', className:'dsp-status-label dsp-status-lulus'};
+                return {text:'Tidak Lulus', className:'dsp-status-label dsp-status-gagal'};
               })();
               return (
-                <tr key={i} style={{background:i%2===0?'#fcfcff':'#f7f8fa',transition:'background 0.18s',color:'#111'}}
-                  onMouseOver={e=>e.currentTarget.style.background='#e8eafd'}
-                  onMouseOut={e=>e.currentTarget.style.background=i%2===0?'#fcfcff':'#f7f8fa'}>
-                  <td style={{padding:'13px 10px',color:'#111'}}>{SKEMA_LABELS[srt.skema] || '-'}</td>
-                  <td style={{padding:'13px 10px'}}>
-                    <span style={{display:'inline-block',padding:'3px 14px',borderRadius:12,fontWeight:600,fontSize:14,background:statusLabel.bg,color:statusLabel.color}}>
-                      {statusLabel.text}
-                    </span>
-                  </td>
-                  <td style={{padding:'13px 10px',color:'#111'}}>{srt.tanggalPengajuan ? srt.tanggalPengajuan.toLocaleString('id-ID') : '-'}</td>
-                  <td style={{padding:'13px 10px',color:'#111'}}>{srt.tanggalSelesai ? srt.tanggalSelesai.toLocaleString('id-ID') : '-'}</td>
-                  <td style={{fontFamily:'monospace',padding:'13px 10px',maxWidth:180,wordBreak:'break-all',fontSize:15,color:'#111'}}>{srt.lspPenilai && srt.lspPenilai !== '0x0000000000000000000000000000000000000000' ? srt.lspPenilai : '-'}</td>
-                  <td style={{fontFamily:'monospace',padding:'13px 10px',maxWidth:220,wordBreak:'break-all',fontSize:15,color:'#111'}}>{srt.sertifikatCID && srt.sertifikatCID !== '' ? srt.sertifikatCID : '-'}</td>
-                  <td style={{padding:'13px 10px',color:'#111'}}>
+                <tr key={i}>
+                  <td>{SKEMA_LABELS[srt.skema] || '-'}</td>
+                  <td><span className={statusLabel.className}>{statusLabel.text}</span></td>
+                  <td>{srt.tanggalPengajuan ? srt.tanggalPengajuan.toLocaleString('id-ID') : '-'}</td>
+                  <td>{srt.tanggalSelesai ? srt.tanggalSelesai.toLocaleString('id-ID') : '-'}</td>
+                  <td className="dsp-monospace">{srt.lspPenilai && srt.lspPenilai !== '0x0000000000000000000000000000000000000000' ? srt.lspPenilai : '-'}</td>
+                  <td className="dsp-monospace">{srt.sertifikatCID && srt.sertifikatCID !== '' ? srt.sertifikatCID : '-'}</td>
+                  <td>
                     {srt.sertifikatCID && srt.sertifikatCID !== '' ? (
                       <>
                         <button
-                          style={{
-                            marginRight:8,
-                            padding:'4px 12px',
-                            borderRadius:6,
-                            border:'none',
-                            background:'#4f46e5',
-                            color:'#fff',
-                            fontSize:14,
-                            fontWeight:500,
-                            cursor:'pointer',
-                            transition:'background 0.18s',
-                          }}
+                          className="dsp-btn"
                           onClick={()=>navigator.clipboard.writeText(srt.sertifikatCID)}
-                          onMouseOver={e=>e.currentTarget.style.background='#3730a3'}
-                          onMouseOut={e=>e.currentTarget.style.background='#4f46e5'}
-                        >Copy CID</button>
+                        >Copy</button>
                         <button
-                          style={{padding:'4px 12px',borderRadius:6,border:'none',background:'#4f46e5',color:'#fff',fontSize:14,fontWeight:500,textDecoration:'none',transition:'background 0.18s',cursor:'pointer'}}
-                          onMouseOver={e=>e.currentTarget.style.background='#3730a3'}
-                          onMouseOut={e=>e.currentTarget.style.background='#4f46e5'}
+                          className="dsp-btn"
                           onClick={async()=>{
                             try {
-                              // Fetch encrypted file from IPFS
                               const res = await fetch(`https://gateway.pinata.cloud/ipfs/${srt.sertifikatCID}`);
                               const encrypted = await res.text();
                               const { keyHex, ivHex } = getOrCreateAesKeyIv();
                               const bytes = decryptFileFromIPFS(encrypted, keyHex, ivHex);
-                              // Default type PDF, bisa diubah jika ingin support lain
                               const blob = new Blob([bytes], { type: "application/pdf" });
                               const url = URL.createObjectURL(blob);
                               const a = document.createElement('a');

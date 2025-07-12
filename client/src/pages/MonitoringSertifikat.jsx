@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import contractArtifact from "../abi/MainContract.json";
 import { useWallet } from "../contexts/WalletContext";
+import "./MonitoringSertifikat.css";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
@@ -73,52 +74,50 @@ export default function MonitoringSertifikat({ hanyaPeserta = false }) {
   }
 
   return (
-    <div>
-      <h2 style={{marginBottom:24, color:'#111'}}>Monitoring Sertifikat</h2>
+    <div className="ms-container">
+      <h2 className="ms-title">Monitoring Sertifikat</h2>
       <input
         type="text"
         placeholder="Cari wallet, skema, atau status..."
         value={search}
         onChange={e=>setSearch(e.target.value)}
-        style={{padding:10,marginBottom:22,borderRadius:8,border:'1.5px solid #bbb',width:340,maxWidth:'100%',fontSize:16,background:'#fff'}}
+        className="ms-search"
       />
-      <div style={{overflowX:'auto',background:'#fff',borderRadius:16,boxShadow:'0 2px 12px #0001',padding:0}}>
-        <table style={{width:'100%',borderCollapse:'separate',borderSpacing:0,fontSize:15,minWidth:900,color:'#111'}}>
-          <thead style={{position:'sticky',top:0,zIndex:2,background:'#f5f5f5',color:'#111'}}>
+      <div className="ms-table-wrapper">
+        <table className="ms-table">
+          <thead>
             <tr>
-              <th style={{padding:'14px 10px',fontWeight:700,textAlign:'left',borderBottom:'2px solid #f0f0f0',color:'#111'}}>Wallet Peserta</th>
-              <th style={{padding:'14px 10px',fontWeight:700,textAlign:'left',borderBottom:'2px solid #f0f0f0',color:'#111'}}>Skema</th>
-              <th style={{padding:'14px 10px',fontWeight:700,textAlign:'left',borderBottom:'2px solid #f0f0f0',color:'#111'}}>Status</th>
-              <th style={{padding:'14px 10px',fontWeight:700,textAlign:'left',borderBottom:'2px solid #f0f0f0',color:'#111'}}>Tanggal Pengajuan</th>
-              <th style={{padding:'14px 10px',fontWeight:700,textAlign:'left',borderBottom:'2px solid #f0f0f0',color:'#111'}}>Tanggal Selesai</th>
-              <th style={{padding:'14px 10px',fontWeight:700,textAlign:'left',borderBottom:'2px solid #f0f0f0',color:'#111'}}>LSP Penilai</th>
-              <th style={{padding:'14px 10px',fontWeight:700,textAlign:'left',borderBottom:'2px solid #f0f0f0',color:'#111'}}>CID Sertifikat</th>
+              <th>Wallet Peserta</th>
+              <th>Skema</th>
+              <th>Status</th>
+              <th>Tanggal Pengajuan</th>
+              <th>Tanggal Selesai</th>
+              <th>LSP Penilai</th>
+              <th>CID Sertifikat</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
-              <tr><td colSpan={7} style={{textAlign:'center',padding:32,color:'#888'}}>Tidak ada sertifikat ditemukan.</td></tr>
+              <tr><td colSpan={7} className="ms-empty-cell">Tidak ada sertifikat ditemukan.</td></tr>
             ) : filtered.map((srt, i) => {
               const statusLabel = (() => {
-                if (!srt.tanggalSelesai) return {text:'Sedang Ujian', color:'#ad8b00', bg:'#fffbe6'};
-                if (srt.lulus) return {text:'Lulus', color:'#fff', bg:'#52c41a'};
-                return {text:'Tidak Lulus', color:'#fff', bg:'#ff4d4f'};
+                if (!srt.tanggalSelesai) return {text:'Sedang Ujian', className:'ms-status-sedang'};
+                if (srt.lulus) return {text:'Lulus', className:'ms-status-lulus'};
+                return {text:'Tidak Lulus', className:'ms-status-gagal'};
               })();
               return (
-                <tr key={i} style={{background:i%2===0?'#fcfcff':'#f7f8fa',transition:'background 0.18s',color:'#111'}}
-                  onMouseOver={e=>e.currentTarget.style.background='#e8eafd'}
-                  onMouseOut={e=>e.currentTarget.style.background=i%2===0?'#fcfcff':'#f7f8fa'}>
-                  <td style={{fontFamily:'monospace',padding:'13px 10px',maxWidth:180,wordBreak:'break-all',fontSize:15,color:'#111'}}>{srt.peserta || '-'}</td>
-                  <td style={{padding:'13px 10px',color:'#111'}}>{SKEMA_LABELS[srt.skema] || '-'}</td>
-                  <td style={{padding:'13px 10px'}}>
-                    <span style={{display:'inline-block',padding:'3px 14px',borderRadius:12,fontWeight:600,fontSize:14,background:statusLabel.bg,color:statusLabel.color}}>
+                <tr key={i}>
+                  <td className="ms-monospace ms-wallet-cell">{srt.peserta || '-'}</td>
+                  <td>{SKEMA_LABELS[srt.skema] || '-'}</td>
+                  <td>
+                    <span className={`ms-status-label ${statusLabel.className}`}>
                       {statusLabel.text}
                     </span>
                   </td>
-                  <td style={{padding:'13px 10px',color:'#111'}}>{srt.tanggalPengajuan ? srt.tanggalPengajuan.toLocaleString('id-ID') : '-'}</td>
-                  <td style={{padding:'13px 10px',color:'#111'}}>{srt.tanggalSelesai ? srt.tanggalSelesai.toLocaleString('id-ID') : '-'}</td>
-                  <td style={{fontFamily:'monospace',padding:'13px 10px',maxWidth:180,wordBreak:'break-all',fontSize:15,color:'#111'}}>{srt.lspPenilai && srt.lspPenilai !== '0x0000000000000000000000000000000000000000' ? srt.lspPenilai : '-'}</td>
-                  <td style={{fontFamily:'monospace',padding:'13px 10px',maxWidth:220,wordBreak:'break-all',fontSize:15,color:'#111'}}>{srt.sertifikatCID && srt.sertifikatCID !== '' ? srt.sertifikatCID : '-'}</td>
+                  <td>{srt.tanggalPengajuan ? srt.tanggalPengajuan.toLocaleString('id-ID') : '-'}</td>
+                  <td>{srt.tanggalSelesai ? srt.tanggalSelesai.toLocaleString('id-ID') : '-'}</td>
+                  <td className="ms-monospace ms-lsp-cell">{srt.lspPenilai && srt.lspPenilai !== '0x0000000000000000000000000000000000000000' ? srt.lspPenilai : '-'}</td>
+                  <td className="ms-monospace ms-cid-cell">{srt.sertifikatCID && srt.sertifikatCID !== '' ? srt.sertifikatCID : '-'}</td>
                 </tr>
               );
             })}

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import contractArtifact from "../abi/MainContract.json";
 import { useWallet } from "../contexts/WalletContext";
-import "./DaftarLSP.css";
+import "./StatusLSP.css";
 import { decryptFileFromIPFS, getOrCreateAesKeyIv } from "../lib/encrypt";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
@@ -94,58 +94,45 @@ export default function StatusLSP() {
   }
 
   return (
-    <div className="daftar-container" style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'70vh'}}>
-      <h2 style={{marginBottom:32, color:'#111'}}>Status LSP</h2>
-      <div className="wallet-section" style={{marginBottom:24}}>
+    <div className="slsp-container">
+      <h2 className="slsp-title">Status LSP</h2>
+      <div className="slsp-wallet-section">
         {isConnected ? (
-          <div className="wallet-info" style={{fontSize:16}}>
+          <div className="slsp-wallet-info">
             <span>✅ Wallet Terhubung: {account.slice(0, 6)}...{account.slice(-4)}</span>
           </div>
         ) : (
           <div className="status-message error">Wallet belum terhubung</div>
         )}
       </div>
-      <div style={{width:'100%',maxWidth:420}}>
+      <div className="slsp-content">
         {loading ? (
-          <div style={{display:'flex',flexDirection:'column',alignItems:'center',padding:32,background:'#f5f5f5',borderRadius:16,boxShadow:'0 2px 8px #0001'}}>
-            <div className="spinner" style={{marginBottom:16}}>
-              <div style={{width:32,height:32,border:'4px solid #bbb',borderTop:'4px solid #4f46e5',borderRadius:'50%',animation:'spin 1s linear infinite'}}></div>
+          <div className="slsp-loading">
+            <div className="slsp-spinner">
+              <div className="slsp-spinner-inner"></div>
             </div>
-            <div style={{fontWeight:500,fontSize:18}}>Mengambil status LSP...</div>
+            <div className="slsp-loading-text">Mengambil status LSP...</div>
           </div>
         ) : lspStatus === 0 ? (
-          <div style={{background:'#fffbe6',border:'1.5px solid #ffe58f',borderRadius:16,padding:32,boxShadow:'0 2px 8px #0001',textAlign:'center'}}>
-            <div style={{fontSize:48,marginBottom:12}}>⏳</div>
-            <div style={{fontWeight:600,fontSize:22,color:'#ad8b00'}}>Menunggu Verifikasi BNSP</div>
-            <div style={{marginTop:8,fontSize:16}}>Data Anda sedang diverifikasi oleh BNSP.<br/>Mohon tunggu konfirmasi melalui sistem.</div>
-            <div style={{marginTop:16,fontSize:14,color:'#ad8b00'}}>Tips: Pastikan data yang Anda ajukan sudah benar. Proses verifikasi biasanya memakan waktu 1x24 jam.</div>
+          <div className="slsp-status-card slsp-status-waiting">
+            <div className="slsp-status-icon">⏳</div>
+            <div className="slsp-status-title">Menunggu Verifikasi BNSP</div>
+            <div className="slsp-status-desc">Data Anda sedang diverifikasi oleh BNSP.<br/>Mohon tunggu konfirmasi melalui sistem.</div>
+            <div className="slsp-status-tips">Tips: Pastikan data yang Anda ajukan sudah benar. Proses verifikasi biasanya memakan waktu 1x24 jam.</div>
           </div>
         ) : lspStatus === 1 ? (
-          <div style={{background:'#f6ffed',border:'1.5px solid #b7eb8f',borderRadius:16,padding:32,boxShadow:'0 2px 8px #0001',textAlign:'center'}}>
-            <div style={{fontSize:48,marginBottom:12}}>✅</div>
-            <div style={{fontWeight:600,fontSize:22,color:'#389e0d'}}>Terverifikasi</div>
-            <div style={{marginTop:8,fontSize:16}}>Selamat! LSP Anda sudah terverifikasi dan dapat beroperasi.</div>
-            <div style={{marginTop:16,fontSize:14,color:'#389e0d'}}>Anda dapat mulai melakukan aktivitas sebagai LSP di platform ini.</div>
+          <div className="slsp-status-card slsp-status-verified">
+            <div className="slsp-status-icon">✅</div>
+            <div className="slsp-status-title">Terverifikasi</div>
+            <div className="slsp-status-desc">Selamat! LSP Anda sudah terverifikasi dan dapat beroperasi.</div>
+            <div className="slsp-status-tips">Anda dapat mulai melakukan aktivitas sebagai LSP di platform ini.</div>
             {suratIzinCID && (
-              <div style={{marginTop:18,fontSize:15}}>
-                <b style={{color:'#111'}}>CID Surat Izin:</b> <span style={{fontFamily:'monospace',color:'#222'}}>{suratIzinCID}</span>
-                <div style={{marginTop:12}}>
+              <div className="slsp-surat-section">
+                <span className="slsp-surat-cid">CID Surat Izin:</span> <span className="slsp-surat-cid-value">{suratIzinCID}</span>
+                <div>
                   <button
                     onClick={() => handleLihatSuratIzin(suratIzinCID, "surat_izin.pdf")}
-                    style={{
-                      display: 'inline-block',
-                      marginTop: 8,
-                      padding: '8px 18px',
-                      background: '#4f46e5',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: 6,
-                      fontWeight: 500,
-                      textDecoration: 'none',
-                      fontSize: 15,
-                      cursor: 'pointer',
-                      boxShadow: '0 2px 8px #0001'
-                    }}
+                    className="slsp-surat-btn"
                   >
                     Lihat/Unduh Surat Izin
                   </button>
@@ -154,47 +141,44 @@ export default function StatusLSP() {
             )}
           </div>
         ) : lspStatus === 2 ? (
-          <div style={{background:'#fff1f0',border:'1.5px solid #ffa39e',borderRadius:16,padding:32,boxShadow:'0 2px 8px #0001',textAlign:'center'}}>
-            <div style={{fontSize:48,marginBottom:12}}>❌</div>
-            <div style={{fontWeight:600,fontSize:22,color:'#cf1322'}}>Ditolak</div>
-            <div style={{marginTop:8,fontSize:16}}>Maaf, pengajuan LSP Anda <b>ditolak</b> oleh BNSP.</div>
-            <div style={{marginTop:16,fontSize:14,color:'#cf1322'}}>Silakan hubungi admin untuk info lebih lanjut atau ajukan ulang dengan data yang benar.</div>
+          <div className="slsp-status-card slsp-status-rejected">
+            <div className="slsp-status-icon">❌</div>
+            <div className="slsp-status-title">Ditolak</div>
+            <div className="slsp-status-desc">Maaf, pengajuan LSP Anda <b>ditolak</b> oleh BNSP.</div>
+            <div className="slsp-status-tips">Silakan hubungi admin untuk info lebih lanjut atau ajukan ulang dengan data yang benar.</div>
           </div>
         ) : lspStatus === -1 ? (
-          <div style={{background:'#f0f5ff',border:'1.5px solid #adc6ff',borderRadius:16,padding:32,boxShadow:'0 2px 8px #0001',textAlign:'center'}}>
-            <div style={{fontSize:48,marginBottom:12}}>ℹ️</div>
-            <div style={{fontWeight:600,fontSize:22,color:'#2f54eb'}}>Belum Pernah Daftar</div>
-            <div style={{marginTop:8,fontSize:16}}>Anda belum pernah mengajukan pendaftaran sebagai LSP.</div>
-            <div style={{marginTop:16,fontSize:14,color:'#2f54eb'}}>Gunakan menu <b>Ajukan</b> untuk mendaftar sebagai LSP.</div>
+          <div className="slsp-status-card slsp-status-not-registered">
+            <div className="slsp-status-icon">ℹ️</div>
+            <div className="slsp-status-title">Belum Pernah Daftar</div>
+            <div className="slsp-status-desc">Anda belum pernah mengajukan pendaftaran sebagai LSP.</div>
+            <div className="slsp-status-tips">Gunakan menu <b>Ajukan</b> untuk mendaftar sebagai LSP.</div>
           </div>
         ) : null}
       </div>
       {polling && (
-        <div style={{marginTop:16, color:'#ad8b00', fontSize:14}}>Menunggu konfirmasi blockchain... Data akan diperbarui otomatis.</div>
+        <div className="slsp-polling">Menunggu konfirmasi blockchain... Data akan diperbarui otomatis.</div>
       )}
       {showFileModal && (
-        <div className="verif-lsp-modal-bg" onClick={()=>setShowFileModal(false)}>
-          <div className="verif-lsp-modal" onClick={e=>e.stopPropagation()} style={{maxWidth:600}}>
-            <h3>Lihat Surat Izin</h3>
+        <div className="slsp-modal-bg" onClick={()=>setShowFileModal(false)}>
+          <div className="slsp-modal" onClick={e=>e.stopPropagation()}>
+            <h3 className="slsp-modal-title">Lihat Surat Izin</h3>
             {fileBlobUrl ? (
               fileType.startsWith("image/") ? (
-                <img src={fileBlobUrl} alt="Surat Izin" style={{maxWidth:"100%", maxHeight:400, marginTop:16}} />
+                <img src={fileBlobUrl} alt="Surat Izin" className="slsp-modal-image" />
               ) : (
-                <iframe src={fileBlobUrl} style={{width:"100%",height:"400px", marginTop:16}} title="Surat Izin" />
+                <iframe src={fileBlobUrl} className="slsp-modal-iframe" title="Surat Izin" />
               )
             ) : (
               <div>Loading file...</div>
             )}
             {fileBlobUrl && (
-              <a href={fileBlobUrl} download="surat_izin" style={{marginTop:18,display:"inline-block",fontWeight:600,color:'#4f46e5',textDecoration:'underline'}}>Download File</a>
+              <a href={fileBlobUrl} download="surat_izin" className="slsp-modal-download">Download File</a>
             )}
-            <button onClick={()=>setShowFileModal(false)} style={{marginLeft:10,marginTop:18,padding:'8px 18px',borderRadius:7,background:'#ef4444',color:'#fff',border:'none',fontWeight:600,cursor:'pointer'}}>Tutup</button>
+            <button onClick={()=>setShowFileModal(false)} className="slsp-modal-close">Tutup</button>
           </div>
         </div>
       )}
-      <style>{`
-        @keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
-      `}</style>
     </div>
   );
 } 
