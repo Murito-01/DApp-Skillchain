@@ -4,7 +4,7 @@ import contractArtifact from "../abi/MainContract.json";
 import "./PesertaLSP.css";
 import { useWallet } from "../contexts/WalletContext";
 import { useNavigate } from "react-router-dom";
-import { decryptData, getOrCreateAesKeyIv } from "../lib/encrypt";
+import { decryptData, getOrCreateAesKeyIv, encryptData, generateRandomFilename } from "../lib/encrypt";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
@@ -166,12 +166,27 @@ export default function PesertaLSP() {
     setUploading(true);
     setUploadStatus("");
     try {
-      // Upload ke Pinata
+      // Enkripsi file sertifikat sebelum upload ke Pinata
+      // 1. Baca file sebagai base64
+      const fileBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(sertifikatFile);
+      });
+      // 2. Enkripsi base64
+      const { key, iv } = getOrCreateAesKeyIv();
+      const encrypted = encryptData(fileBase64, key, iv);
+      // 3. Buat file blob terenkripsi
+      const encryptedBlob = new Blob([encrypted], { type: "text/plain" });
+      // 4. Random filename
+      const randomName = generateRandomFilename();
+      // 5. Upload ke Pinata
       const PINATA_API_KEY = import.meta.env.VITE_PINATA_API_KEY;
       const PINATA_SECRET_API_KEY = import.meta.env.VITE_PINATA_SECRET_API_KEY;
       const url = "https://api.pinata.cloud/pinning/pinFileToIPFS";
       const formData = new FormData();
-      formData.append("file", sertifikatFile);
+      formData.append("file", encryptedBlob, randomName);
       const res = await fetch(url, {
         method: "POST",
         headers: {
