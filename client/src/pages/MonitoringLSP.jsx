@@ -122,12 +122,12 @@ export default function MonitoringLSP() {
         <table style={{width:'100%',background:'#fff',borderRadius:12,boxShadow:'0 2px 8px #0001',overflow:'hidden',color:'#111'}}>
           <thead style={{background:'#f5f5f5',color:'#111'}}>
             <tr>
-              <th style={{padding:8}}>Wallet</th>
-              <th style={{padding:8}}>Nama LSP</th>
-              <th style={{padding:8}}>Email</th>
-              <th style={{padding:8}}>Status</th>
-              <th style={{padding:8}}>CID Surat Izin</th>
-              <th style={{padding:8}}>Alasan Tolak</th>
+              <th style={{padding:8, textAlign:'left'}}>Wallet</th>
+              <th style={{padding:8, textAlign:'left'}}>Nama LSP</th>
+              <th style={{padding:8, textAlign:'left'}}>Email</th>
+              <th style={{padding:8, textAlign:'left'}}>Status</th>
+              <th style={{padding:8, textAlign:'left'}}>CID Surat Izin</th>
+              <th style={{padding:8, textAlign:'left'}}>Alasan Tolak</th>
             </tr>
           </thead>
           <tbody>

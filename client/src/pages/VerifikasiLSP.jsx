@@ -267,14 +267,14 @@ export default function VerifikasiLSP() {
           </colgroup>
           <thead>
             <tr>
-              <th style={{textAlign:'center'}}>Wallet</th>
-              <th style={{textAlign:'center'}}>Nama LSP</th>
-              <th style={{textAlign:'center'}}>Email</th>
-              <th style={{textAlign:'center'}}>Telepon</th>
-              <th style={{textAlign:'center'}}>Jenis LSP</th>
-              <th style={{textAlign:'center'}}>Website</th>
-              <th style={{textAlign:'center'}}>CID Akte Notaris</th>
-              <th style={{textAlign:'center', minWidth:90, maxWidth:110}}>Aksi</th>
+              <th style={{textAlign:'left'}}>Wallet</th>
+              <th style={{textAlign:'left'}}>Nama LSP</th>
+              <th style={{textAlign:'left'}}>Email</th>
+              <th style={{textAlign:'left'}}>Telepon</th>
+              <th style={{textAlign:'left'}}>Jenis LSP</th>
+              <th style={{textAlign:'left'}}>Website</th>
+              <th style={{textAlign:'left'}}>CID Akte Notaris</th>
+              <th style={{textAlign:'left', minWidth:90, maxWidth:110}}>Aksi</th>
             </tr>
           </thead>
           <tbody>

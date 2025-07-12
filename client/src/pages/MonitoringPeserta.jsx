@@ -91,10 +91,10 @@ export default function MonitoringPeserta() {
         <table style={{width:'100%',background:'#fff',borderRadius:12,boxShadow:'0 2px 8px #0001',overflow:'hidden',color:'#111'}}>
           <thead style={{background:'#f5f5f5',color:'#111'}}>
             <tr>
-              <th style={{padding:8}}>Wallet</th>
-              <th style={{padding:8}}>Nama</th>
-              <th style={{padding:8}}>Email</th>
-              <th style={{padding:8}}>Tanggal Daftar</th>
+              <th style={{padding:8, textAlign:'left'}}>Wallet</th>
+              <th style={{padding:8, textAlign:'left'}}>Nama</th>
+              <th style={{padding:8, textAlign:'left'}}>Email</th>
+              <th style={{padding:8, textAlign:'left'}}>Tanggal Daftar</th>
             </tr>
           </thead>
           <tbody>
