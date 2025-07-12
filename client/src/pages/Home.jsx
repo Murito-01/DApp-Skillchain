@@ -1,8 +1,25 @@
 import "./Home.css";
 import { useWallet } from "../contexts/WalletContext";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
-  const { isConnected, connectWallet, loading } = useWallet();
+  const { isConnected, connectWallet, loading, role } = useWallet();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isConnected) {
+      if (role === "peserta") {
+        navigate("/peserta");
+      } else if (role === "lsp") {
+        navigate("/lsp");
+      } else if (role === "bnsp") {
+        navigate("/bnsp");
+      }
+      // Jika role kosong atau lsp-candidate, tetap di Home
+    }
+  }, [isConnected, role, navigate]);
+
   return (
     <div className="home-root">
       <header className="home-header">
