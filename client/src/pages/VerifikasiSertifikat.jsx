@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ethers } from "ethers";
 import "./VerifikasiSertifikat.css";
 import MainContract from "../abi/MainContract.json";
+import { decryptFileFromIPFS, getOrCreateAesKeyIv } from "../lib/encrypt";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
@@ -10,6 +11,9 @@ function VerifikasiSertifikat() {
   const [hasil, setHasil] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [fileBlobUrl, setFileBlobUrl] = useState("");
+  const [fileType, setFileType] = useState("");
 
   const handleVerifikasi = async () => {
     setLoading(true);
@@ -61,6 +65,27 @@ function VerifikasiSertifikat() {
     setLoading(false);
   };
 
+  async function handleLihatSertifikat(cid, filenameGuess = "sertifikat.pdf") {
+    setShowModal(true);
+    setFileBlobUrl("");
+    setFileType("");
+    try {
+      const res = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`);
+      const encrypted = await res.text();
+      const { keyHex, ivHex } = getOrCreateAesKeyIv();
+      const bytes = decryptFileFromIPFS(encrypted, keyHex, ivHex);
+      let type = "application/pdf";
+      if (filenameGuess.endsWith(".jpg") || filenameGuess.endsWith(".jpeg")) type = "image/jpeg";
+      if (filenameGuess.endsWith(".png")) type = "image/png";
+      const blob = new Blob([bytes], { type });
+      setFileBlobUrl(URL.createObjectURL(blob));
+      setFileType(type);
+    } catch (e) {
+      alert("Gagal mendekripsi file: " + e.message);
+      setShowModal(false);
+    }
+  }
+
   const isInputValid = () => {
     return cid.trim().length > 0;
   };
@@ -95,17 +120,36 @@ function VerifikasiSertifikat() {
                 <div className="detail-row"><span className="detail-label">Sertifikat CID:</span><a className="detail-link" href={`https://ipfs.io/ipfs/${hasil.sertifikatCID}`} target="_blank" rel="noopener noreferrer">{hasil.sertifikatCID} <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M8.5 2.5h5v5" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M7 9l6-6" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M13 9.5v2A2.5 2.5 0 0 1 10.5 14h-6A2.5 2.5 0 0 1 2 11.5v-6A2.5 2.5 0 0 1 4.5 3H7" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></a></div>
                 <div className="detail-row"><span className="detail-label">Metadata Peserta:</span><a className="detail-link" href={`https://ipfs.io/ipfs/${hasil.metadataCID}`} target="_blank" rel="noopener noreferrer">{hasil.metadataCID} <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M8.5 2.5h5v5" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M7 9l6-6" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M13 9.5v2A2.5 2.5 0 0 1 10.5 14h-6A2.5 2.5 0 0 1 2 11.5v-6A2.5 2.5 0 0 1 4.5 3H7" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></a></div>
                 <div className="detail-row"><span className="detail-label">Tanggal Selesai:</span><span className="detail-value">{hasil.tanggalSelesai}</span></div>
-                <a
-                  href={`https://ipfs.io/ipfs/${hasil.sertifikatCID}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="lihat-sertifikat-btn"
-                >
-                  Lihat Sertifikat di IPFS
-                </a>
+                <div className="detail-row">
+                  <button
+                    className="lihat-sertifikat-btn"
+                    style={{marginTop:10, padding:'8px 18px', borderRadius:7, background:'#4f46e5', color:'#fff', border:'none', fontWeight:600, fontSize:15, cursor:'pointer'}}
+                    onClick={()=>handleLihatSertifikat(hasil.sertifikatCID, "sertifikat.pdf")}
+                  >Lihat Sertifikat</button>
+                </div>
               </>
             ) : (
               <p className="invalid">❌ Sertifikasi Tidak Valid / Tidak Lulus</p>
+            )}
+            {/* Modal Preview Sertifikat */}
+            {showModal && (
+              <div className="verif-lsp-modal-bg" onClick={()=>{setShowModal(false); if(fileBlobUrl) URL.revokeObjectURL(fileBlobUrl);}}>
+                <div className="verif-lsp-modal" onClick={e=>e.stopPropagation()} style={{maxWidth:600}}>
+                  {fileBlobUrl ? (
+                    fileType.startsWith("image/") ? (
+                      <img src={fileBlobUrl} alt="Sertifikat" style={{maxWidth:"100%", maxHeight:400, marginTop:16}} />
+                    ) : (
+                      <iframe src={fileBlobUrl} style={{width:"100%",height:"400px", marginTop:16}} title="Sertifikat" />
+                    )
+                  ) : (
+                    <div>Loading file...</div>
+                  )}
+                  {fileBlobUrl && (
+                    <a href={fileBlobUrl} download="sertifikat.pdf" style={{marginTop:18,display:"inline-block",fontWeight:600,color:'#4f46e5',textDecoration:'underline'}}>Download File</a>
+                  )}
+                  <button onClick={()=>{setShowModal(false); if(fileBlobUrl) URL.revokeObjectURL(fileBlobUrl);}} style={{marginLeft:10,marginTop:18,padding:'8px 18px',borderRadius:7,background:'#ef4444',color:'#fff',border:'none',fontWeight:600,cursor:'pointer'}}>Tutup</button>
+                </div>
+              </div>
             )}
           </div>
         )}
