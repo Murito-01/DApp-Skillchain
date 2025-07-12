@@ -3,6 +3,7 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  background-color: #ffffff;
 }
 
 .logo {
@@ -44,7 +45,7 @@
 .home-bw-root {
   min-height: 100vh;
   width: 100vw;
-  background: #e8e8e8 !important;
+  background: #ffffff !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;

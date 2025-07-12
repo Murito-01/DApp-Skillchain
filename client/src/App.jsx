@@ -6,7 +6,6 @@ import VerifikasiSertifikat from "./pages/VerifikasiSertifikat";
 import PesertaProfile from "./pages/PesertaProfile";
 import Navbar from "./components/Navbar";
 import { WalletProvider } from "./contexts/WalletContext";
-import PengajuanLSP from "./pages/PengajuanLSP";
 import DaftarLSP from "./pages/DaftarLSP";
 import StatusLSP from "./pages/StatusLSP";
 import PesertaLSP from "./pages/PesertaLSP";

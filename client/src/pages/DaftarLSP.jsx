@@ -10,13 +10,6 @@ const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 const PINATA_API_KEY = import.meta.env.VITE_PINATA_API_KEY;
 const PINATA_SECRET_API_KEY = import.meta.env.VITE_PINATA_SECRET_API_KEY;
 
-const STATUS_LABELS = [
-  "Belum Pernah Daftar",
-  "Menunggu Verifikasi BNSP",
-  "Aktif (Terverifikasi)",
-  "Ditolak"
-];
-
 export default function DaftarLSP() {
   const [formData, setFormData] = useState({
     nama_lsp: "",
@@ -35,7 +28,7 @@ export default function DaftarLSP() {
   const [akteCID, setAkteCID] = useState("");
   const [akteUploadStatus, setAkteUploadStatus] = useState("");
   const [status, setStatus] = useState("");
-  const [lspStatus, setLspStatus] = useState(null); // 0: belum, 1: menunggu, 2: aktif, 3: ditolak
+  const [lspStatus, setLspStatus] = useState(null);
   const { account, isConnected, setRole, checkRole } = useWallet();
   const navigate = useNavigate();
 
@@ -78,7 +71,7 @@ export default function DaftarLSP() {
     }
   };
 
-  // Tambahkan fungsi utilitas untuk konversi file ke base64
+  // Fungsi utilitas untuk konversi file ke base64
   function fileToBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -105,7 +98,6 @@ export default function DaftarLSP() {
     }
     const url = "https://api.pinata.cloud/pinning/pinFileToIPFS";
     const formData = new FormData();
-    // Pastikan file berisi string terenkripsi, bukan JSON
     const file = new File([
       encryptedString
     ], fileName || generateRandomFilename(), { type: "text/plain" });
@@ -166,7 +158,7 @@ export default function DaftarLSP() {
     });
   };
 
-  // Ubah handleAkteFileChange agar upload file terenkripsi
+  // Upload file terenkripsi
   const handleAkteFileChange = (e) => {
     const file = e.target.files[0];
     setAkteFile(file);
@@ -178,7 +170,7 @@ export default function DaftarLSP() {
     }
   };
 
-  // Ubah handleSubmit agar data JSON juga dienkripsi sebelum upload
+  // Data JSON juga dienkripsi sebelum upload
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isConnected) {
@@ -207,7 +199,6 @@ export default function DaftarLSP() {
     try {
       const dataToUpload = { ...formData, akte_notaris_cid: akteCID };
       const encryptedJson = encryptData(dataToUpload, key, iv);
-      // Log panjang ciphertext dan validasi base64
       console.log("[DaftarLSP] Panjang ciphertext:", encryptedJson.length);
       const base64Regex = /^[A-Za-z0-9+/=]+$/;
       if (encryptedJson.length % 4 !== 0 || !base64Regex.test(encryptedJson)) {

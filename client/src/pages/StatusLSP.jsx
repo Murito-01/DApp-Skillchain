@@ -7,13 +7,6 @@ import { decryptFileFromIPFS, getOrCreateAesKeyIv } from "../lib/encrypt";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
-const STATUS_LABELS = [
-  "Belum Pernah Daftar",
-  "Menunggu Verifikasi BNSP",
-  "Aktif (Terverifikasi)",
-  "Ditolak"
-];
-
 export default function StatusLSP() {
   const { account, isConnected, setRole } = useWallet();
   const [lspStatus, setLspStatus] = useState(null);
@@ -23,18 +16,16 @@ export default function StatusLSP() {
   const [fileBlobUrl, setFileBlobUrl] = useState("");
   const [fileType, setFileType] = useState("");
 
-  // Setelah upload/verifikasi, fetchStatus() dipanggil ulang
   useEffect(() => {
     if (isConnected && account) {
       fetchStatus();
     }
   }, [isConnected, account]);
 
-  // Tambahkan polling sederhana setelah upload/verifikasi
   const [polling, setPolling] = useState(false);
   async function pollStatusAfterAction() {
     setPolling(true);
-    for (let i = 0; i < 6; i++) { // polling max 6x (30 detik)
+    for (let i = 0; i < 6; i++) {
       await new Promise(res => setTimeout(res, 5000));
       await fetchStatus();
       if (lspStatus === 1 && suratIzinCID) break;
@@ -134,7 +125,7 @@ export default function StatusLSP() {
                     onClick={() => handleLihatSuratIzin(suratIzinCID, "surat_izin.pdf")}
                     className="slsp-surat-btn"
                   >
-                    Lihat/Unduh Surat Izin
+                    Lihat / Unduh
                   </button>
                 </div>
               </div>

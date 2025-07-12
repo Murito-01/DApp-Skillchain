@@ -1,10 +1,13 @@
 /* StatusLSP.css */
 .slsp-container {
+  margin-top: 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   min-height: 70vh;
+  background: #f5f6fa;
+  min-height: 100vh;
 }
 .slsp-title {
   margin-bottom: 32px;

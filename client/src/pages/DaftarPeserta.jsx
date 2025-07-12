@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import contractArtifact from "../abi/MainContract.json";
 import "./DaftarPeserta.css";
@@ -10,13 +10,6 @@ import { encryptData, getOrCreateAesKeyIv, generateRandomFilename } from "../lib
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 const PINATA_API_KEY = import.meta.env.VITE_PINATA_API_KEY;
 const PINATA_SECRET_API_KEY = import.meta.env.VITE_PINATA_SECRET_API_KEY;
-
-const skemaOptions = [
-  "Okupasi PJOI Pengendalian Pencemaran Udara",
-  "Okupasi PJ Pengendalian Pencemaran Udara", 
-  "Okupasi PJO Pengolahan Air Limbah",
-  "Okupasi PJ Pengendalian Pencemaran Air"
-];
 
 export default function DaftarPeserta() {
   const [formData, setFormData] = useState({
@@ -36,6 +29,21 @@ export default function DaftarPeserta() {
   const [account, setAccount] = useState("");
   const { setRole } = useWallet();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    async function autoConnect() {
+      if (window.ethereum && !isConnected) {
+        try {
+          const accounts = await window.ethereum.request({ method: "eth_accounts" });
+          if (accounts.length > 0) {
+            setAccount(accounts[0]);
+            setIsConnected(true);
+          }
+        } catch {}
+      }
+    }
+    autoConnect();
+  }, [isConnected]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -157,10 +165,6 @@ export default function DaftarPeserta() {
         setStatus("❌ Terjadi kesalahan: " + (err.message || "Unknown error"));
       }
     }
-  };
-
-  const ajukanSertifikasi = async (skema) => {
-    const tx = await contract.ajukanSertifikasi(skema);
   };
 
   return (

@@ -128,7 +128,7 @@ export default function VerifikasiLSP() {
       await tx.wait();
       setFeedback("✅ LSP berhasil diverifikasi! Data akan diperbarui.");
       setShowModal(false);
-      await fetchPendingLSPs(); // pastikan refresh benar-benar selesai
+      await fetchPendingLSPs();
     } catch (err) {
       setFeedback("❌ Gagal verifikasi: " + (err.reason || err.message));
     }
@@ -382,7 +382,7 @@ export default function VerifikasiLSP() {
               <div style={{marginTop:18,marginBottom:10,padding:10,background:'#f6ffed',borderRadius:8,border:'1.5px solid #b7eb8f'}}>
                 <div style={{fontSize:15,marginBottom:6}}><b>CID Surat Izin:</b></div>
                 <div style={{fontFamily:'monospace',fontSize:15,wordBreak:'break-all',marginBottom:8}}>{uploadedCID}</div>
-                <button type="button" onClick={handleCopyCID} style={{padding:"7px 18px",background:"#4f46e5",color:"#fff",border:"none",borderRadius:7,cursor:"pointer",fontWeight:600,fontSize:15,boxShadow:"0 2px 8px #0001"}}>Copy CID</button>
+                <button type="button" onClick={handleCopyCID} style={{padding:"7px 18px",background:"#4f46e5",color:"#fff",border:"none",borderRadius:7,cursor:"pointer",fontWeight:600,fontSize:15,boxShadow:"0 2px 8px #0001"}}>Copy</button>
                 <button type="button" onClick={()=>handleLihatAkteNotaris(uploadedCID, file ? file.name : "surat_izin.pdf")} style={{marginLeft:12,fontSize:15,color:'#fff',background:'#7c3aed',textDecoration:'none',fontWeight:600,padding:'7px 18px',borderRadius:7,border:'none',cursor:'pointer'}}>Lihat</button>
               </div>
             )}

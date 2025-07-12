@@ -186,7 +186,7 @@ export default function MonitoringLSP() {
                       alert("Gagal mendekripsi file: " + e.message);
                       setShowFileModal(false);
                     }
-                  }}>Lihat Akte Notaris</button>
+                  }}>Lihat</button>
                 </li>
               )}
             </ul>
