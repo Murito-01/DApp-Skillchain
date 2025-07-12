@@ -30,6 +30,7 @@ export default function PesertaLSP() {
   const [showModal, setShowModal] = useState(false);
   const [fileBlobUrl, setFileBlobUrl] = useState("");
   const [fileType, setFileType] = useState("");
+  const [showDetailModal, setShowDetailModal] = useState(null);
 
   useEffect(() => {
     if (!isConnected) {
@@ -84,7 +85,8 @@ export default function PesertaLSP() {
                   sudahInput: n[3],
                   sertifikasiID,
                   sertifikatCID: sertif.sertifikatCID || sertif[2],
-                  lulus: sertif.lulus !== undefined ? sertif.lulus : sertif[3]
+                  lulus: sertif.lulus !== undefined ? sertif.lulus : sertif[3],
+                  skema: Number(sertif.skema !== undefined ? sertif.skema : sertif[1])
                 };
               } catch {}
               list.push({
@@ -263,6 +265,13 @@ export default function PesertaLSP() {
     );
   }
 
+  const SKEMA_LABELS = [
+    "PJOI Pengendalian Pencemaran Udara",
+    "PJ Pengendalian Pencemaran Udara",
+    "PJO Pengolahan Air Limbah",
+    "PJ Pengendalian Pencemaran Air"
+  ];
+
   return (
     <div className="peserta-lsp-container">
       <h2 className="peserta-lsp-title">Daftar Peserta</h2>
@@ -290,7 +299,9 @@ export default function PesertaLSP() {
               <th>Wallet</th>
               <th>Nama</th>
               <th>Email</th>
+              <th>Skema</th>
               <th>Nilai</th>
+              <th>Aksi</th>
               <th>Sertifikat</th>
             </tr>
           </thead>
@@ -304,7 +315,8 @@ export default function PesertaLSP() {
                 <tr key={peserta.address + "-" + nilai.sertifikasiID + "-" + idx}>
                   <td className="wallet-cell">{peserta.address}</td>
                   <td>{peserta.metadata?.nama_lengkap || <i>Unknown</i>}</td>
-                  <td>{peserta.metadata?.email_student_uii || <i>-</i>}</td>
+                  <td className="email-cell">{peserta.metadata?.email_student_uii || <i>-</i>}</td>
+                  <td className="skema-cell">{sudahAjukan && typeof nilai.skema !== 'undefined' ? SKEMA_LABELS[nilai.skema] || '-' : '-'}</td>
                   <td className="status-cell">
                     {!sudahAjukan ? (
                       <span className="empty-label">Belum mengajukan</span>
@@ -318,6 +330,9 @@ export default function PesertaLSP() {
                       <button className="peserta-lsp-btn input-nilai-btn" onClick={()=>openInputModal(peserta)}>Input</button>
                     )}
                   </td>
+                  <td className="aksi-cell">
+                    <button className="peserta-lsp-btn detail-btn" onClick={()=>setShowDetailModal({peserta, nilai, isLulus, isGagal, sudahAjukan})}>Detail</button>
+                  </td>
                   <td className="sertifikat-cell">
                     {!sudahAjukan ? (
                       <span className="empty-label">-</span>
@@ -326,7 +341,7 @@ export default function PesertaLSP() {
                         nilai.sertifikatCID ? (
                           <div className="cid-cell" title={nilai.sertifikatCID}>
                             <span className="cid-text">{nilai.sertifikatCID.slice(0, 8)}...{nilai.sertifikatCID.slice(-6)}</span>
-                            <button className="copy-btn" onClick={()=>navigator.clipboard.writeText(nilai.sertifikatCID)}>Copy CID</button>
+                            <button className="copy-btn" onClick={()=>navigator.clipboard.writeText(nilai.sertifikatCID)}>Copy</button>
                             <button className="lihat-btn" onClick={()=>handleLihatSertifikat(nilai.sertifikatCID, "sertifikat.pdf")}>Lihat</button>
                           </div>
                         ) : (
@@ -421,6 +436,24 @@ export default function PesertaLSP() {
               <a href={fileBlobUrl} download="sertifikat.pdf" style={{marginTop:18,display:"inline-block",fontWeight:600,color:'#4f46e5',textDecoration:'underline'}}>Download File</a>
             )}
             <button onClick={()=>{setShowModal(false); if(fileBlobUrl) URL.revokeObjectURL(fileBlobUrl);}} style={{marginLeft:10,marginTop:18,padding:'8px 18px',borderRadius:7,background:'#ef4444',color:'#fff',border:'none',fontWeight:600,cursor:'pointer'}}>Tutup</button>
+          </div>
+        </div>
+      )}
+      {/* Tambahkan modal detail peserta */}
+      {showDetailModal && (
+        <div className="peserta-lsp-modal-bg" onClick={e=>{if(e.target.className==='peserta-lsp-modal-bg')setShowDetailModal(null)}}>
+          <div className="peserta-lsp-modal" style={{maxWidth:420}}>
+            <h3>Detail Peserta</h3>
+            <div><b>Nama:</b> {showDetailModal.peserta.metadata?.nama_lengkap || '-'}</div>
+            <div><b>Email:</b> {showDetailModal.peserta.metadata?.email_student_uii || '-'}</div>
+            <div><b>Wallet:</b> <span style={{fontFamily:'monospace',fontSize:13}}>{showDetailModal.peserta.address}</span></div>
+            <div><b>Skema:</b> {typeof showDetailModal.nilai.skema !== 'undefined' ? SKEMA_LABELS[showDetailModal.nilai.skema] || '-' : '-'}</div>
+            <div><b>Status:</b> {showDetailModal.sudahAjukan ? (showDetailModal.nilai.sudahInput ? (showDetailModal.isLulus ? <span style={{color:'#389e0d',fontWeight:600}}>Lulus</span> : <span style={{color:'#cf1322',fontWeight:600}}>Gagal</span>) : <span style={{color:'#faad14',fontWeight:600}}>Belum Dinilai</span>) : <span style={{color:'#bbb'}}>Belum Mengajukan</span>}</div>
+            <hr style={{margin:'14px 0 10px 0',border:'none',borderTop:'1.5px solid #eee'}}/>
+            {showDetailModal.peserta.metadata && Object.entries(showDetailModal.peserta.metadata).filter(([k])=>!['nama_lengkap','email_student_uii'].includes(k)).map(([k,v])=>(
+              <div key={k}><b>{k.replace(/_/g,' ').replace(/\b\w/g, l => l.toUpperCase())}:</b> {v}</div>
+            ))}
+            <button className="peserta-lsp-btn" style={{marginTop:18}} onClick={()=>setShowDetailModal(null)}>Tutup</button>
           </div>
         </div>
       )}

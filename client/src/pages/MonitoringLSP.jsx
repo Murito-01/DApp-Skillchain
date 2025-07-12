@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import contractArtifact from "../abi/MainContract.json";
-import { decryptData, getOrCreateAesKeyIv } from "../lib/encrypt";
+import { decryptData, getOrCreateAesKeyIv, decryptFileFromIPFS } from "../lib/encrypt";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
@@ -40,6 +40,11 @@ export default function MonitoringLSP() {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [filtered, setFiltered] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [modalData, setModalData] = useState(null);
+  const [showFileModal, setShowFileModal] = useState(false);
+  const [fileBlobUrl, setFileBlobUrl] = useState("");
+  const [fileType, setFileType] = useState("");
 
   useEffect(() => {
     fetchLSP();
@@ -128,6 +133,7 @@ export default function MonitoringLSP() {
               <th style={{padding:8, textAlign:'left'}}>Status</th>
               <th style={{padding:8, textAlign:'left'}}>CID Surat Izin</th>
               <th style={{padding:8, textAlign:'left'}}>Alasan Tolak</th>
+              <th style={{padding:8, textAlign:'left'}}>Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -139,10 +145,73 @@ export default function MonitoringLSP() {
                 <td style={{padding:8}}>{STATUS_LABELS[lsp.status] || '-'}</td>
                 <td style={{padding:8,fontFamily:'monospace'}}>{lsp.suratIzinCID || <i>-</i>}</td>
                 <td style={{padding:8}}>{lsp.alasanTolak || <i>-</i>}</td>
+                <td style={{padding:8}}>
+                  <button style={{padding:'4px 12px',borderRadius:6,border:'none',background:'#4f46e5',color:'#fff',fontSize:14,fontWeight:500,cursor:'pointer'}} onClick={()=>{setShowModal(true);setModalData(lsp);}}>Detail</button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+      )}
+      {showModal && modalData && (
+        <div style={{position:'fixed',top:0,left:0,width:'100vw',height:'100vh',background:'#0008',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>setShowModal(false)}>
+          <div style={{background:'#fff',borderRadius:16,padding:'32px 36px',minWidth:320,maxWidth:440,boxShadow:'0 2px 24px #0003',position:'relative',color:'#222'}} onClick={e=>e.stopPropagation()}>
+            <h2 style={{marginBottom:22, fontWeight:700, fontSize:24, textAlign:'center', letterSpacing:0.5}}>Detail LSP</h2>
+            <ul style={{listStyle:'none',padding:0,margin:0}}>
+              <li style={{marginBottom:12,overflowWrap:'break-word',wordBreak:'break-word',maxWidth:'100%'}}><span style={{fontWeight:600, color:'#4f46e5'}}>Wallet:</span> <span style={{fontFamily:'monospace'}}>{modalData.address}</span></li>
+              {modalData.metadata && Object.entries(modalData.metadata).map(([k,v])=>{
+                if(k==="akte_notaris_cid") return null;
+                return <li key={k} style={{marginBottom:12,overflowWrap:'break-word',wordBreak:'break-word',maxWidth:'100%'}}><span style={{fontWeight:600, color:'#4f46e5'}}>{k.replace(/_/g,' ').replace(/\b\w/g, l => l.toUpperCase())}:</span> <span>{v}</span></li>;
+              })}
+              {modalData.metadata && modalData.metadata.akte_notaris_cid && (
+                <li style={{marginBottom:12}}>
+                  <span style={{fontWeight:600, color:'#4f46e5'}}>Akte Notaris:</span> 
+                  <button style={{marginLeft:8,padding:'4px 14px',borderRadius:6,border:'none',background:'#4f46e5',color:'#fff',fontSize:14,fontWeight:500,cursor:'pointer'}} onClick={async()=>{
+                    setShowFileModal(true);
+                    setFileBlobUrl("");
+                    setFileType("");
+                    try {
+                      const res = await fetch(`https://gateway.pinata.cloud/ipfs/${modalData.metadata.akte_notaris_cid}`);
+                      const encrypted = await res.text();
+                      const { keyHex, ivHex } = getOrCreateAesKeyIv();
+                      const bytes = decryptFileFromIPFS(encrypted, keyHex, ivHex);
+                      let type = "application/pdf";
+                      if (modalData.metadata.akte_notaris_cid.endsWith(".jpg") || modalData.metadata.akte_notaris_cid.endsWith(".jpeg")) type = "image/jpeg";
+                      if (modalData.metadata.akte_notaris_cid.endsWith(".png")) type = "image/png";
+                      const blob = new Blob([bytes], { type });
+                      setFileBlobUrl(URL.createObjectURL(blob));
+                      setFileType(type);
+                    } catch (e) {
+                      alert("Gagal mendekripsi file: " + e.message);
+                      setShowFileModal(false);
+                    }
+                  }}>Lihat Akte Notaris</button>
+                </li>
+              )}
+            </ul>
+            <button style={{marginTop:18,padding:'10px 28px',borderRadius:8,background:'#ef4444',color:'#fff',border:'none',fontWeight:700,cursor:'pointer',fontSize:16,display:'block',marginLeft:'auto',marginRight:'auto'}} onClick={()=>setShowModal(false)}>Tutup</button>
+          </div>
+        </div>
+      )}
+      {showFileModal && (
+        <div style={{position:'fixed',top:0,left:0,width:'100vw',height:'100vh',background:'#0008',zIndex:1100,display:'flex',alignItems:'center',justifyContent:'center'}} onClick={()=>{setShowFileModal(false);if(fileBlobUrl)URL.revokeObjectURL(fileBlobUrl);}}>
+          <div style={{background:'#fff',borderRadius:16,padding:24,minWidth:320,maxWidth:600,boxShadow:'0 2px 24px #0003',position:'relative',color:'#222'}} onClick={e=>e.stopPropagation()}>
+            <h3 style={{marginBottom:18}}>Akte Notaris</h3>
+            {fileBlobUrl ? (
+              fileType.startsWith("image/") ? (
+                <img src={fileBlobUrl} alt="Akte Notaris" style={{maxWidth:"100%", maxHeight:400, marginTop:16}} />
+              ) : (
+                <iframe src={fileBlobUrl} style={{width:"100%",height:"400px", marginTop:16}} title="Akte Notaris" />
+              )
+            ) : (
+              <div>Loading file...</div>
+            )}
+            {fileBlobUrl && (
+              <a href={fileBlobUrl} download="akte_notaris.pdf" style={{marginTop:18,display:"inline-block",fontWeight:600,color:'#4f46e5',textDecoration:'underline'}}>Download File</a>
+            )}
+            <button onClick={()=>{setShowFileModal(false);if(fileBlobUrl)URL.revokeObjectURL(fileBlobUrl);}} style={{marginLeft:10,marginTop:18,padding:'8px 18px',borderRadius:7,background:'#ef4444',color:'#fff',border:'none',fontWeight:600,cursor:'pointer'}}>Tutup</button>
+          </div>
+        </div>
       )}
     </div>
   );
