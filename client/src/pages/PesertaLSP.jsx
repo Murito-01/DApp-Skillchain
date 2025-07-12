@@ -4,7 +4,7 @@ import contractArtifact from "../abi/MainContract.json";
 import "./PesertaLSP.css";
 import { useWallet } from "../contexts/WalletContext";
 import { useNavigate } from "react-router-dom";
-import { decryptData, getOrCreateAesKeyIv, encryptData, generateRandomFilename } from "../lib/encrypt";
+import { decryptData, getOrCreateAesKeyIv, encryptData, generateRandomFilename, decryptFileFromIPFS } from "../lib/encrypt";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
@@ -27,6 +27,9 @@ export default function PesertaLSP() {
   const [uploadStatus, setUploadStatus] = useState("");
   const [kelulusan, setKelulusan] = useState("lulus");
   const [alasanGagal, setAlasanGagal] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [fileBlobUrl, setFileBlobUrl] = useState("");
+  const [fileType, setFileType] = useState("");
 
   useEffect(() => {
     if (!isConnected) {
@@ -217,6 +220,27 @@ export default function PesertaLSP() {
     setUploading(false);
   }
 
+  async function handleLihatSertifikat(cid, filenameGuess = "sertifikat.pdf") {
+    setShowModal(true);
+    setFileBlobUrl("");
+    setFileType("");
+    try {
+      const res = await fetch(`https://gateway.pinata.cloud/ipfs/${cid}`);
+      const encrypted = await res.text();
+      const { keyHex, ivHex } = getOrCreateAesKeyIv();
+      const bytes = decryptFileFromIPFS(encrypted, keyHex, ivHex);
+      let type = "application/pdf";
+      if (filenameGuess.endsWith(".jpg") || filenameGuess.endsWith(".jpeg")) type = "image/jpeg";
+      if (filenameGuess.endsWith(".png")) type = "image/png";
+      const blob = new Blob([bytes], { type });
+      setFileBlobUrl(URL.createObjectURL(blob));
+      setFileType(type);
+    } catch (e) {
+      alert("Gagal mendekripsi file: " + e.message);
+      setShowModal(false);
+    }
+  }
+
   if (!isConnected) {
     return (
       <div className="peserta-lsp-container">
@@ -303,7 +327,7 @@ export default function PesertaLSP() {
                           <div className="cid-cell" title={nilai.sertifikatCID}>
                             <span className="cid-text">{nilai.sertifikatCID.slice(0, 8)}...{nilai.sertifikatCID.slice(-6)}</span>
                             <button className="copy-btn" onClick={()=>navigator.clipboard.writeText(nilai.sertifikatCID)}>Copy CID</button>
-                            <a className="lihat-btn" href={`https://ipfs.io/ipfs/${nilai.sertifikatCID}`} target="_blank" rel="noopener noreferrer">Lihat</a>
+                            <button className="lihat-btn" onClick={()=>handleLihatSertifikat(nilai.sertifikatCID, "sertifikat.pdf")}>Lihat</button>
                           </div>
                         ) : (
                           <button className="peserta-lsp-btn upload-sertifikat-btn" onClick={()=>openUploadModal(peserta, nilai.sertifikasiID)}>Upload Sertifikat</button>
@@ -378,6 +402,26 @@ export default function PesertaLSP() {
             </div>
             {uploadStatus && <div style={{marginTop:12, color:uploadStatus.startsWith('Gagal')?'#cf1322':'#389e0d'}}>{uploadStatus}</div>}
           </form>
+        </div>
+      )}
+      {/* Modal Preview Sertifikat */}
+      {showModal && (
+        <div className="peserta-lsp-modal-bg" onClick={()=>{setShowModal(false); if(fileBlobUrl) URL.revokeObjectURL(fileBlobUrl);}}>
+          <div className="peserta-lsp-modal" onClick={e=>e.stopPropagation()} style={{maxWidth:600}}>
+            {fileBlobUrl ? (
+              fileType.startsWith("image/") ? (
+                <img src={fileBlobUrl} alt="Sertifikat" style={{maxWidth:"100%", maxHeight:400, marginTop:16}} />
+              ) : (
+                <iframe src={fileBlobUrl} style={{width:"100%",height:"400px", marginTop:16}} title="Sertifikat" />
+              )
+            ) : (
+              <div>Loading file...</div>
+            )}
+            {fileBlobUrl && (
+              <a href={fileBlobUrl} download="sertifikat.pdf" style={{marginTop:18,display:"inline-block",fontWeight:600,color:'#4f46e5',textDecoration:'underline'}}>Download File</a>
+            )}
+            <button onClick={()=>{setShowModal(false); if(fileBlobUrl) URL.revokeObjectURL(fileBlobUrl);}} style={{marginLeft:10,marginTop:18,padding:'8px 18px',borderRadius:7,background:'#ef4444',color:'#fff',border:'none',fontWeight:600,cursor:'pointer'}}>Tutup</button>
+          </div>
         </div>
       )}
     </div>
