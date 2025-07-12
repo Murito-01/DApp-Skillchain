@@ -95,7 +95,7 @@ export default function StatusLSP() {
 
   return (
     <div className="daftar-container" style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'70vh'}}>
-      <h2 style={{marginBottom:32}}>Status LSP</h2>
+      <h2 style={{marginBottom:32, color:'#111'}}>Status LSP</h2>
       <div className="wallet-section" style={{marginBottom:24}}>
         {isConnected ? (
           <div className="wallet-info" style={{fontSize:16}}>

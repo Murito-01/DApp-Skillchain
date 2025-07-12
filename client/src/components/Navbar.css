@@ -15,18 +15,60 @@
 }
 
 .navbar-wallet-center {
-  flex: 1;
   display: flex;
-  justify-content: center;
   align-items: center;
-  font-size: 0.98rem;
-  color: #4f46e5;
-  font-weight: 600;
+  justify-content: center;
   background: #f3f4f6;
-  padding: 6px 16px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(79,70,229,0.06);
   min-height: 36px;
+  min-width: 240px;
+  max-width: max-content;
+  padding: 7px 22px 7px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+  margin-right: 10px;
+  gap: 0;
+}
+.navbar-wallet-label {
+  color: #888;
+  font-weight: bold;
+  margin-right: 7px;
+  font-family: inherit;
+}
+.navbar-wallet-address {
+  font-family: monospace;
+  font-size: 1rem;
+  color: #222;
+  background: none;
+  padding: 0;
+}
+.navbar-disconnect-btn {
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 18px;
+  font-weight: 600;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #0001;
+  transition: background 0.18s;
+  margin-left: 0;
+  margin-right: 0;
+}
+.navbar-disconnect-btn:hover {
+  background: #333;
+}
+.navbar-disconnect-btn svg {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 17px;
+  margin-right: 4px;
 }
 
 .navbar-links {
@@ -75,5 +117,17 @@
   .navbar-links {
     gap: 16px;
     margin-bottom: 0;
+  }
+  .navbar-wallet-center {
+    min-width: 0;
+    width: 100%;
+    padding: 7px 10px;
+    margin-right: 0;
+    justify-content: center;
+  }
+  .navbar-disconnect-btn {
+    width: 100%;
+    margin-top: 8px;
+    justify-content: center;
   }
 } 
