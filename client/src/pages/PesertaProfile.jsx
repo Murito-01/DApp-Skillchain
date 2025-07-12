@@ -26,7 +26,6 @@ export default function PesertaProfile() {
   const [sertifikatCID, setSertifikatCID] = useState("");
   const [loadingSertifikat, setLoadingSertifikat] = useState(false);
 
-  // Ambil wallet yang sedang login
   useEffect(() => {
     async function getAccount() {
       if (window.ethereum) {
@@ -138,7 +137,6 @@ export default function PesertaProfile() {
       setStatus("✅ Sertifikasi berhasil diajukan!");
       setShowModal(false);
       
-      // Refresh data sertifikasi tanpa reload
       if (typeof PesertaProfile.fetchData === 'function') {
         await PesertaProfile.fetchData();
       }

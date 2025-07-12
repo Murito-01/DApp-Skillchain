@@ -57,7 +57,7 @@ export default function PesertaLSP() {
       for (const ev of events) {
         const addr = ev.args.peserta;
         const info = await contract.getPesertaInfo(addr);
-        if (info[1]) { // terdaftar
+        if (info[1]) {
           let metadata = null;
           try {
             const res = await fetch(`https://gateway.pinata.cloud/ipfs/${info[0]}`);
@@ -127,7 +127,7 @@ export default function PesertaLSP() {
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, contractArtifact.abi, signer);
       const { peserta, sertifikasiID } = modal;
-      // Input nilai sekaligus status lulus/gagal
+      // Input nilai sekaligus status lulus/Gagal
       const txNilai = await contract.inputNilaiPeserta(
         sertifikasiID,
         Number(inputTulis),
@@ -212,7 +212,6 @@ export default function PesertaLSP() {
       setUploadStatus("Menunggu konfirmasi blockchain...");
       await tx.wait();
       setUploadStatus("Berhasil upload dan update sertifikat!");
-      // Tambahkan delay 1 detik agar node sync
       await new Promise(res => setTimeout(res, 1000));
       await fetchPeserta();
       setUploadModal(null);

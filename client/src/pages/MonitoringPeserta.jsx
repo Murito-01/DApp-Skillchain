@@ -44,7 +44,7 @@ export default function MonitoringPeserta() {
       for (const ev of events) {
         const addr = ev.args.peserta;
         const info = await contract.getPesertaInfo(addr);
-        if (info[1]) { // terdaftar
+        if (info[1]) {
           let metadata = null;
           try {
             const res = await fetch(`https://gateway.pinata.cloud/ipfs/${info[0]}`);
