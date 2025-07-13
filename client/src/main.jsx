@@ -9,7 +9,6 @@ createRoot(document.getElementById('root')).render(
   </StrictMode>,
 )
 
-// Tambahkan redirect ke home saat reload
 if (window.location.pathname !== '/') {
   window.history.replaceState({}, '', '/');
 }
