@@ -18,6 +18,7 @@ export default function DaftarSertifikatPeserta() {
   const { account } = useWallet ? useWallet() : { account: undefined };
   const [sertifikatList, setSertifikatList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [nilaiModal, setNilaiModal] = useState(null);
 
   useEffect(() => {
     fetchSertifikat();
@@ -40,6 +41,7 @@ export default function DaftarSertifikatPeserta() {
         if (peserta.toLowerCase() !== account?.toLowerCase()) continue;
         if (!sudahSelesai) continue;
         list.push({
+          sertifikasiID,
           skema: Number(s.skema),
           lulus: s.lulus,
           tanggalPengajuan: s.tanggalPengajuan ? new Date(Number(s.tanggalPengajuan) * 1000) : null,
@@ -55,6 +57,28 @@ export default function DaftarSertifikatPeserta() {
     setLoading(false);
   }
 
+  async function handleLihatNilai(sertifikasiID) {
+    if (!sertifikasiID || typeof sertifikasiID !== 'string' || !/^0x[a-fA-F0-9]{40}$/.test(sertifikasiID)) {
+      alert('ID sertifikasi tidak valid.');
+      return;
+    }
+    try {
+      if (!window.ethereum) throw new Error("Wallet tidak terdeteksi");
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const contract = new ethers.Contract(contractAddress, contractArtifact.abi, provider);
+      const n = await contract.getNilaiPeserta(sertifikasiID);
+      setNilaiModal({
+        sertifikasiID,
+        tulis: Number(n[0]),
+        praktek: Number(n[1]),
+        wawancara: Number(n[2]),
+        sudahInput: n[3]
+      });
+    } catch (e) {
+      alert('Gagal mengambil nilai: ' + (e.message || e));
+    }
+  }
+
   return (
     <div className="dsp-container">
       <h2 className="dsp-title">Daftar Sertifikat</h2>
@@ -68,14 +92,15 @@ export default function DaftarSertifikatPeserta() {
               <th>Tanggal Selesai</th>
               <th>LSP Penilai</th>
               <th>CID Sertifikat</th>
+              <th>Nilai</th>
               <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={7} className="dsp-empty-row">Memuat data...</td></tr>
+              <tr><td colSpan={8} className="dsp-empty-row">Memuat data...</td></tr>
             ) : sertifikatList.length === 0 ? (
-              <tr><td colSpan={7} className="dsp-empty-row">Tidak ada sertifikat ditemukan.</td></tr>
+              <tr><td colSpan={8} className="dsp-empty-row">Tidak ada sertifikat ditemukan.</td></tr>
             ) : sertifikatList.map((srt, i) => {
               const statusLabel = (() => {
                 if (srt.lulus) return {text:'Lulus', className:'dsp-status-label dsp-status-lulus'};
@@ -89,6 +114,13 @@ export default function DaftarSertifikatPeserta() {
                   <td>{srt.tanggalSelesai ? srt.tanggalSelesai.toLocaleString('id-ID') : '-'}</td>
                   <td className="dsp-monospace">{srt.lspPenilai && srt.lspPenilai !== '0x0000000000000000000000000000000000000000' ? srt.lspPenilai : '-'}</td>
                   <td className="dsp-monospace">{srt.sertifikatCID && srt.sertifikatCID !== '' ? srt.sertifikatCID : '-'}</td>
+                  <td>
+                    {srt.sertifikasiID && typeof srt.sertifikasiID === 'string' && /^0x[a-fA-F0-9]{40}$/.test(srt.sertifikasiID) ? (
+                      <button className="dsp-btn" onClick={()=>handleLihatNilai(srt.sertifikasiID)}>Lihat Nilai</button>
+                    ) : (
+                      <span style={{color:'#bbb'}}>Tidak tersedia</span>
+                    )}
+                  </td>
                   <td>
                     {srt.sertifikatCID && srt.sertifikatCID !== '' ? (
                       <>
@@ -129,6 +161,19 @@ export default function DaftarSertifikatPeserta() {
           </tbody>
         </table>
       </div>
+      {nilaiModal && (
+        <div className="dsp-modal-bg" onClick={()=>setNilaiModal(null)}>
+          <div className="dsp-modal-card" onClick={e=>e.stopPropagation()}>
+            <h3 className="dsp-modal-title">Detail Nilai Sertifikasi</h3>
+            <div className="dsp-nilai-list">
+              <div className="dsp-nilai-item"><span className="dsp-nilai-label">Nilai Tulis</span><span className="dsp-nilai-value">{nilaiModal.tulis}</span></div>
+              <div className="dsp-nilai-item"><span className="dsp-nilai-label">Nilai Praktek</span><span className="dsp-nilai-value">{nilaiModal.praktek}</span></div>
+              <div className="dsp-nilai-item"><span className="dsp-nilai-label">Nilai Wawancara</span><span className="dsp-nilai-value">{nilaiModal.wawancara}</span></div>
+            </div>
+            <button className="dsp-modal-btn" onClick={()=>setNilaiModal(null)}>Tutup</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
