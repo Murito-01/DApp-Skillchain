@@ -344,7 +344,7 @@
   align-items: center;
 }
 
-.kelulusan-radio-options label {
+.kelulusan-radio-options .radio-option {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -352,6 +352,13 @@
   color: #222;
   cursor: pointer;
   margin: 0;
+  width: auto;
+  justify-content: flex-start;
+}
+
+.radio-text {
+  line-height: 1.2;
+  vertical-align: middle;
 }
 
 .kelulusan-radio-options input[type="radio"] {

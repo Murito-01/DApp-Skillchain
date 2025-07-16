@@ -381,11 +381,13 @@ export default function PesertaLSP() {
             <div className="kelulusan-radio-row">
               <span className="kelulusan-radio-label">Status Kelulusan:</span>
               <div className="kelulusan-radio-options">
-                <label>
-                  <input type="radio" name="kelulusan" value="lulus" checked={kelulusan==="lulus"} onChange={()=>setKelulusan("lulus")} /> Lulus
+                <label className="radio-option">
+                  <input type="radio" name="kelulusan" value="lulus" checked={kelulusan==="lulus"} onChange={()=>setKelulusan("lulus")} />
+                  <span className="radio-text">Lulus</span>
                 </label>
-                <label>
-                  <input type="radio" name="kelulusan" value="gagal" checked={kelulusan==="gagal"} onChange={()=>setKelulusan("gagal")} /> Gagal
+                <label className="radio-option">
+                  <input type="radio" name="kelulusan" value="gagal" checked={kelulusan==="gagal"} onChange={()=>setKelulusan("gagal")} />
+                  <span className="radio-text">Gagal</span>
                 </label>
               </div>
             </div>
