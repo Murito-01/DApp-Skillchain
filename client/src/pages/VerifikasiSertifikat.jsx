@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import "./VerifikasiSertifikat.css";
 import MainContract from "../abi/MainContract.json";
-import { decryptFileFromIPFS, getOrCreateAesKeyIv } from "../lib/encrypt";
+import { decryptFileFromIPFS, getOrCreateAesKeyIv, decryptData } from "../lib/encrypt";
 
 const contractAddress = import.meta.env.VITE_CONTRACT_ADDRESS;
 
@@ -14,11 +14,13 @@ function VerifikasiSertifikat() {
   const [showModal, setShowModal] = useState(false);
   const [fileBlobUrl, setFileBlobUrl] = useState("");
   const [fileType, setFileType] = useState("");
+  const [namaPeserta, setNamaPeserta] = useState("");
 
   const handleVerifikasi = async () => {
     setLoading(true);
     setError("");
     setHasil(null);
+    setNamaPeserta("");
 
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
@@ -64,6 +66,22 @@ function VerifikasiSertifikat() {
 
     setLoading(false);
   };
+
+  useEffect(() => {
+    async function fetchNamaPeserta() {
+      if (hasil && hasil.valid && hasil.metadataCID) {
+        try {
+          const res = await fetch(`https://gateway.pinata.cloud/ipfs/${hasil.metadataCID}`);
+          const encrypted = await res.text();
+          const { key, iv } = getOrCreateAesKeyIv();
+          const plaintext = decryptData(encrypted, key, iv);
+          const metaObj = JSON.parse(plaintext);
+          setNamaPeserta(metaObj.nama_lengkap || "-");
+        } catch { setNamaPeserta("-"); }
+      }
+    }
+    fetchNamaPeserta();
+  }, [hasil]);
 
   async function handleLihatSertifikat(cid, filenameGuess = "sertifikat.pdf") {
     setShowModal(true);
@@ -117,8 +135,7 @@ function VerifikasiSertifikat() {
                 <div className="detail-row"><span className="detail-label">CID Sertifikat:</span><span className="detail-value">{hasil.cid}</span></div>
                 <div className="detail-row"><span className="detail-label">ID Sertifikasi:</span><span className="detail-value">{hasil.sertifikasiID}</span></div>
                 <div className="detail-row"><span className="detail-label">Skema:</span><span className="detail-value">{hasil.skema}</span></div>
-                <div className="detail-row"><span className="detail-label">Sertifikat CID:</span><a className="detail-link" href={`https://ipfs.io/ipfs/${hasil.sertifikatCID}`} target="_blank" rel="noopener noreferrer">{hasil.sertifikatCID} <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M8.5 2.5h5v5" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M7 9l6-6" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M13 9.5v2A2.5 2.5 0 0 1 10.5 14h-6A2.5 2.5 0 0 1 2 11.5v-6A2.5 2.5 0 0 1 4.5 3H7" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></a></div>
-                <div className="detail-row"><span className="detail-label">Metadata Peserta:</span><a className="detail-link" href={`https://ipfs.io/ipfs/${hasil.metadataCID}`} target="_blank" rel="noopener noreferrer">{hasil.metadataCID} <svg width="16" height="16" fill="none" viewBox="0 0 16 16"><path d="M8.5 2.5h5v5" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M7 9l6-6" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M13 9.5v2A2.5 2.5 0 0 1 10.5 14h-6A2.5 2.5 0 0 1 2 11.5v-6A2.5 2.5 0 0 1 4.5 3H7" stroke="#3b5998" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></a></div>
+                <div className="detail-row"><span className="detail-label">Nama Peserta:</span><span className="detail-value">{namaPeserta}</span></div>
                 <div className="detail-row"><span className="detail-label">Tanggal Selesai:</span><span className="detail-value">{hasil.tanggalSelesai}</span></div>
                 <div className="detail-row">
                   <button
