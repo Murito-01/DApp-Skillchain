@@ -7,12 +7,12 @@ describe("DApp Sertifikasi Testing Suite", function () {
     let bnsp, lsp1, lsp2, peserta1, peserta2, peserta3, publicUser;
     let deployer;
 
-    // Enums untuk SkemaSertifikasi
+    // UPGRADE: Update enum SkemaSertifikasi agar sesuai dengan smart contract terbaru
     const SkemaSertifikasi = {
-        OKUPASI_PJOI_PENCEMARAN_UDARA: 0,
-        OKUPASI_PJ_PENCEMARAN_UDARA: 1,
-        OKUPASI_PJO_PENGOLAHAN_AIR: 2,
-        OKUPASI_PJ_PENCEMARAN_AIR: 3
+        Okupasi_PJOI_Pengendalian_Pencemaran_Udara: 0,
+        Okupasi_PJ_Pengendalian_Pencemaran_Udara: 1,
+        Okupasi_PJO_Pengolahan_Air_Limbah: 2,
+        Okupasi_PJ_Pengendalian_Pencemaran_Air: 3
     };
 
     // Helper function untuk mendapatkan timestamp terbaru
@@ -167,7 +167,7 @@ describe("DApp Sertifikasi Testing Suite", function () {
 
         it("Should allow participant to submit certification", async function () {
             const tx = await mainContract.connect(peserta1).ajukanSertifikasi(
-                SkemaSertifikasi.OKUPASI_PJOI_PENCEMARAN_UDARA
+                SkemaSertifikasi.Okupasi_PJOI_Pengendalian_Pencemaran_Udara
             );
             
             const receipt = await tx.wait();
@@ -186,12 +186,12 @@ describe("DApp Sertifikasi Testing Suite", function () {
 
         it("Should reject multiple active certifications", async function () {
             await mainContract.connect(peserta1).ajukanSertifikasi(
-                SkemaSertifikasi.OKUPASI_PJOI_PENCEMARAN_UDARA
+                SkemaSertifikasi.Okupasi_PJOI_Pengendalian_Pencemaran_Udara
             );
             
             await expect(
                 mainContract.connect(peserta1).ajukanSertifikasi(
-                    SkemaSertifikasi.OKUPASI_PJ_PENCEMARAN_UDARA
+                    SkemaSertifikasi.Okupasi_PJ_Pengendalian_Pencemaran_Udara
                 )
             ).to.be.revertedWith("Masih ada sertifikasi aktif");
         });
@@ -199,7 +199,7 @@ describe("DApp Sertifikasi Testing Suite", function () {
         it("Should allow LSP to approve certification", async function () {
             // Submit certification
             const tx = await mainContract.connect(peserta1).ajukanSertifikasi(
-                SkemaSertifikasi.OKUPASI_PJOI_PENCEMARAN_UDARA
+                SkemaSertifikasi.Okupasi_PJOI_Pengendalian_Pencemaran_Udara
             );
             
             const receipt = await tx.wait();
@@ -230,7 +230,7 @@ describe("DApp Sertifikasi Testing Suite", function () {
         it("Should allow LSP to reject certification", async function () {
             // Submit certification
             const tx = await mainContract.connect(peserta1).ajukanSertifikasi(
-                SkemaSertifikasi.OKUPASI_PJOI_PENCEMARAN_UDARA
+                SkemaSertifikasi.Okupasi_PJOI_Pengendalian_Pencemaran_Udara
             );
             
             const receipt = await tx.wait();
@@ -262,7 +262,7 @@ describe("DApp Sertifikasi Testing Suite", function () {
         it("Should allow participant to cancel certification", async function () {
             // Submit certification
             const tx = await mainContract.connect(peserta1).ajukanSertifikasi(
-                SkemaSertifikasi.OKUPASI_PJOI_PENCEMARAN_UDARA
+                SkemaSertifikasi.Okupasi_PJOI_Pengendalian_Pencemaran_Udara
             );
             
             const receipt = await tx.wait();
@@ -289,7 +289,7 @@ describe("DApp Sertifikasi Testing Suite", function () {
 
         it("Should reject non-LSP trying to approve certification", async function () {
             const tx = await mainContract.connect(peserta1).ajukanSertifikasi(
-                SkemaSertifikasi.OKUPASI_PJOI_PENCEMARAN_UDARA
+                SkemaSertifikasi.Okupasi_PJOI_Pengendalian_Pencemaran_Udara
             );
             
             const receipt = await tx.wait();
@@ -319,7 +319,7 @@ describe("DApp Sertifikasi Testing Suite", function () {
             await mainContract.connect(peserta1).daftarPeserta("QmPeserta1MetadataCID");
             
             const tx = await mainContract.connect(peserta1).ajukanSertifikasi(
-                SkemaSertifikasi.OKUPASI_PJOI_PENCEMARAN_UDARA
+                SkemaSertifikasi.Okupasi_PJOI_Pengendalian_Pencemaran_Udara
             );
             
             const receipt = await tx.wait();
@@ -361,7 +361,7 @@ describe("DApp Sertifikasi Testing Suite", function () {
             expect(details.lulus).to.be.true;
             expect(details.aktif).to.be.false;
             expect(details.peserta).to.equal(peserta1.address);
-            expect(details.skema).to.equal(SkemaSertifikasi.OKUPASI_PJOI_PENCEMARAN_UDARA);
+            expect(details.skema).to.equal(SkemaSertifikasi.Okupasi_PJOI_Pengendalian_Pencemaran_Udara);
             expect(details.sertifikatCID).to.equal("QmSertifikatCID");
             expect(details.lspPenilai).to.equal(lsp1.address);
         });
@@ -376,7 +376,7 @@ describe("DApp Sertifikasi Testing Suite", function () {
         });
 
         it("Should get schema name", async function () {
-            const namaSkema = await mainContract.getSkemaNama(SkemaSertifikasi.OKUPASI_PJOI_PENCEMARAN_UDARA);
+            const namaSkema = await mainContract.getSkemaNama(SkemaSertifikasi.Okupasi_PJOI_Pengendalian_Pencemaran_Udara);
             expect(namaSkema).to.equal("Okupasi Penanggung Jawab Operasional Instalasi Pengendalian Pencemaran Udara");
         });
     });
@@ -412,10 +412,10 @@ describe("DApp Sertifikasi Testing Suite", function () {
 
             // Submit certifications at the same time
             const tx1 = await mainContract.connect(peserta1).ajukanSertifikasi(
-                SkemaSertifikasi.OKUPASI_PJOI_PENCEMARAN_UDARA
+                SkemaSertifikasi.Okupasi_PJOI_Pengendalian_Pencemaran_Udara
             );
             const tx2 = await mainContract.connect(peserta2).ajukanSertifikasi(
-                SkemaSertifikasi.OKUPASI_PJ_PENCEMARAN_UDARA
+                SkemaSertifikasi.Okupasi_PJ_Pengendalian_Pencemaran_Udara
             );
 
             const receipt1 = await tx1.wait();
@@ -448,7 +448,7 @@ describe("DApp Sertifikasi Testing Suite", function () {
         it("Should handle certification history correctly", async function () {
             // Submit and complete first certification
             let tx = await mainContract.connect(peserta1).ajukanSertifikasi(
-                SkemaSertifikasi.OKUPASI_PJOI_PENCEMARAN_UDARA
+                SkemaSertifikasi.Okupasi_PJOI_Pengendalian_Pencemaran_Udara
             );
             
             let receipt = await tx.wait();
@@ -466,7 +466,7 @@ describe("DApp Sertifikasi Testing Suite", function () {
 
             // Submit second certification
             tx = await mainContract.connect(peserta1).ajukanSertifikasi(
-                SkemaSertifikasi.OKUPASI_PJ_PENCEMARAN_UDARA
+                SkemaSertifikasi.Okupasi_PJ_Pengendalian_Pencemaran_Udara
             );
             
             receipt = await tx.wait();
