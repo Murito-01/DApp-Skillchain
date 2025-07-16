@@ -11,13 +11,13 @@ contract RegistrasiLSP is SertifikasiStorage {
     struct LSP {
         string metadataCID;
         StatusLSP status;
-        string suratIzinCID; // Kosong jika belum diverifikasi
-        string alasanTolak;  // Kosong jika tidak ditolak
+        string suratIzinCID;
+        string alasanTolak;
     }
 
     mapping(address => LSP) public lspList;
     mapping(address => bool) public isLSPTerdaftar;
-    mapping(address => bool) public lspWaitinglist; // Waitinglist manual oleh BNSP
+    mapping(address => bool) public lspWaitinglist;
 
     event LSPDidaftarkan(address indexed lsp, string metadataCID);
     event LSPDiverifikasi(address indexed lsp, string suratIzinCID);
@@ -94,7 +94,6 @@ contract RegistrasiLSP is SertifikasiStorage {
     }
 
     function hapusLSP(address lspAddress) external onlyBNSP {
-        // ...hapus data LSP...
         isLSPTerdaftar[lspAddress] = false;
     }
 

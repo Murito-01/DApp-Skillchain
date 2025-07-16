@@ -99,7 +99,6 @@ contract VerifikasiPublik is SertifikasiStorage {
 
         exists = s.peserta != address(0);
         if (!exists) {
-            // Default value jika tidak ditemukan
             return (false, false, false, address(0), SkemaSertifikasi.Okupasi_PJOI_Pengendalian_Pencemaran_Udara, "", 0, address(0));
         }
 
