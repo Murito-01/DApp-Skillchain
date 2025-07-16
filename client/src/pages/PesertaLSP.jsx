@@ -31,6 +31,8 @@ export default function PesertaLSP() {
   const [fileBlobUrl, setFileBlobUrl] = useState("");
   const [fileType, setFileType] = useState("");
   const [showDetailModal, setShowDetailModal] = useState(null);
+  const [search, setSearch] = useState("");
+  const [filtered, setFiltered] = useState([]);
 
   useEffect(() => {
     if (!isConnected) {
@@ -43,6 +45,20 @@ export default function PesertaLSP() {
     }
     fetchPeserta();
   }, [isConnected, role, navigate]);
+
+  useEffect(() => {
+    if (!search) setFiltered(pesertaList);
+    else {
+      const s = search.toLowerCase();
+      setFiltered(
+        pesertaList.filter(p =>
+          (p.metadata?.nama_lengkap || "").toLowerCase().includes(s) ||
+          (p.metadata?.email_student_uii || "").toLowerCase().includes(s) ||
+          p.address.toLowerCase().includes(s)
+        )
+      );
+    }
+  }, [search, pesertaList]);
 
   async function fetchPeserta() {
     setLoading(true);
@@ -274,10 +290,18 @@ export default function PesertaLSP() {
   return (
     <div className="peserta-lsp-container">
       <h2 className="peserta-lsp-title">Daftar Peserta</h2>
+      <input
+        type="text"
+        placeholder="Cari nama, email, atau wallet..."
+        value={search}
+        onChange={e=>setSearch(e.target.value)}
+        className="peserta-lsp-search"
+        style={{marginBottom:18, width:'100%', maxWidth:400, padding:'8px 14px', borderRadius:8, border:'1.5px solid #c7d2fe', fontSize:'1rem'}}
+      />
       {feedback && <div style={{marginBottom:16, color:feedback.startsWith('Nilai')? '#389e0d':'#cf1322', fontWeight:500}}>{feedback}</div>}
       {loading ? (
         <div>Loading data...</div>
-      ) : pesertaList.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div className="bnsp-card" style={{textAlign:'center', padding:'40px 20px', color:'#595959'}}>
           <div style={{fontSize:48, marginBottom:16}}>🎓</div>
           <h3 style={{color:'#3b3b99', marginBottom:8}}>Belum ada peserta yang mendaftar</h3>
@@ -305,7 +329,7 @@ export default function PesertaLSP() {
             </tr>
           </thead>
           <tbody>
-            {pesertaList.map((peserta, idx) => {
+            {filtered.map((peserta, idx) => {
               const nilai = peserta.nilai || {};
               const sudahAjukan = nilai.sertifikasiID && nilai.sertifikasiID !== "0x0000000000000000000000000000000000000000";
               const isLulus = nilai.sudahInput && nilai.lulus;
