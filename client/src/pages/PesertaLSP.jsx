@@ -290,14 +290,6 @@ export default function PesertaLSP() {
   return (
     <div className="peserta-lsp-container">
       <h2 className="peserta-lsp-title">Daftar Peserta</h2>
-      <input
-        type="text"
-        placeholder="Cari nama, email, atau wallet..."
-        value={search}
-        onChange={e=>setSearch(e.target.value)}
-        className="peserta-lsp-search"
-        style={{marginBottom:18, width:'100%', maxWidth:400, padding:'8px 14px', borderRadius:8, border:'1.5px solid #c7d2fe', fontSize:'1rem'}}
-      />
       {feedback && <div style={{marginBottom:16, color:feedback.startsWith('Nilai')? '#389e0d':'#cf1322', fontWeight:500}}>{feedback}</div>}
       {loading ? (
         <div>Loading data...</div>
@@ -316,72 +308,82 @@ export default function PesertaLSP() {
           </ul>
         </div>
       ) : (
-        <table className="peserta-lsp-table">
-          <thead>
-            <tr>
-              <th>Wallet</th>
-              <th>Nama</th>
-              <th>Email</th>
-              <th>Skema</th>
-              <th>Nilai</th>
-              <th>Aksi</th>
-              <th>Sertifikat</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((peserta, idx) => {
-              const nilai = peserta.nilai || {};
-              const sudahAjukan = nilai.sertifikasiID && nilai.sertifikasiID !== "0x0000000000000000000000000000000000000000";
-              const isLulus = nilai.sudahInput && nilai.lulus;
-              const isGagal = nilai.sudahInput && !nilai.lulus;
-              return (
-                <tr key={peserta.address + "-" + nilai.sertifikasiID + "-" + idx}>
-                  <td className="wallet-cell">{peserta.address}</td>
-                  <td>{peserta.metadata?.nama_lengkap || <i>Unknown</i>}</td>
-                  <td className="email-cell">{peserta.metadata?.email_student_uii || <i>-</i>}</td>
-                  <td className="skema-cell">{sudahAjukan && typeof nilai.skema !== 'undefined' ? SKEMA_LABELS[nilai.skema] || '-' : '-'}</td>
-                  <td className="status-cell">
-                    {!sudahAjukan ? (
-                      <span className="empty-label">Belum mengajukan</span>
-                    ) : nilai.sudahInput ? (
-                      isLulus ? (
-                        <span className="status-label dinilai" style={{color:'#389e0d', fontWeight:600}}>Lulus</span>
-                      ) : (
-                        <span className="status-label dinilai" style={{color:'#cf1322', fontWeight:600}}>Gagal</span>
-                      )
-                    ) : (
-                      <button className="peserta-lsp-btn input-nilai-btn" onClick={()=>openInputModal(peserta)}>Input</button>
-                    )}
-                  </td>
-                  <td className="aksi-cell">
-                    <button className="peserta-lsp-btn detail-btn" onClick={()=>setShowDetailModal({peserta, nilai, isLulus, isGagal, sudahAjukan})}>Detail</button>
-                  </td>
-                  <td className="sertifikat-cell">
-                    {!sudahAjukan ? (
-                      <span className="empty-label">-</span>
-                    ) : nilai.sudahInput ? (
-                      isLulus ? (
-                        nilai.sertifikatCID ? (
-                          <div className="cid-cell" title={nilai.sertifikatCID}>
-                            <span className="cid-text">{nilai.sertifikatCID.slice(0, 8)}...{nilai.sertifikatCID.slice(-6)}</span>
-                            <button className="copy-btn" onClick={()=>navigator.clipboard.writeText(nilai.sertifikatCID)}>Copy</button>
-                            <button className="lihat-btn" onClick={()=>handleLihatSertifikat(nilai.sertifikatCID, "sertifikat.pdf")}>Lihat</button>
-                          </div>
+        <>
+          <input
+            type="text"
+            placeholder="Cari nama, email, atau wallet..."
+            value={search}
+            onChange={e=>setSearch(e.target.value)}
+            className="peserta-lsp-search"
+            style={{marginBottom:18, width:'100%', maxWidth:400, padding:'8px 14px', borderRadius:8, border:'1.5px solid #c7d2fe', fontSize:'1rem'}}
+          />
+          <table className="peserta-lsp-table">
+            <thead>
+              <tr>
+                <th>Wallet</th>
+                <th>Nama</th>
+                <th>Email</th>
+                <th>Skema</th>
+                <th>Nilai</th>
+                <th>Aksi</th>
+                <th>Sertifikat</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((peserta, idx) => {
+                const nilai = peserta.nilai || {};
+                const sudahAjukan = nilai.sertifikasiID && nilai.sertifikasiID !== "0x0000000000000000000000000000000000000000";
+                const isLulus = nilai.sudahInput && nilai.lulus;
+                const isGagal = nilai.sudahInput && !nilai.lulus;
+                return (
+                  <tr key={peserta.address + "-" + nilai.sertifikasiID + "-" + idx}>
+                    <td className="wallet-cell">{peserta.address}</td>
+                    <td>{peserta.metadata?.nama_lengkap || <i>Unknown</i>}</td>
+                    <td className="email-cell">{peserta.metadata?.email_student_uii || <i>-</i>}</td>
+                    <td className="skema-cell">{sudahAjukan && typeof nilai.skema !== 'undefined' ? SKEMA_LABELS[nilai.skema] || '-' : '-'}</td>
+                    <td className="status-cell">
+                      {!sudahAjukan ? (
+                        <span className="empty-label">Belum mengajukan</span>
+                      ) : nilai.sudahInput ? (
+                        isLulus ? (
+                          <span className="status-label dinilai" style={{color:'#389e0d', fontWeight:600}}>Lulus</span>
                         ) : (
-                          <button className="peserta-lsp-btn upload-sertifikat-btn" onClick={()=>openUploadModal(peserta, nilai.sertifikasiID)}>Upload Sertifikat</button>
+                          <span className="status-label dinilai" style={{color:'#cf1322', fontWeight:600}}>Gagal</span>
+                        )
+                      ) : (
+                        <button className="peserta-lsp-btn input-nilai-btn" onClick={()=>openInputModal(peserta)}>Input</button>
+                      )}
+                    </td>
+                    <td className="aksi-cell">
+                      <button className="peserta-lsp-btn detail-btn" onClick={()=>setShowDetailModal({peserta, nilai, isLulus, isGagal, sudahAjukan})}>Detail</button>
+                    </td>
+                    <td className="sertifikat-cell">
+                      {!sudahAjukan ? (
+                        <span className="empty-label">-</span>
+                      ) : nilai.sudahInput ? (
+                        isLulus ? (
+                          nilai.sertifikatCID ? (
+                            <div className="cid-cell" title={nilai.sertifikatCID}>
+                              <span className="cid-text">{nilai.sertifikatCID.slice(0, 8)}...{nilai.sertifikatCID.slice(-6)}</span>
+                              <button className="copy-btn" onClick={()=>navigator.clipboard.writeText(nilai.sertifikatCID)}>Copy</button>
+                              <button className="lihat-btn" onClick={()=>handleLihatSertifikat(nilai.sertifikatCID, "sertifikat.pdf")}>Lihat</button>
+                            </div>
+                          ) : (
+                            <button className="peserta-lsp-btn upload-sertifikat-btn" onClick={()=>openUploadModal(peserta, nilai.sertifikasiID)}>Upload Sertifikat</button>
+                          )
+                        ) : (
+                          <span className="empty-label">-</span>
                         )
                       ) : (
                         <span className="empty-label">-</span>
-                      )
-                    ) : (
-                      <span className="empty-label">-</span>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </>
       )}
       {/* Modal Input Nilai Sekaligus */}
       {modal && (
