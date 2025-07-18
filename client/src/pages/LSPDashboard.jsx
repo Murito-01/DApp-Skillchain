@@ -1,11 +1,13 @@
 import { useState } from "react";
 import StatusLSP from "./StatusLSP";
 import PesertaLSP from "./PesertaLSP";
+import ProfilLSP from "./ProfilLSP";
 import "./LSPDashboard.css";
 
 const MENU = [
   { key: "status", label: "Status LSP", icon: "📄" },
   { key: "peserta", label: "Partisipan", icon: "👥" },
+  { key: "profil", label: "Profil LSP", icon: "🏢" },
 ];
 
 export default function LSPDashboard() {
@@ -31,6 +33,7 @@ export default function LSPDashboard() {
       <main className="bnsp-sidebar-content">
         {activeMenu === "status" && <StatusLSP />}
         {activeMenu === "peserta" && <PesertaLSP />}
+        {activeMenu === "profil" && <ProfilLSP />}
       </main>
     </div>
   );

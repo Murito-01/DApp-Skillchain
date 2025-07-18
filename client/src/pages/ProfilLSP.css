@@ -1,0 +1,173 @@
+/* ProfilLSP.css */
+.profil-lsp-container {
+  max-width: 480px;
+  margin: 48px auto 0 auto;
+  padding: 36px 32px 36px 32px;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 4px 32px 0 rgba(60,60,120,0.10);
+  color: #111;
+  animation: fadeInProfilLSP 0.7s;
+  transition: box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+@keyframes fadeInProfilLSP {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.profil-lsp-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 32px;
+  color: #232360;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+.profil-lsp-info {
+  margin-bottom: 32px;
+}
+.profil-lsp-info-row {
+  display: grid;
+  grid-template-columns: 160px 18px 1fr;
+  align-items: start;
+  margin-bottom: 18px;
+}
+.profil-lsp-label {
+  font-weight: 700;
+  color: #4f46e5;
+  font-size: 1.08rem;
+  letter-spacing: 0.2px;
+}
+.profil-lsp-value {
+  flex: 1;
+  color: #222;
+  word-break: break-word;
+  font-size: 1.08rem;
+}
+.profil-lsp-btn {
+  background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 28px;
+  font-size: 1.08rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 32px;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  box-shadow: 0 2px 8px 0 rgba(79,70,229,0.08);
+  float: none;
+}
+.profil-lsp-btn:hover {
+  background: linear-gradient(90deg, #3730a3 0%, #6366f1 100%);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 16px 0 rgba(79,70,229,0.13);
+}
+.profil-lsp-btn.cancel {
+  background: #e11d48;
+  color: #fff;
+  height: 48px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px;
+  font-weight: 700;
+  margin-top: 18px;
+  box-shadow: 0 2px 8px 0 rgba(225,29,72,0.08);
+}
+.profil-lsp-btn.cancel:hover {
+  background: #991b1b;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 16px 0 rgba(225,29,72,0.13);
+}
+.profil-lsp-btn-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 18px;
+  align-items: end;
+}
+.profil-lsp-btn.simpan {
+  background: linear-gradient(90deg, #34d399 0%, #22c55e 100%);
+  color: #fff;
+  font-weight: 700;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  border-radius: 12px;
+  margin-top: 18px;
+  box-shadow: 0 2px 8px 0 rgba(34,197,94,0.08);
+}
+.profil-lsp-btn.simpan:hover {
+  background: linear-gradient(90deg, #059669 0%, #34d399 100%);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 16px 0 rgba(34,197,94,0.13);
+}
+.profil-lsp-colon {
+  color: #222;
+  font-weight: 600;
+  font-size: 1.08rem;
+  text-align: center;
+}
+.profil-lsp-btn-wrapper {
+  width: 100%;
+  text-align: right;
+}
+@media (max-width: 600px) {
+  .profil-lsp-container {
+    padding: 18px 4vw;
+    max-width: 98vw;
+  }
+  .profil-lsp-info-row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  .profil-lsp-label {
+    width: auto;
+    margin-bottom: 2px;
+  }
+  .profil-lsp-colon {
+    display: inline;
+    text-align: left;
+  }
+  .profil-lsp-btn-wrapper {
+    text-align: center;
+  }
+  .profil-lsp-btn {
+    width: 100%;
+    margin-top: 24px;
+  }
+}
+.profil-lsp-form {
+  margin-top: 18px;
+}
+.profil-lsp-form .form-group {
+  margin-bottom: 16px;
+}
+.profil-lsp-form label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #222;
+}
+.profil-lsp-form input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1.5px solid #c7d2fe;
+  border-radius: 7px;
+  font-size: 1rem;
+  color: #111;
+  background: #f8fafc;
+}
+.profil-lsp-status {
+  margin-bottom: 18px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #4f46e5;
+  text-align: center;
+} 
