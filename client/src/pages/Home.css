@@ -12,7 +12,6 @@ html, body {
 }
 
 #root {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -275,13 +274,14 @@ html, body {
 }
 
 .home-root {
-  min-height: 100vh;
+  height: 100vh;
   width: 100vw;
   background: radial-gradient(circle at 60% 20%, #f3f4f7 0%, #e8e9ec 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
+  flex: 1;
 }
 
 .home-header {
@@ -305,11 +305,9 @@ html, body {
 }
 
 .home-center-container {
-  flex: 1;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  width: 100vw;
   margin-top: 4vh;
 }
 
