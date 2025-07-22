@@ -19,7 +19,7 @@ export default function DaftarPeserta() {
     tanggal_lahir: "",
     jenis_kelamin: "Laki-laki",
     alamat_ktp: "",
-    email_student_uii: "",
+    email: "",
     nomor_hp: "",
     id_sosmed: "",
   });
@@ -146,7 +146,7 @@ export default function DaftarPeserta() {
         tanggal_lahir: "",
         jenis_kelamin: "Laki-laki",
         alamat_ktp: "",
-        email_student_uii: "",
+        email: "",
         nomor_hp: "",
         id_sosmed: "",
       });
@@ -246,14 +246,14 @@ export default function DaftarPeserta() {
           />
         </div>
         <div className="form-group">
-          <label>Email Student UII</label>
+          <label>Email</label>
           <input
             type="email"
-            name="email_student_uii"
-            value={formData.email_student_uii}
+            name="email"
+            value={formData.email}
             onChange={handleChange}
-            pattern=".*@students\.uii\.ac\.id$"
-            title="Harus menggunakan email @students.uii.ac.id"
+            pattern=".*@gmail\.com$"
+            title="Format email harus menggunakan @gmail.com"
             required
           />
         </div>
