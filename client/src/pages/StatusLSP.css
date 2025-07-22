@@ -1,13 +1,22 @@
 /* StatusLSP.css */
 .slsp-container {
-  margin-top: 32px;
+  margin-top: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  min-height: 70vh;
+  height: auto;
   background: #f5f6fa;
+}
+.slsp-fullscreen .slsp-container {
   min-height: 100vh;
+  width: 100vw;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+}
+.slsp-sidebar .slsp-container {
+  min-height: auto;
 }
 .slsp-title {
   margin-bottom: 32px;

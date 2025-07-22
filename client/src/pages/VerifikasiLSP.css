@@ -7,6 +7,18 @@
   color: black;
 }
 
+.verif-lsp-search {
+  padding: 8px;
+  margin-bottom: 18px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  width: 320px;
+  max-width: 100%;
+  font-size: 1rem;
+  background: #fff;
+  color: #000;
+}
+
 .verif-lsp-feedback {
   margin-bottom: 16px;
   font-weight: 500;

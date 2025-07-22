@@ -25,7 +25,11 @@ function App() {
           <Route path="/profile" element={<PesertaProfile />} />
           <Route path="/bnsp" element={<BNSPDashboard />} />
           <Route path="/ajukan" element={<DaftarLSP />} />
-          <Route path="/status" element={<StatusLSP />} />
+          <Route path="/status" element={
+            <div className="slsp-fullscreen">
+              <StatusLSP />
+            </div>
+          } />
           <Route path="/peserta-lsp" element={<PesertaLSP />} />
           <Route path="/lsp" element={<LSPDashboard />} />
           <Route path="/peserta" element={<PesertaDashboard />} />

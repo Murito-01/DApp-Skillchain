@@ -12,7 +12,7 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        <Link to="/">SkillChain</Link>
+        <h2>SkillChain</h2>
       </div>
       <div className="navbar-wallet-center">
         {isConnected && (

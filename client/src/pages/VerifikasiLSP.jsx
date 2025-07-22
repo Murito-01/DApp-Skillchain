@@ -49,10 +49,30 @@ export default function VerifikasiLSP() {
   const [showFileModal, setShowFileModal] = useState(false);
   const [fileBlobUrl, setFileBlobUrl] = useState("");
   const [fileType, setFileType] = useState("");
+  const [search, setSearch] = useState("");
+  const [filteredLSPs, setFilteredLSPs] = useState([]);
 
   useEffect(() => {
     fetchPendingLSPs();
   }, []);
+
+  useEffect(() => {
+    if (!search) {
+      setFilteredLSPs(pendingLSPs);
+    } else {
+      const s = search.toLowerCase();
+      setFilteredLSPs(
+        pendingLSPs.filter(lsp => 
+          lsp.address.toLowerCase().includes(s) ||
+          lsp.metadata?.nama_lsp?.toLowerCase().includes(s) ||
+          lsp.metadata?.email_kontak?.toLowerCase().includes(s) ||
+          lsp.metadata?.telepon?.toLowerCase().includes(s) ||
+          lsp.metadata?.jenis_lsp?.toLowerCase().includes(s) ||
+          lsp.metadata?.website?.toLowerCase().includes(s)
+        )
+      );
+    }
+  }, [search, pendingLSPs]);
 
   async function fetchPendingLSPs() {
     setLoading(true);
@@ -242,16 +262,32 @@ export default function VerifikasiLSP() {
   return (
     <div className="verif-lsp-container">
       <h2 className="verif-lsp-title">Verifikasi LSP</h2>
+      
+      <input
+        type="text"
+        placeholder="Cari wallet, nama LSP, email, telepon, jenis LSP, atau website..."
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        className="verif-lsp-search"
+      />
+      
       {feedback && (
         <div className={`verif-lsp-feedback ${feedback.startsWith('✅') ? 'success' : 'error'}`}>{feedback}</div>
       )}
       {loading ? (
         <div>Loading data...</div>
-      ) : pendingLSPs.length === 0 ? (
+      ) : filteredLSPs.length === 0 ? (
         <div className="verif-lsp-empty">
           <div className="verif-lsp-empty-icon">📭</div>
-          <div className="verif-lsp-empty-title">Belum Ada Pengajuan LSP</div>
-          <div className="verif-lsp-empty-desc">Saat ini belum ada LSP yang menunggu verifikasi.<br/>Silakan cek kembali nanti.</div>
+          <div className="verif-lsp-empty-title">
+            {search ? 'Tidak Ada LSP yang Cocok' : 'Belum Ada Pengajuan LSP'}
+          </div>
+          <div className="verif-lsp-empty-desc">
+            {search 
+              ? `Tidak ditemukan LSP yang cocok dengan pencarian "${search}". Coba kata kunci lain.`
+              : 'Saat ini belum ada LSP yang menunggu verifikasi.\nSilakan cek kembali nanti.'
+            }
+          </div>
         </div>
       ) : (
         <table className="verif-lsp-table">
@@ -278,7 +314,7 @@ export default function VerifikasiLSP() {
             </tr>
           </thead>
           <tbody>
-            {pendingLSPs.map(lsp => (
+            {filteredLSPs.map(lsp => (
               <tr key={lsp.address} className="verif-lsp-row">
                 <td style={{fontFamily:'monospace', fontSize:13, textAlign:'center', maxWidth:120, wordBreak:'break-all', padding:'10px 8px'}}>{lsp.address}</td>
                 <td style={{textAlign:'center', padding:'10px 8px'}}>{lsp.metadata?.error ? <span style={{color:'#e11d48',fontStyle:'italic'}}>{lsp.metadata.error}</span> : (lsp.metadata?.nama_lsp || <i>Unknown</i>)}</td>
@@ -426,4 +462,4 @@ export default function VerifikasiLSP() {
       )}
     </div>
   );
-} 
+}

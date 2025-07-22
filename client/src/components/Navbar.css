@@ -12,6 +12,8 @@
 
 .navbar-logo {
   flex: 1;
+  color: black;
+  font-weight: bold;
 }
 
 .navbar-wallet-center {

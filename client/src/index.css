@@ -25,10 +25,11 @@ a:hover {
 body {
   background: #fff !important;
   margin: 0;
+  padding: 0;
   display: flex;
   place-items: center;
   min-width: 320px;
-  min-height: 100vh;
+  height: 100vh;
 }
 
 h1 {

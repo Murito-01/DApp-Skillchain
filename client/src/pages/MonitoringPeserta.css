@@ -16,6 +16,8 @@
   width: 320px;
   max-width: 100%;
   font-size: 1rem;
+  background: #fff;
+  color: #000;
 }
 .mp-table-wrapper {
   overflow-x: auto;

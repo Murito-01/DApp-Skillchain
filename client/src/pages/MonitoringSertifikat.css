@@ -9,14 +9,15 @@
   font-weight: 700;
 }
 .ms-search {
-  padding: 10px;
-  margin-bottom: 22px;
-  border-radius: 8px;
-  border: 1.5px solid #bbb;
-  width: 340px;
+  padding: 8px;
+  margin-bottom: 18px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  width: 320px;
   max-width: 100%;
-  font-size: 16px;
+  font-size: 1rem;
   background: #fff;
+  color: #000;
 }
 .ms-table-wrapper {
   overflow-x: auto;
