@@ -47,8 +47,8 @@ export default function Navbar() {
         )}
         {isConnected && role === "" && (
           <>
-            <Link to="/daftar" className={location.pathname === "/daftar" ? "active" : ""}>Daftar</Link>
-            <Link to="/ajukan" className={location.pathname === "/ajukan" ? "active" : ""}>Ajukan</Link>
+            <Link to="/daftar" className={location.pathname === "/daftar" ? "active" : ""}>Daftar Peserta</Link>
+            <Link to="/ajukan" className={location.pathname === "/ajukan" ? "active" : ""}>Daftar LSP</Link>
           </>
         )}
       </div>
