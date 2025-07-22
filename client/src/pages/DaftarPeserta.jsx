@@ -19,7 +19,7 @@ export default function DaftarPeserta() {
     tanggal_lahir: "",
     jenis_kelamin: "Laki-laki",
     alamat_ktp: "",
-    email: "",
+    email_peserta: "",
     nomor_hp: "",
     id_sosmed: "",
   });
@@ -106,9 +106,15 @@ export default function DaftarPeserta() {
 
     try {
       const schema = await fetch("/metadata-peserta.schema.json").then(res => res.json());
+
+      console.log("Data yang akan divalidasi:", formData);
+      console.log("Schema properties:", Object.keys(schema.properties));
+      console.log("Form data keys:", Object.keys(formData));
+
       const ajv = new Ajv();
       const validate = ajv.compile(schema);
       if (!validate(formData)) {
+        console.log("Validation errors:", validate.errors); // DEBUG
         setStatus("❌ Data tidak valid: " + ajv.errorsText(validate.errors));
         return;
       }
@@ -146,7 +152,7 @@ export default function DaftarPeserta() {
         tanggal_lahir: "",
         jenis_kelamin: "Laki-laki",
         alamat_ktp: "",
-        email: "",
+        email_peserta: "",
         nomor_hp: "",
         id_sosmed: "",
       });
@@ -246,13 +252,12 @@ export default function DaftarPeserta() {
           />
         </div>
         <div className="form-group">
-          <label>Email</label>
+          <label>Email Peserta</label>
           <input
+            name="email_peserta"
             type="email"
-            name="email"
-            value={formData.email}
+            value={formData.email_peserta}
             onChange={handleChange}
-            pattern=".*@gmail\.com$"
             title="Format email harus menggunakan @gmail.com"
             required
           />

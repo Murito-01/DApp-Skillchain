@@ -10,7 +10,7 @@
     "tanggal_lahir",
     "jenis_kelamin",
     "alamat_ktp",
-    "email_student_uii",
+    "email_peserta",
     "nomor_hp",
     "id_sosmed"
   ],
@@ -42,7 +42,7 @@
       "type": "string",
       "description": "Alamat tempat tinggal peserta sesuai KTP (jalan, RT, RW, kecamatan, kabupaten, provinsi)"
     },
-    "email_student_uii": {
+    "email_peserta": {
       "type": "string",
       "format": "email",
       "description": "Alamat email mahasiswa UII"
