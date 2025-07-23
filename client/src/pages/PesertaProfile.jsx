@@ -173,7 +173,7 @@ export default function PesertaProfile() {
             <div className="profile-row"><span className="profile-label">Tanggal Lahir:</span><span className="profile-value">{profile.tanggal_lahir}</span></div>
             <div className="profile-row"><span className="profile-label">Jenis Kelamin:</span><span className="profile-value">{profile.jenis_kelamin}</span></div>
             <div className="profile-row"><span className="profile-label">Alamat KTP:</span><span className="profile-value">{profile.alamat_ktp}</span></div>
-            <div className="profile-row"><span className="profile-label">Email Student UII:</span><span className="profile-value">{profile.email_student_uii}</span></div>
+            <div className="profile-row"><span className="profile-label">Email:</span><span className="profile-value">{profile.email_peserta}</span></div>
             <div className="profile-row"><span className="profile-label">Nomor HP:</span><span className="profile-value">{profile.nomor_hp}</span></div>
             <div className="profile-row"><span className="profile-label">ID Sosial Media:</span><span className="profile-value">{profile.id_sosmed}</span></div>
           </div>

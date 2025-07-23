@@ -53,7 +53,7 @@ export default function PesertaLSP() {
       setFiltered(
         pesertaList.filter(p =>
           (p.metadata?.nama_lengkap || "").toLowerCase().includes(s) ||
-          (p.metadata?.email_student_uii || "").toLowerCase().includes(s) ||
+          (p.metadata?.email_peserta || "").toLowerCase().includes(s) ||
           p.address.toLowerCase().includes(s)
         )
       );
@@ -288,7 +288,7 @@ export default function PesertaLSP() {
   ];
 
   return (
-    <div className="peserta-lsp-container">
+    <div className={`peserta-lsp-container ${filtered.length > 0 ? 'has-table' : ''}`}>
       <h2 className="peserta-lsp-title">Daftar Peserta</h2>
       {feedback && <div style={{marginBottom:16, color:feedback.startsWith('Nilai')? '#389e0d':'#cf1322', fontWeight:500}}>{feedback}</div>}
       {loading ? (
@@ -315,7 +315,15 @@ export default function PesertaLSP() {
             value={search}
             onChange={e=>setSearch(e.target.value)}
             className="peserta-lsp-search"
-            style={{marginBottom:18, width:'100%', maxWidth:400, padding:'8px 14px', borderRadius:8, border:'1.5px solid #c7d2fe', fontSize:'1rem'}}
+            style={{marginBottom:18, 
+              width:'100%', 
+              maxWidth:400, 
+              padding:'8px 14px', 
+              borderRadius:8, 
+              border:'1.5px solid #c7d2fe', 
+              fontSize:'1rem',
+              background: 'white',
+              color: 'black'}}
           />
           <table className="peserta-lsp-table">
             <thead>
@@ -339,7 +347,7 @@ export default function PesertaLSP() {
                   <tr key={peserta.address + "-" + nilai.sertifikasiID + "-" + idx}>
                     <td className="wallet-cell">{peserta.address}</td>
                     <td>{peserta.metadata?.nama_lengkap || <i>Unknown</i>}</td>
-                    <td className="email-cell">{peserta.metadata?.email_student_uii || <i>-</i>}</td>
+                    <td className="email-cell">{peserta.metadata?.email_peserta || <i>-</i>}</td>
                     <td className="skema-cell">{sudahAjukan && typeof nilai.skema !== 'undefined' ? SKEMA_LABELS[nilai.skema] || '-' : '-'}</td>
                     <td className="status-cell">
                       {!sudahAjukan ? (
@@ -472,12 +480,12 @@ export default function PesertaLSP() {
           <div className="peserta-lsp-modal" style={{maxWidth:420}}>
             <h3>Detail Peserta</h3>
             <div><b>Nama:</b> {showDetailModal.peserta.metadata?.nama_lengkap || '-'}</div>
-            <div><b>Email:</b> {showDetailModal.peserta.metadata?.email_student_uii || '-'}</div>
+            <div><b>Email:</b> {showDetailModal.peserta.metadata?.email_peserta || '-'}</div>
             <div><b>Wallet:</b> <span style={{fontFamily:'monospace',fontSize:13}}>{showDetailModal.peserta.address}</span></div>
             <div><b>Skema:</b> {typeof showDetailModal.nilai.skema !== 'undefined' ? SKEMA_LABELS[showDetailModal.nilai.skema] || '-' : '-'}</div>
             <div><b>Status:</b> {showDetailModal.sudahAjukan ? (showDetailModal.nilai.sudahInput ? (showDetailModal.isLulus ? <span style={{color:'#389e0d',fontWeight:600}}>Lulus</span> : <span style={{color:'#cf1322',fontWeight:600}}>Gagal</span>) : <span style={{color:'#faad14',fontWeight:600}}>Belum Dinilai</span>) : <span style={{color:'#bbb'}}>Belum Mengajukan</span>}</div>
             <hr style={{margin:'14px 0 10px 0',border:'none',borderTop:'1.5px solid #eee'}}/>
-            {showDetailModal.peserta.metadata && Object.entries(showDetailModal.peserta.metadata).filter(([k])=>!['nama_lengkap','email_student_uii'].includes(k)).map(([k,v])=>(
+            {showDetailModal.peserta.metadata && Object.entries(showDetailModal.peserta.metadata).filter(([k])=>!['nama_lengkap','email_peserta'].includes(k)).map(([k,v])=>(
               <div key={k}><b>{k.replace(/_/g,' ').replace(/\b\w/g, l => l.toUpperCase())}:</b> {v}</div>
             ))}
             <button className="peserta-lsp-btn" style={{marginTop:18}} onClick={()=>setShowDetailModal(null)}>Tutup</button>

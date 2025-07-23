@@ -1,12 +1,26 @@
 /* DaftarSertifikatPeserta.css */
 .dsp-container {
   width: 100%;
+  margin-top: -500px;
+  position: relative;
+  z-index: 10;
 }
 .dsp-title {
   margin-bottom: 24px;
   color: #111;
   font-size: 1.5rem;
   font-weight: 700;
+}
+.dsp-search {
+  padding: 8px;
+  margin-bottom: 18px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  width: 320px;
+  max-width: 100%;
+  font-size: 1rem;
+  background: #fff;
+  color: #000;
 }
 .dsp-table-wrapper {
   overflow-x: auto;
@@ -113,6 +127,20 @@
   .dsp-title {
     font-size: 1.1rem;
   }
+}
+.dsp-empty-icon {
+  font-size: 54px;
+  margin-bottom: 12px;
+}
+.dsp-empty-title {
+  font-weight: 700;
+  font-size: 22px;
+  color: #222;
+  margin-bottom: 8px;
+}
+.dsp-empty-desc {
+  font-size: 16px;
+  color: #444;
 }
 .dsp-modal-bg {
   position: fixed;

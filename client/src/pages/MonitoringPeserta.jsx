@@ -25,7 +25,7 @@ export default function MonitoringPeserta() {
       setFiltered(
         pesertaList.filter(p =>
           (p.metadata?.nama_lengkap || "").toLowerCase().includes(s) ||
-          (p.metadata?.email_student_uii || "").toLowerCase().includes(s) ||
+          (p.metadata?.email_peserta || "").toLowerCase().includes(s) ||
           p.address.toLowerCase().includes(s)
         )
       );
@@ -107,7 +107,7 @@ export default function MonitoringPeserta() {
                 <tr key={peserta.address}>
                   <td className="mp-monospace">{peserta.address}</td>
                   <td>{peserta.metadata?.nama_lengkap || <i>Unknown</i>}</td>
-                  <td>{peserta.metadata?.email_student_uii || <i>-</i>}</td>
+                  <td>{peserta.metadata?.email_peserta || <i>-</i>}</td>
                   <td>{peserta.tanggalDaftar.toLocaleString('id-ID')}</td>
                   <td>
                     <button className="mp-btn" onClick={()=>{setShowModal(true);setModalData(peserta);}}>Detail</button>

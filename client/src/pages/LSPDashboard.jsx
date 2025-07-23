@@ -14,23 +14,23 @@ export default function LSPDashboard() {
   const [activeMenu, setActiveMenu] = useState("status");
 
   return (
-    <div className="bnsp-sidebar-layout">
-      <aside className="bnsp-sidebar bnsp-sidebar-card">
-        <div className="bnsp-sidebar-title">LSP Dashboard</div>
-        <nav className="bnsp-sidebar-menu">
+    <div className="lsp-sidebar-layout">
+      <aside className="lsp-sidebar lsp-sidebar-card">
+        <div className="lsp-sidebar-title">LSP Dashboard</div>
+        <nav className="lsp-sidebar-menu">
           {MENU.map(m => (
             <button
               key={m.key}
-              className={"bnsp-sidebar-menu-item" + (activeMenu === m.key ? " active" : "")}
+              className={"lsp-sidebar-menu-item" + (activeMenu === m.key ? " active" : "")}
               onClick={() => setActiveMenu(m.key)}
             >
-              <span className="bnsp-sidebar-menu-icon">{m.icon}</span>
+              <span className="lsp-sidebar-menu-icon">{m.icon}</span>
               <span>{m.label}</span>
             </button>
           ))}
         </nav>
       </aside>
-      <main className="bnsp-sidebar-content">
+      <main className="lsp-sidebar-content">
         {activeMenu === "status" && <StatusLSP />}
         {activeMenu === "peserta" && <PesertaLSP />}
         {activeMenu === "profil" && <ProfilLSP />}

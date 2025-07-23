@@ -19,10 +19,26 @@ export default function DaftarSertifikatPeserta() {
   const [sertifikatList, setSertifikatList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [nilaiModal, setNilaiModal] = useState(null);
+  const [search, setSearch] = useState("");
+  const [filtered, setFiltered] = useState([]);
 
   useEffect(() => {
     fetchSertifikat();
   }, [account]);
+
+  useEffect(() => {
+    if (!search) setFiltered(sertifikatList);
+    else {
+      const s = search.toLowerCase();
+      setFiltered(
+        sertifikatList.filter(srt =>
+          (srt.peserta || "").toLowerCase().includes(s) ||
+          (SKEMA_LABELS[srt.skema] || "").toLowerCase().includes(s) ||
+          (srt.lulus ? "lulus" : "tidak lulus").includes(s)
+        )
+      );      
+    }
+  }, [search, sertifikatList]);
 
   async function fetchSertifikat() {
     setLoading(true);
@@ -82,6 +98,13 @@ export default function DaftarSertifikatPeserta() {
   return (
     <div className="dsp-container">
       <h2 className="dsp-title">Daftar Sertifikat</h2>
+      <input
+        type="text"
+        placeholder="Cari skema, status, atau CID..."
+        value={search}
+        onChange={e=>setSearch(e.target.value)}
+        className="dsp-search"
+      />
       <div className="dsp-table-wrapper">
         <table className="dsp-table">
           <thead>
@@ -97,11 +120,9 @@ export default function DaftarSertifikatPeserta() {
             </tr>
           </thead>
           <tbody>
-            {loading ? (
-              <tr><td colSpan={8} className="dsp-empty-row">Memuat data...</td></tr>
-            ) : sertifikatList.length === 0 ? (
-              <tr><td colSpan={8} className="dsp-empty-row">Tidak ada sertifikat ditemukan.</td></tr>
-            ) : sertifikatList.map((srt, i) => {
+            {filtered.length === 0 ? (
+              <tr><td colSpan={7} className="dsp-empty-row">Tidak ada sertifikat ditemukan.</td></tr>
+            ) : filtered.map((srt, i) => {
               const statusLabel = (() => {
                 if (srt.lulus) return {text:'Lulus', className:'dsp-status-label dsp-status-lulus'};
                 return {text:'Tidak Lulus', className:'dsp-status-label dsp-status-gagal'};

@@ -142,23 +142,23 @@ export default function PesertaDashboard() {
   const [activeMenu, setActiveMenu] = useState("profil");
 
   return (
-    <div className="bnsp-sidebar-layout">
-      <aside className="bnsp-sidebar bnsp-sidebar-card">
-        <div className="bnsp-sidebar-title">Peserta Dashboard</div>
-        <nav className="bnsp-sidebar-menu">
+    <div className="peserta-sidebar-layout">
+      <aside className="peserta-sidebar peserta-sidebar-card">
+        <div className="peserta-sidebar-title">Peserta Dashboard</div>
+        <nav className="peserta-sidebar-menu">
           {MENU.map(m => (
             <button
               key={m.key}
-              className={"bnsp-sidebar-menu-item" + (activeMenu === m.key ? " active" : "")}
+              className={"peserta-sidebar-menu-item" + (activeMenu === m.key ? " active" : "")}
               onClick={() => setActiveMenu(m.key)}
             >
-              <span className="bnsp-sidebar-menu-icon">{m.icon}</span>
+              <span className="peserta-sidebar-menu-icon">{m.icon}</span>
               <span>{m.label}</span>
             </button>
           ))}
         </nav>
       </aside>
-      <main className="bnsp-sidebar-content">
+      <main className="peserta-sidebar-content">
         {activeMenu === "profil" && <PesertaProfile />}
         {activeMenu === "ajukan" && <AjukanSertifikasiPage />}
         {activeMenu === "daftar" && <DaftarSertifikatPeserta />}

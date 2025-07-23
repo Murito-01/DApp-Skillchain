@@ -1,12 +1,12 @@
 /* LSPDashboardSidebar.css (meniru BNSPDashboardSidebar.css) */
 
-.bnsp-sidebar-layout {
+.lsp-sidebar-layout {
   display: flex;
   min-height: 90vh;
   background: #f4f6fa;
 }
 
-.bnsp-sidebar {
+.lsp-sidebar {
   width: 220px;
   background: #232946;
   color: #fff;
@@ -17,7 +17,7 @@
   min-height: 100vh;
   box-shadow: 2px 0 12px #0001;
 }
-.bnsp-sidebar.bnsp-sidebar-card {
+.lsp-sidebar.lsp-sidebar-card {
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 2px 16px #0001, 0 1.5px 6px #0001;
@@ -29,7 +29,7 @@
   align-items: stretch;
   border: 1px solid #f0f0f0;
 }
-.bnsp-sidebar-title {
+.lsp-sidebar-title {
   font-size: 1.25rem;
   font-weight: 700;
   text-align: center;
@@ -37,13 +37,13 @@
   letter-spacing: 0.5px;
   color: #232946;
 }
-.bnsp-sidebar-menu {
+.lsp-sidebar-menu {
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding: 0 18px;
 }
-.bnsp-sidebar-menu-item {
+.lsp-sidebar-menu-item {
   background: none;
   border: none;
   color: #232946;
@@ -59,11 +59,11 @@
   transition: background 0.18s, color 0.18s;
   box-shadow: none;
 }
-.bnsp-sidebar-menu-item.active, .bnsp-sidebar-menu-item:hover {
+.lsp-sidebar-menu-item.active, .lsp-sidebar-menu-item:hover {
   background: #f4f6fa;
   color: #4f46e5;
 }
-.bnsp-sidebar-menu-icon {
+.lsp-sidebar-menu-icon {
   font-size: 1.25em;
   display: inline-flex;
   align-items: center;
@@ -71,19 +71,22 @@
   justify-content: center;
 }
 
-.bnsp-sidebar-content {
+.lsp-sidebar-content {
   flex: 1;
   padding: 40px 32px;
   background: #f4f6fa;
   min-height: 100vh;
   overflow-x: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 @media (max-width: 700px) {
-  .bnsp-sidebar-layout {
+  .lsp-sidebar-layout {
     flex-direction: column;
   }
-  .bnsp-sidebar.bnsp-sidebar-card {
+  .lsp-sidebar.lsp-sidebar-card {
     width: 100%;
     min-width: unset;
     max-width: unset;
@@ -95,21 +98,24 @@
     box-shadow: none;
     border: none;
   }
-  .bnsp-sidebar-menu {
+  .lsp-sidebar-menu {
     flex-direction: row;
     gap: 0;
     padding: 0 4px;
     width: 100%;
     justify-content: space-around;
   }
-  .bnsp-sidebar-menu-item {
+  .lsp-sidebar-menu-item {
     flex: 1;
     text-align: center;
     border-radius: 0;
     padding: 14px 0;
     justify-content: center;
   }
-  .bnsp-sidebar-content {
+  .lsp-sidebar-content {
     padding: 18px 6px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
   }
 } 
