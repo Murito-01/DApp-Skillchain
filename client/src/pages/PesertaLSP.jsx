@@ -25,6 +25,7 @@ export default function PesertaLSP() {
   const [sertifikatFile, setSertifikatFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [kelulusan, setKelulusan] = useState("lulus");
   const [alasanGagal, setAlasanGagal] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -176,6 +177,7 @@ export default function PesertaLSP() {
     setUploadModal({ peserta, sertifikasiID });
     setSertifikatFile(null);
     setUploadStatus("");
+    setUploadProgress(0);
   }
 
   async function handleUploadSertifikat(e) {
@@ -186,6 +188,7 @@ export default function PesertaLSP() {
     }
     setUploading(true);
     setUploadStatus("");
+    setUploadProgress(0);
     try {
       // Enkripsi file sertifikat sebelum upload ke Pinata
       // 1. Baca file sebagai base64
@@ -202,23 +205,45 @@ export default function PesertaLSP() {
       const encryptedBlob = new Blob([encrypted], { type: "text/plain" });
       // 4. Random filename
       const randomName = generateRandomFilename();
-      // 5. Upload ke Pinata
+      // 5. Upload ke Pinata dengan XMLHttpRequest untuk progress tracking
       const PINATA_API_KEY = import.meta.env.VITE_PINATA_API_KEY;
       const PINATA_SECRET_API_KEY = import.meta.env.VITE_PINATA_SECRET_API_KEY;
-      const url = "https://api.pinata.cloud/pinning/pinFileToIPFS";
       const formData = new FormData();
       formData.append("file", encryptedBlob, randomName);
-      const res = await fetch(url, {
-        method: "POST",
-        headers: {
-          pinata_api_key: PINATA_API_KEY,
-          pinata_secret_api_key: PINATA_SECRET_API_KEY,
-        },
-        body: formData,
+      
+      const uploadResult = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "https://api.pinata.cloud/pinning/pinFileToIPFS");
+        xhr.setRequestHeader("pinata_api_key", PINATA_API_KEY);
+        xhr.setRequestHeader("pinata_secret_api_key", PINATA_SECRET_API_KEY);
+        
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const progress = Math.round((e.loaded / e.total) * 100);
+            setUploadProgress(progress);
+            setUploadStatus(`Mengupload... ${progress}%`);
+          }
+        };
+        
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText);
+            resolve(data);
+          } else {
+            reject(new Error("Gagal upload ke Pinata"));
+          }
+        };
+        
+        xhr.onerror = () => {
+          reject(new Error("Gagal upload ke Pinata"));
+        };
+        
+        xhr.send(formData);
       });
-      if (!res.ok) throw new Error("Gagal upload ke Pinata");
-      const data = await res.json();
-      const cid = data.IpfsHash;
+
+      const cid = uploadResult.IpfsHash;
+      setUploadStatus("Upload selesai, memperbarui blockchain...");
+      
       // Update ke smart contract
       if (!window.ethereum) throw new Error("Wallet tidak terdeteksi");
       const provider = new ethers.BrowserProvider(window.ethereum);
@@ -233,6 +258,7 @@ export default function PesertaLSP() {
       setUploadModal(null);
     } catch (err) {
       setUploadStatus("Gagal: " + (err.reason || err.message));
+      setUploadProgress(0);
     }
     setUploading(false);
   }
@@ -445,12 +471,54 @@ export default function PesertaLSP() {
             <h3>Upload Sertifikat Peserta</h3>
             <div><b>Wallet:</b> {uploadModal.peserta.address}</div>
             <div><b>Nama:</b> {uploadModal.peserta.metadata?.nama_lengkap || '-'}</div>
-            <input type="file" accept="application/pdf,image/*" required onChange={e=>setSertifikatFile(e.target.files[0])} />
+            <input 
+              type="file" 
+              accept="application/pdf,image/*" 
+              required 
+              onChange={e=>setSertifikatFile(e.target.files[0])} 
+              disabled={uploading}
+            />
+            
+            {/* Tampilkan info file yang dipilih */}
+            {sertifikatFile && !uploading && (
+              <div style={{fontSize:14,color:"#333",marginTop:8,marginBottom:8}}>
+                <b>File:</b> {sertifikatFile.name} ({(sertifikatFile.size/1024).toFixed(1)} KB)
+              </div>
+            )}
+            
+            {/* Progress Bar */}
+            {uploading && (
+              <div style={{marginTop:12,marginBottom:12}}>
+                <div style={{height:8,background:"#eee",borderRadius:6,overflow:"hidden"}}>
+                  <div style={{
+                    width:`${uploadProgress}%`,
+                    height:8,
+                    background:"#4f46e5",
+                    transition:"width .3s"
+                  }}></div>
+                </div>
+                <div style={{fontSize:12,marginTop:4,color:"#111"}}>{uploadProgress}%</div>
+              </div>
+            )}
+            
             <div className="peserta-lsp-modal-btn-row">
-              <button type="submit" className="peserta-lsp-modal-btn" disabled={uploading}>{uploading ? 'Mengupload...' : 'Upload'}</button>
-              <button type="button" className="peserta-lsp-modal-btn-cancel" onClick={()=>setUploadModal(null)} disabled={uploading}>Batal</button>
+              <button type="submit" className="peserta-lsp-modal-btn" disabled={uploading}>
+                {uploading ? 'Mengupload...' : 'Upload'}
+              </button>
+              <button type="button" className="peserta-lsp-modal-btn-cancel" onClick={()=>setUploadModal(null)} disabled={uploading}>
+                Batal
+              </button>
             </div>
-            {uploadStatus && <div style={{marginTop:12, color:uploadStatus.startsWith('Gagal')?'#cf1322':'#389e0d'}}>{uploadStatus}</div>}
+            {uploadStatus && (
+              <div style={{
+                marginTop:12, 
+                color:uploadStatus.startsWith('Gagal')?'#cf1322':'#389e0d',
+                fontSize:14,
+                fontWeight:500
+              }}>
+                {uploadStatus}
+              </div>
+            )}
           </form>
         </div>
       )}
@@ -494,4 +562,4 @@ export default function PesertaLSP() {
       )}
     </div>
   );
-} 
+}
