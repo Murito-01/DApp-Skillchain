@@ -79,38 +79,87 @@ export default function VerifikasiLSP() {
     setFeedback("");
     try {
       if (!window.ethereum) throw new Error("Wallet tidak terdeteksi");
+      
+      // Cek apakah kontrak address valid
+      if (!contractAddress || contractAddress === "0x0000000000000000000000000000000000000000") {
+        throw new Error("Alamat kontrak tidak valid. Pastikan VITE_CONTRACT_ADDRESS sudah diisi dengan benar.");
+      }
+      
       const provider = new ethers.BrowserProvider(window.ethereum);
+      
+      // Cek apakah kontrak ada di alamat tersebut
+      const code = await provider.getCode(contractAddress);
+      if (code === "0x") {
+        throw new Error("Kontrak tidak ditemukan di alamat tersebut. Pastikan kontrak sudah dideploy.");
+      }
+      
       const contract = new ethers.Contract(contractAddress, contractArtifact.abi, provider);
+      
+      // Cek apakah filter ada
+      if (!contract.filters || !contract.filters.LSPDidaftarkan) {
+        throw new Error("Filter LSPDidaftarkan tidak ditemukan. Pastikan ABI sudah benar.");
+      }
+      
       const filter = contract.filters.LSPDidaftarkan();
       const events = await contract.queryFilter(filter, 0, "latest");
+      console.log('[DEBUG] Events found:', events.length);
+      
       const lspList = [];
       for (const ev of events) {
-        const lspAddr = ev.args.lsp;
-        const status = await contract.getStatusLSP(lspAddr);
-        if (Number(status) === 0) {
-          const lspData = await contract.getLSP(lspAddr);
-          console.log('[DEBUG] getLSP result', { lspAddr, lspData });
-          let metadata = null;
-          try {
-            metadata = await fetchAndDecryptJsonFromPinata(lspData[0]);
-          } catch {
-            metadata = null;
+        try {
+          // Cek apakah ev.args ada dan memiliki property lsp
+          if (!ev.args || !ev.args.lsp) {
+            console.warn('[DEBUG] Event args tidak valid:', ev);
+            continue;
           }
-          // Filter: hanya masukkan LSP yang metadata-nya berhasil didekripsi
-          if (!metadata?.error) {
-            lspList.push({
-              address: lspAddr,
-              metadataCID: lspData[0],
-              status: Number(status),
-              suratIzinCID: lspData[2],
-              alasanTolak: lspData[3],
-              metadata,
-            });
+          
+          const lspAddr = ev.args.lsp;
+          console.log('[DEBUG] Processing LSP:', lspAddr);
+          
+          const status = await contract.getStatusLSP(lspAddr);
+          console.log('[DEBUG] LSP status:', status);
+          
+          if (Number(status) === 0) {
+            const lspData = await contract.getLSP(lspAddr);
+            console.log('[DEBUG] getLSP result', { lspAddr, lspData });
+            
+            // Cek apakah lspData valid
+            if (!lspData || !Array.isArray(lspData) || lspData.length < 4) {
+              console.warn('[DEBUG] LSP data tidak valid:', lspData);
+              continue;
+            }
+            
+            let metadata = null;
+            try {
+              metadata = await fetchAndDecryptJsonFromPinata(lspData[0]);
+            } catch (err) {
+              console.warn('[DEBUG] Gagal dekripsi metadata:', err);
+              metadata = null;
+            }
+            
+            // Filter: hanya masukkan LSP yang metadata-nya berhasil didekripsi
+            if (!metadata?.error) {
+              lspList.push({
+                address: lspAddr,
+                metadataCID: lspData[0],
+                status: Number(status),
+                suratIzinCID: lspData[2],
+                alasanTolak: lspData[3],
+                metadata,
+              });
+            }
           }
+        } catch (err) {
+          console.error('[DEBUG] Error processing event:', err);
+          // Lanjutkan ke event berikutnya
+          continue;
         }
       }
+      
+      console.log('[DEBUG] Final LSP list:', lspList);
       setPendingLSPs(lspList);
     } catch (err) {
+      console.error('[DEBUG] Error in fetchPendingLSPs:', err);
       setFeedback("Gagal mengambil data: " + (err.message || err));
     }
     setLoading(false);

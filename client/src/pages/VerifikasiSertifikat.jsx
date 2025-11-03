@@ -146,7 +146,7 @@ function VerifikasiSertifikat() {
                 </div>
               </>
             ) : (
-              <p className="invalid">❌ Sertifikasi Tidak Valid / Tidak Lulus</p>
+              <p className="invalid">❌ Sertifikasi Tidak Valid</p>
             )}
             {/* Modal Preview Sertifikat */}
             {showModal && (
