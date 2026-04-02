@@ -7,7 +7,7 @@ import "./RegistrasiLSP.sol";
 import "./VerifikasiPublik.sol";
 
 /// @title MainContract
-/// @notice Kontrak utama sistem sertifikasi profesi berbasis blockchain.
+/// @notice Kontrak utama sistem sertifikasi kompetensi berbasis blockchain.
 /// @dev Menggabungkan seluruh modul fungsional menjadi satu entry point melalui inheritance.
 contract MainContract is
     PesertaManager,         // Modul manajemen peserta (pendaftaran & metadata)
